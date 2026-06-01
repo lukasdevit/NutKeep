@@ -85,39 +85,45 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
     '/upload/multipart/sign-part',
     { preHandler: [requireAuth] },
     async (request, reply) => {
-      const { key, uploadId, partNumber } = request.body as {
-        key: string;
-        uploadId: string;
-        partNumber: number;
-      };
+      try {
+        const { key, uploadId, partNumber } = request.body as {
+          key: string;
+          uploadId: string;
+          partNumber: number;
+        };
 
-      if (!key || !uploadId || !partNumber) {
-        return reply.code(400).send({ error: 'key, uploadId, and partNumber required' });
+        if (!key || !uploadId || !partNumber) {
+          return reply.code(400).send({ error: 'key, uploadId, and partNumber required' });
+        }
+
+        const { client: s3, bucket } = await getCurrentS3Client();
+        const cmd = new UploadPartCommand({
+          Bucket: bucket,
+          Key: key,
+          UploadId: uploadId,
+          PartNumber: partNumber,
+        });
+
+        const url = await getSignedUrl(s3, cmd, {
+          expiresIn: PRESIGN_EXPIRY_SECONDS,
+        });
+
+        // Store presigned URL server-side — never expose it to the browser
+        const token = nanoid(32);
+        proxyTokens.set(token, url);
+        // Auto-expire after presigned URL expires
+        setTimeout(() => proxyTokens.delete(token), PRESIGN_EXPIRY_SECONDS * 1000);
+
+        return reply.send({
+          data: {
+            url: `${BASE_URL}/upload/multipart/part-proxy/${token}`,
+          },
+        });
+      } catch (err) {
+        const e = err as Error;
+        app.log.error({ err: e }, 'sign-part failed');
+        return reply.code(500).send({ error: `sign-part failed: ${e.message}` });
       }
-
-      const { client: s3, bucket } = await getCurrentS3Client();
-      const cmd = new UploadPartCommand({
-        Bucket: bucket,
-        Key: key,
-        UploadId: uploadId,
-        PartNumber: partNumber,
-      });
-
-      const url = await getSignedUrl(s3, cmd, {
-        expiresIn: PRESIGN_EXPIRY_SECONDS,
-      });
-
-      // Store presigned URL server-side — never expose it to the browser
-      const token = nanoid(32);
-      proxyTokens.set(token, url);
-      // Auto-expire after presigned URL expires
-      setTimeout(() => proxyTokens.delete(token), PRESIGN_EXPIRY_SECONDS * 1000);
-
-      return reply.send({
-        data: {
-          url: `${BASE_URL}/upload/multipart/part-proxy/${token}`,
-        },
-      });
     }
   );
 
@@ -140,10 +146,13 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: 'no body' });
       }
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30_000);
       try {
         const upstream = await fetch(presignedUrl, {
           method: 'PUT',
           body: new Uint8Array(body),
+          signal: controller.signal,
         });
         if (!upstream.ok) {
           const text = await upstream.text();
@@ -153,7 +162,12 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
         const etag = upstream.headers.get('etag') || '';
         return reply.header('ETag', etag).code(200).send('');
       } catch (err) {
+        if ((err as Error).name === 'AbortError') {
+          return reply.code(504).send({ error: 'Proxy to storage timed out after 30s' });
+        }
         return reply.code(502).send({ error: `Proxy failed: ${(err as Error).message}` });
+      } finally {
+        clearTimeout(timeout);
       }
     }
   );
