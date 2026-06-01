@@ -9,7 +9,7 @@ const DEFAULTS = {
   endpoint: 'https://s3.eu-central-003.backblazeb2.com',
   region: 'eu-central-003',
   bucket: 'my-bucket-name',
-  prefix: 'shareit/storage/',
+  prefix: 'nutkeep/storage/',
 } as const;
 
 let _s3Client: S3Client | null = null;

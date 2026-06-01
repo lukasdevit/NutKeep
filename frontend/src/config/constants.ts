@@ -55,15 +55,15 @@ export type AdminTab =
   | 'actions';
 
 export const ADMIN_TABS = [
-  { key: 'users', label: 'Users', icon: '👥' },
-  { key: 'database', label: 'Database', icon: '🗄️' },
-  { key: 'storage', label: 'Storage', icon: '💾' },
-  { key: 'ssl', label: 'SSL', icon: '🔒' },
-  { key: 'analytics', label: 'Analytics', icon: '📊' },
-  { key: 'backups', label: 'Backups', icon: '🗄️' },
-  { key: 'logs', label: 'Logs', icon: '📋' },
-  { key: 'integrity', label: 'Integrity', icon: '🔍' },
-  { key: 'actions', label: 'Actions', icon: '🕓' },
+  { key: 'users', label: 'Users', icon: 'users' },
+  { key: 'database', label: 'Database', icon: 'database' },
+  { key: 'storage', label: 'Storage', icon: 'hard-drive' },
+  { key: 'ssl', label: 'SSL', icon: 'shield' },
+  { key: 'analytics', label: 'Analytics', icon: 'bar-chart-3' },
+  { key: 'backups', label: 'Backups', icon: 'archive' },
+  { key: 'logs', label: 'Logs', icon: 'scroll-text' },
+  { key: 'integrity', label: 'Integrity', icon: 'shield-check' },
+  { key: 'actions', label: 'Actions', icon: 'history' },
 ] as const;
 
 export const ADMIN_TAB_LABELS: Record<AdminTab, string> = {

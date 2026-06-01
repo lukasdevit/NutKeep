@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Users, FileText, HardDrive, UploadCloud } from 'lucide-react';
 import { formatSize } from '@/lib/utils';
 
 interface DailyPoint {
@@ -77,10 +78,10 @@ export function Analytics({ apiFetch }: Props) {
 
 function OverviewCards({ data }: { data: AnalyticsData }) {
   const cards = [
-    { label: 'Users', value: data.users, icon: '👥' },
-    { label: 'Total Files', value: data.total_files, icon: '📄' },
-    { label: 'Storage Used', value: formatSize(data.total_bytes), icon: '💾' },
-    { label: 'Uploads Today', value: data.uploads_today, icon: '📤' },
+    { label: 'Users', value: data.users, Icon: Users },
+    { label: 'Total Files', value: data.total_files, Icon: FileText },
+    { label: 'Storage Used', value: formatSize(data.total_bytes), Icon: HardDrive },
+    { label: 'Uploads Today', value: data.uploads_today, Icon: UploadCloud },
   ];
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -89,8 +90,8 @@ function OverviewCards({ data }: { data: AnalyticsData }) {
           key={c.label}
           className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700"
         >
-          <span className="text-xs text-zinc-500">
-            {c.icon} {c.label}
+          <span className="text-xs text-zinc-500 flex items-center gap-1.5">
+            <c.Icon className="w-3.5 h-3.5" /> {c.label}
           </span>
           <p className="text-xl font-semibold text-zinc-100 mt-1">{c.value}</p>
         </div>
@@ -109,7 +110,7 @@ function UploadsChart({
   return (
     <section className="card">
       <h3 className="text-sm font-medium text-zinc-300 mb-3">
-        📈 Uploads — Last 30 Days
+        Uploads — Last 30 Days
       </h3>
       {daily.length === 0 ? (
         <p className="text-xs text-zinc-500">No data yet.</p>
@@ -143,7 +144,7 @@ function TopUsers({ users, maxBytes }: { users: TopUser[]; maxBytes: number }) {
   const active = users.filter((u) => u.bytes > 0);
   return (
     <section className="card">
-      <h3 className="text-sm font-medium text-zinc-300 mb-3">🏆 Top Users</h3>
+      <h3 className="text-sm font-medium text-zinc-300 mb-3">Top Users</h3>
       {active.length === 0 ? (
         <p className="text-xs text-zinc-500">No files uploaded yet.</p>
       ) : (
@@ -182,7 +183,7 @@ function FileTypes({
 }) {
   return (
     <section className="card">
-      <h3 className="text-sm font-medium text-zinc-300 mb-3">📁 File Types</h3>
+      <h3 className="text-sm font-medium text-zinc-300 mb-3">File Types</h3>
       {categories.length === 0 ? (
         <p className="text-xs text-zinc-500">No data.</p>
       ) : (

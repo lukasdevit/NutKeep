@@ -11,10 +11,10 @@ export async function sharexRoutes(app: FastifyInstance) {
     { preHandler: [requireAuth] },
     async (request, reply) => {
       const token = getTokenFromHeader(request);
-      const username = request.user?.username || 'ShareIT';
+      const username = request.user?.username || 'NutKeep';
       const config = {
         Version: '17.0.0',
-        Name: `ShareIT - ${username}`,
+        Name: `NutKeep - ${username}`,
         DestinationType: 'ImageUploader,FileUploader',
         RequestMethod: 'POST',
         RequestURL: `${BASE_URL}/upload`,
@@ -27,7 +27,7 @@ export async function sharexRoutes(app: FastifyInstance) {
         .header('Content-Type', 'application/json')
         .header(
           'Content-Disposition',
-          `attachment; filename="ShareIT-${username}.sxcu"`
+          `attachment; filename="NutKeep-${username}.sxcu"`
         )
         .send(config);
     }

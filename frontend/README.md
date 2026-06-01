@@ -1,6 +1,6 @@
-# ShareIT Frontend
+# NutKeep Frontend
 
-Next.js frontend for [ShareIT](https://github.com/lukasdevit/ShareIT).
+Next.js frontend for [NutKeep](https://github.com/lukasdevit/NutKeep).
 
 Dev: `npm run dev` (localhost:3001)  
 Test: `npm test`

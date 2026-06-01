@@ -250,7 +250,7 @@ export function StorageConfig({ apiFetch }: Props) {
               id="storage-path"
               type="text"
               value={form.storage_path || ''}
-              placeholder="shareit/storage/"
+              placeholder="nutkeep/storage/"
               onChange={(e) => setForm({ ...form, storage_path: e.target.value })}
               className="w-full sm:w-96 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
             />

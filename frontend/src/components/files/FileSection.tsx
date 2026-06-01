@@ -55,9 +55,6 @@ export function FileSection({
       )}
       {filesViewMode === 'all' && (
         <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-1">
-          {label === 'Audio' && '🎵 '}
-          {label === 'Video' && '🎬 '}
-          {label === 'Files' && '📄 '}
           {label}
           <span className="ml-1.5 text-zinc-600 font-normal">({total})</span>
         </h2>

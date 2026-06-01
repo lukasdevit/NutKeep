@@ -89,7 +89,7 @@ export async function getStoragePath(): Promise<string> {
   const db = await loadDbSettings();
   if (db['storage_path']) return db['storage_path'];
   const backend = await getStorageBackend();
-  return backend === 'local' ? DEFAULT_UPLOAD_DIR : 'shareit/storage/';
+  return backend === 'local' ? DEFAULT_UPLOAD_DIR : 'nutkeep/storage/';
 }
 
 export const DB_PATH =

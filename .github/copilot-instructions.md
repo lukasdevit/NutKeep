@@ -1,4 +1,4 @@
-# Copilot / AI Instructions for ShareIT
+# Copilot / AI Instructions for NutKeep
 
 **Version:** 3.0 | **Date:** 31.05.2026
 

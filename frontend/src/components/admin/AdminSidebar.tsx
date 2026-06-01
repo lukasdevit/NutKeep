@@ -1,7 +1,17 @@
 'use client';
 
+import {
+  Users, Database, HardDrive, Shield, BarChart3,
+  Archive, ScrollText, ShieldCheck, History, Zap,
+} from 'lucide-react';
 import { ADMIN_TABS } from '@/config/constants';
 import type { AdminTab } from '@/config/constants';
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  users: Users, 'hard-drive': HardDrive, shield: Shield,
+  'bar-chart-3': BarChart3, archive: Archive, 'scroll-text': ScrollText,
+  'shield-check': ShieldCheck, history: History, database: Database,
+};
 
 interface Props {
   username: string;
@@ -47,11 +57,15 @@ export function AdminSidebar({
       {/* Header */}
       <div className={`px-5 py-5 border-b border-zinc-800 ${collapsed ? 'px-3 text-center' : ''}`}>
         {collapsed ? (
-          <span className="text-lg">⚡</span>
+          <Zap className="w-5 h-5 text-zinc-400" />
         ) : (
           <>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold tracking-tight">ShareIT</span>
+              <div className="flex items-baseline gap-0">
+                <span className="text-xs mr-0.5">🐿️</span>
+                <span className="text-sm font-semibold text-zinc-300 tracking-tight">Nut</span>
+                <span className="text-sm font-bold text-zinc-100 tracking-tight">Keep</span>
+              </div>
               <span className="text-[10px] text-zinc-600 bg-zinc-800 rounded px-1.5 py-0.5">Admin</span>
             </div>
             <p className="text-xs text-zinc-500 mt-1 truncate">{username}</p>
@@ -72,7 +86,7 @@ export function AdminSidebar({
             title={collapsed ? t.label : undefined}
             className={`w-full flex items-center gap-2.5 rounded-md text-sm transition-colors ${collapsed ? 'justify-center px-0 py-2.5 text-base' : 'px-3 py-2'} ${activeTab === t.key ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'}`}
           >
-            <span>{t.icon}</span>
+            {(() => { const Ic = ICON_MAP[t.icon]; return Ic ? <Ic className="w-4 h-4" /> : null; })()}
             {!collapsed && <span>{t.label}</span>}
           </button>
         ))}

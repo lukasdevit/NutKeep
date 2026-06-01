@@ -403,7 +403,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
           disabled={running}
           className="btn-blue text-xs"
         >
-          {running ? '⏳ Scanning…' : '▶ Run New Integrity Check'}
+          {running ? 'Scanning…' : 'Run New Integrity Check'}
         </button>
         {scanUserId && (
           <span className="text-xs text-zinc-500">

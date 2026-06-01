@@ -30,7 +30,7 @@ export function createBackup(
   size: number;
 } | null {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const dest = path.join(os.tmpdir(), `shareit-backup-${timestamp}.db`);
+  const dest = path.join(os.tmpdir(), `nutkeep-backup-${timestamp}.db`);
 
   let size = 0;
   try {

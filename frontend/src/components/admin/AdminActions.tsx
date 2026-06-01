@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { History } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { RowSkeleton } from '@/components/ui/RowSkeleton';
@@ -126,7 +127,7 @@ export function AdminActions({ apiFetch }: Props) {
         <RowSkeleton cols={5} rows={5} />
       ) : actions.length === 0 ? (
         <EmptyState
-          icon="🕓"
+          icon={<History className="w-8 h-8 text-zinc-600" />}
           title="No actions recorded"
           description="Admin actions will appear here as you use the admin panel."
         />

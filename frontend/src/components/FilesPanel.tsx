@@ -18,6 +18,7 @@ import { isVideo } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { StorageBar } from '@/components/files/StorageBar';
+import { LayoutGrid, Image, Music, Film, File, Search, CloudUpload, Eye } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useDashboard } from '@/features/dashboard/DashboardProvider';
 import type { FilesViewMode } from '@/features/dashboard/DashboardProvider';
@@ -25,12 +26,12 @@ import type { FilesViewMode } from '@/features/dashboard/DashboardProvider';
 const PAGE_SIZE = 9;
 
 const TABS = [
-  { key: 'all' as const, icon: '✦', label: 'All' },
-  { key: 'images' as const, icon: '🖼', label: 'Images' },
-  { key: 'audio' as const, icon: '🎵', label: 'Audio' },
-  { key: 'video' as const, icon: '🎬', label: 'Video' },
-  { key: 'file' as const, icon: '📄', label: 'Files' },
-];
+  { key: 'all' as const, Icon: LayoutGrid, label: 'All' },
+  { key: 'images' as const, Icon: Image, label: 'Images' },
+  { key: 'audio' as const, Icon: Music, label: 'Audio' },
+  { key: 'video' as const, Icon: Film, label: 'Video' },
+  { key: 'file' as const, Icon: File, label: 'Files' },
+] as const;
 
 function TabBar({ filesViewMode, setFilesViewMode }: { filesViewMode: FilesViewMode; setFilesViewMode: (m: FilesViewMode) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +67,7 @@ function TabBar({ filesViewMode, setFilesViewMode }: { filesViewMode: FilesViewM
               : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
-          <span className="text-[13px] leading-none">{m.icon}</span>
+          <m.Icon className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">{m.label}</span>
         </button>
       ))}
@@ -146,7 +147,6 @@ export function FilesPanel() {
       {user?.isDemo && (
         <div className="w-full bg-amber-500/8 border-b border-amber-500/15">
           <div className="max-w-4xl xl:max-w-6xl mx-auto px-4 py-2 flex items-center justify-center gap-2">
-            <span className="text-sm leading-none">🎭</span>
             <span className="text-xs text-amber-400/90">
               Demo session — files are deleted when you close this tab. Storage limit: 100 MB.
             </span>
@@ -196,7 +196,7 @@ export function FilesPanel() {
         <div key={filesViewMode} className="animate-tab-in space-y-5">
         {isEmpty && (
           <EmptyState
-            icon="☁️"
+            icon={<CloudUpload className="w-8 h-8 text-zinc-600" />}
             title="No files yet"
             description="Drop a file above or click the upload zone to get started."
           />
@@ -207,7 +207,7 @@ export function FilesPanel() {
           <>
             {filesViewMode === 'all' && (
               <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-1">
-                🖼 Images
+                Images
                 <span className="ml-1.5 text-zinc-600 font-normal">({imageTotal})</span>
               </h2>
             )}
@@ -257,7 +257,7 @@ export function FilesPanel() {
         />
 
         {search && !anyContent && (
-          <EmptyState icon="🔍" title="No results" description={`No files matching "${search}"`} />
+          <EmptyState icon={<Search className="w-8 h-8 text-zinc-600" />} title="No results" description={`No files matching "${search}"`} />
         )}
         </div>
       </div>

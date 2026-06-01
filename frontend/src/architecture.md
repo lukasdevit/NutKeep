@@ -1,6 +1,6 @@
 # Architecture
 
-ShareIT frontend is a Next.js 16 App Router app with a feature-based folder structure.
+NutKeep frontend is a Next.js 16 App Router app with a feature-based folder structure.
 
 ## Layers
 

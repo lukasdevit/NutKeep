@@ -39,7 +39,7 @@ export function SettingsPage({ apiFetch }: Props) {
     const b = await r.blob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
-    a.download = 'ShareIT.sxcu';
+    a.download = 'NutKeep.sxcu';
     a.click();
   }
 
@@ -75,7 +75,7 @@ export function SettingsPage({ apiFetch }: Props) {
           loading={storageLoading}
           sub={
             usagePercent > 90
-              ? '⚠️ Almost full'
+              ? 'Almost full'
               : usagePercent > 70
                 ? 'Running low'
                 : undefined
@@ -128,7 +128,7 @@ export function SettingsPage({ apiFetch }: Props) {
           onClick={downloadShareXConfig}
           className="px-4 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors"
         >
-          ⬇ Download ShareX Config
+          Download ShareX Config
         </button>
       </section>
 

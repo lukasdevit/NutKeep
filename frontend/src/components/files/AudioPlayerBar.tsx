@@ -7,7 +7,7 @@ import { CopyButton } from '@/components/ui/CopyButton';
 import { DeleteButton } from '@/components/ui/DeleteButton';
 import type { FileInfo } from '@/types';
 
-const VOLUME_KEY = 'shareit_audio_volume';
+const VOLUME_KEY = 'nutkeep_audio_volume';
 
 function loadVolume(): number {
   if (typeof window === 'undefined') return 1;
@@ -143,7 +143,7 @@ export function AudioPlayerBar({
       {!formatSupported && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-1 text-center">
           <span className="text-xs text-amber-400">
-            ⚠️ Your browser may not support this audio format ({currentAudio.mime_type}). Try opening in a new tab.
+            Warning: Your browser may not support this audio format ({currentAudio.mime_type}). Try opening in a new tab.
           </span>
         </div>
       )}

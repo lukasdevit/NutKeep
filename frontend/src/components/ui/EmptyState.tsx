@@ -1,19 +1,20 @@
 'use client';
 
+import { Inbox } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 interface Props {
-  icon?: string;
+  icon?: ReactNode;
   title: string;
   description?: string;
   action?: ReactNode;
 }
 
-export function EmptyState({ icon = '📭', title, description, action }: Props) {
+export function EmptyState({ icon, title, description, action }: Props) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="mb-4 p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800/60">
-        <span className="text-3xl">{icon}</span>
+        {icon ?? <Inbox className="w-8 h-8 text-zinc-600" />}
       </div>
       <p className="text-sm font-medium text-zinc-300">{title}</p>
       {description && (

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-#  ShareIT — Suspicious Port 443 (ncat) Investigation
+#  Suspicious Port 443 (ncat) Investigation
 #  Run this ON THE SERVER
 # ═══════════════════════════════════════════════════════════════
 set -e

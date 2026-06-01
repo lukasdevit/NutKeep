@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('shareit_token');
+    const saved = localStorage.getItem('nutkeep_token');
     if (saved) {
       setToken(saved);
     } else {
@@ -57,11 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       if (r.ok) setUser((await r.json()).user);
       else {
-        localStorage.removeItem('shareit_token');
+        localStorage.removeItem('nutkeep_token');
         setToken(null);
       }
     }).catch(() => {
-      localStorage.removeItem('shareit_token');
+      localStorage.removeItem('nutkeep_token');
       setToken(null);
     }).finally(() => {
       if (!cancelled) setLoading(false);
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!r.ok) throw new Error(d.error);
     setToken(d.token);
     setUser(d.user);
-    localStorage.setItem('shareit_token', d.token);
+    localStorage.setItem('nutkeep_token', d.token);
   }
 
   async function demoLogin() {
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!r.ok) throw new Error(d.error);
     setToken(d.token);
     setUser(d.user);
-    localStorage.setItem('shareit_token', d.token);
+    localStorage.setItem('nutkeep_token', d.token);
   }
 
   async function endDemoSession() {
@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!r.ok) throw new Error(d.error);
     setToken(d.token);
     setUser(d.user);
-    localStorage.setItem('shareit_token', d.token);
+    localStorage.setItem('nutkeep_token', d.token);
   }
 
   function logout() {
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setToken(null);
     setUser(null);
-    localStorage.removeItem('shareit_token');
+      localStorage.removeItem('nutkeep_token');
   }
 
   const value = useMemo(

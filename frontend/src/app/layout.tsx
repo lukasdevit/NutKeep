@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ShareIT',
-  description: 'Upload & share files instantly',
+  title: 'NutKeep',
+  description: 'Drop files. Share links. That\'s it.',
   icons: {
-    icon: '/logo.svg',
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐿️</text></svg>',
   },
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { ScrollText, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -107,9 +108,7 @@ function LogLine({ entry, expanded, onToggle }: { entry: LogEntry; expanded: boo
 
         {/* Expand indicator */}
         {hasDetail && (
-          <span className="text-zinc-600 text-[10px] shrink-0">
-            {expanded ? '▲' : '▶'}
-          </span>
+          <ChevronRight className={`w-3 h-3 text-zinc-600 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`} />
         )}
       </div>
 
@@ -208,7 +207,7 @@ export function LogViewer({ apiFetch }: Props) {
       const blob = await r.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'shareit-app.log';
+      a.download = 'nutkeep-app.log';
       a.click();
     } catch {
       toast('Failed to download logs', 'err');
@@ -219,7 +218,7 @@ export function LogViewer({ apiFetch }: Props) {
     <section className="card space-y-4">
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="card-title">📋 Server Logs</h2>
+        <h2 className="card-title flex items-center gap-2"><ScrollText className="w-4 h-4" /> Server Logs</h2>
         <div className="flex flex-wrap items-center gap-2">
           <select
             value={level}
@@ -258,21 +257,21 @@ export function LogViewer({ apiFetch }: Props) {
                 : 'bg-zinc-800 border-zinc-700 text-zinc-500'
             }`}
           >
-            {autoRefresh ? '⏸ Live' : '▶ Paused'}
+            {autoRefresh ? 'Live' : 'Paused'}
           </button>
           <button
             type="button"
             onClick={handleDownload}
             className="btn-zinc text-xs"
           >
-            ⬇ Download
+            Download
           </button>
           <button
             type="button"
             onClick={handleClear}
             className="btn-zinc text-xs text-red-400 hover:text-red-300"
           >
-            🗑 Clear
+            Clear
           </button>
         </div>
       </div>
@@ -282,7 +281,7 @@ export function LogViewer({ apiFetch }: Props) {
         <CardSkeleton lines={8} />
       ) : logs.length === 0 ? (
         <EmptyState
-          icon="📋"
+          icon={<ScrollText className="w-8 h-8 text-zinc-600" />}
           title="No log entries"
           description="Logs will appear here as the server processes requests."
         />

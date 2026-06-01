@@ -1,8 +1,8 @@
 {
-  "name": "shareit",
+  "name": "nutkeep-files",
   "type": "module",
   "version": "2.0.1",
-  "description": "Self-hosted file sharing app — upload, share, manage.",
+  "description": "Drop files. Share links. That's it.",
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lukasdevit/ShareIT.git"
+    "url": "https://github.com/lukasdevit/NutKeep.git"
   },
   "keywords": [
     "sharex"

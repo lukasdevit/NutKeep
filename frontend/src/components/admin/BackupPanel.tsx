@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Archive, FolderOpen } from 'lucide-react';
 import { formatSize } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
@@ -49,7 +50,7 @@ export function BackupPanel({ apiFetch }: Props) {
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            {t === 'overview' ? '📊 Overview' : '📁 Manage Backups'}
+            {t === 'overview' ? 'Overview' : 'Manage Backups'}
           </button>
         ))}
       </div>
@@ -131,7 +132,7 @@ function BackupOverview({
       const blob = await r.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'shareit-backup.db';
+      a.download = 'nutkeep-backup.db';
       a.click();
     } catch {
       /* */
@@ -201,7 +202,7 @@ function BackupOverview({
           disabled={running}
           className="btn-blue text-xs"
         >
-          {running ? 'Running…' : '▶ Backup Now'}
+          {running ? 'Running…' : 'Backup Now'}
         </button>
         <button
           type="button"
@@ -289,7 +290,7 @@ function BackupOverview({
           <RowSkeleton cols={5} rows={3} />
         ) : logs.length === 0 ? (
           <EmptyState
-            icon="🗄️"
+            icon={<Archive className="w-8 h-8 text-zinc-600" />}
             title="No backup history"
             description="Run a backup now to start tracking."
             action={
@@ -299,7 +300,7 @@ function BackupOverview({
                 disabled={running}
                 className="btn-blue text-xs"
               >
-                ▶ Run First Backup
+                Run First Backup
               </button>
             }
           />
@@ -449,7 +450,7 @@ function BackupManage({
 
   return (
     <>
-      <h2 className="card-title">📁 Manage Backups</h2>
+<h2 className="card-title flex items-center gap-2"><FolderOpen className="w-4 h-4" /> Manage Backups</h2>
 
       {/* Upload */}
       <div className="flex items-center gap-3">
@@ -468,7 +469,7 @@ function BackupManage({
         <RowSkeleton cols={4} rows={3} />
       ) : backups.length === 0 ? (
         <EmptyState
-          icon="📁"
+          icon={<FolderOpen className="w-8 h-8 text-zinc-600" />}
           title="No saved backups"
           description="Upload a .db file or trigger a backup from the Overview tab."
         />

@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
-#  ShareIT — Caddy Reverse Proxy
-#  DOMAIN env var must be set to your real domain (e.g. shareit.goletz.dev)
+#  NutKeep — Caddy Reverse Proxy
+#  DOMAIN env var must be set to your real domain (e.g. app.nutkeep.com)
 #  Falls back to "localhost" for local dev.
 # ═══════════════════════════════════════════════════════════════
 

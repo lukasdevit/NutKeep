@@ -1,6 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-#  ShareIT — UFW Firewall Hardening
+#  UFW Firewall Hardening
 #  Blocks direct HTTP/S from non-Cloudflare IPs.
 #  Restricts SSH to your IP only.
 # ═══════════════════════════════════════════════════════════════

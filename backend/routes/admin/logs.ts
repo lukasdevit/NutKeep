@@ -29,7 +29,7 @@ export async function adminLogRoutes(app: FastifyInstance) {
   app.get('/admin/logs/download', async (_request, reply) => {
     const content = readLogFile();
     reply.header('Content-Type', 'text/plain');
-    reply.header('Content-Disposition', 'attachment; filename=shareit-app.log');
+    reply.header('Content-Disposition', 'attachment; filename=nutkeep-app.log');
     return reply.send(content);
   });
 

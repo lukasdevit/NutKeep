@@ -278,7 +278,7 @@ export function UserManager({ apiFetch }: Props) {
         <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
           <div>
             <span className="text-sm font-medium text-zinc-200">
-              🎭 Demo Accounts
+              Demo Accounts
             </span>
             <p className="text-xs text-zinc-500 mt-0.5">
               Allow one-click demo account creation

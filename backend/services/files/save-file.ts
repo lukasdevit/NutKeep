@@ -22,7 +22,7 @@ export async function saveFile(
     : `anonymous/${filename}`;
 
   // Stream to temp file first (needed for size check + virus scan)
-  const tmpPath = path.join(os.tmpdir(), `shareit-${filename}`);
+  const tmpPath = path.join(os.tmpdir(), `nutkeep-${filename}`);
   let size = 0;
   try {
     await pipeline(fileStream, fs.createWriteStream(tmpPath));

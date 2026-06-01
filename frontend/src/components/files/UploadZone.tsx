@@ -98,7 +98,7 @@ export function UploadZone({ s3Enabled, token, onUploadComplete }: Props) {
         )}
         <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple aria-label="Choose files to upload" />
         <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 px-3 py-2 bg-zinc-800/40 border-t border-zinc-700/40" onClick={(e) => e.stopPropagation()}>
-          <span className="text-[11px] text-zinc-500 whitespace-nowrap">⏱️ Auto-delete:</span>
+          <span className="text-[11px] text-zinc-500 whitespace-nowrap">Auto-delete:</span>
           <select value={expireDays} onChange={(e) => setExpireDays(e.target.value)} className="bg-transparent text-zinc-400 text-[11px] focus:outline-none cursor-pointer">
             <option value="">Never</option>
             <option value="1">After 1 day</option>

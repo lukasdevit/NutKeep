@@ -1,4 +1,4 @@
-# Tool Policy – ShareIT AI Agent
+# Tool Policy – NutKeep AI Agent
 
 **Version:** 2.0 | **Date:** 31.05.2026
 

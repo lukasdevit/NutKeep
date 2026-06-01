@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 function CloudIcon() {
   return (
     <svg
-      className="w-4 h-4"
+      className="w-5 h-5"
       viewBox="0 0 40 28"
       fill="none"
       stroke="currentColor"
@@ -22,7 +22,7 @@ function CloudIcon() {
 
 function HamburgerIcon({ open }: { open: boolean }) {
   return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
       {open ? (
         <>
           <line x1="6" y1="6" x2="18" y2="18" />
@@ -52,12 +52,12 @@ function NavButton({ active, icon, label, highlight, onClick }: NavButtonProps) 
     <button
       type="button"
       onClick={onClick}
-      className={`pressable px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 ${
+      className={`pressable px-3.5 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all duration-200 ease-out ${
         active
-          ? 'bg-blue-600 text-white'
+          ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
           : highlight
             ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white'
-            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
       }`}
     >
       {icon}
@@ -88,25 +88,26 @@ export function NavHeader() {
   if (!user) return null;
 
   return (
-    <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur border-b border-zinc-800">
-      <div className="flex items-center justify-between h-12 px-4 lg:px-6 max-w-screen-2xl mx-auto">
+    <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-800/80">
+      <div className="flex items-center justify-between h-14 px-4 lg:px-6 max-w-screen-2xl mx-auto">
         <button
           onClick={() => navigate('/files')}
-          className="pressable flex items-center gap-2 text-sm font-semibold text-zinc-200 hover:text-white"
+          className="pressable flex items-center gap-0.5 text-xl tracking-tight transition-colors duration-200"
         >
-          <img src="/logo.svg" alt="ShareIT" className="w-6 h-6" />
-          ShareIT
+          <span className="text-base mr-0.5">🐿️</span>
+          <span className="font-semibold text-zinc-200 hover:text-white">Nut</span>
+          <span className="font-bold text-zinc-200 hover:text-white">Keep</span>
         </button>
 
         {/* ── Desktop nav ── */}
         <div className="hidden sm:flex items-center gap-1">
-          <span className="text-xs text-zinc-500 mr-2">
+          <span className="text-sm text-zinc-500 mr-2">
             {user.username}
           </span>
           <NavButton active={pathname === '/files'} icon={<CloudIcon />} label="Upload" highlight onClick={() => navigate('/files')} />
           {user.isAdmin && <NavButton active={pathname === '/admin'} label="Admin" onClick={() => navigate('/admin')} />}
           <NavButton active={pathname === '/settings'} label="Settings" onClick={() => navigate('/settings')} />
-          <button type="button" onClick={logout} className="pressable px-2.5 py-1 rounded-md text-xs font-medium text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/50">
+          <button type="button" onClick={logout} className="pressable px-3.5 py-1.5 rounded-lg text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60 transition-all duration-200">
             Logout
           </button>
         </div>
@@ -114,7 +115,7 @@ export function NavHeader() {
         {/* ── Mobile hamburger ── */}
         <button
           type="button"
-          className="pressable sm:hidden p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+          className="pressable sm:hidden p-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-all duration-200"
           onClick={() => setMenuOpen((o) => !o)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
@@ -125,7 +126,7 @@ export function NavHeader() {
 
       {/* ── Mobile dropdown menu ── */}
       {menuOpen && (
-        <div className="sm:hidden absolute top-full left-0 right-0 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur shadow-xl shadow-black/30 animate-slide-in">
+        <div className="sm:hidden absolute top-full left-0 right-0 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-xl shadow-2xl shadow-black/40 animate-slide-in">
           <div className="px-4 py-3 space-y-1 max-w-screen-2xl mx-auto">
             <div className="text-xs text-zinc-500 pb-2 border-b border-zinc-800/60 mb-1">
               Signed in as <span className="text-zinc-400 font-medium">{user.username}</span>

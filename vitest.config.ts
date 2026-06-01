@@ -13,7 +13,7 @@ export default defineConfig({
 
     // Use a separate DB for tests so we don't clobber dev data
     env: {
-      DB_PATH: '/tmp/shareit-test.db',
+      DB_PATH: '/tmp/nutkeep-test.db',
       JWT_SECRET: 'test-secret-do-not-use-in-prod',
       ADMIN_USERNAME: 'admin',
       ADMIN_PASSWORD: 'admin123',

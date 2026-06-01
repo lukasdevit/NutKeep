@@ -45,7 +45,7 @@ jobs:
           script: |
             set -e
 
-            cd ~/ShareIT
+            cd ~/NutKeep
 
             git fetch origin main
             git reset --hard origin/main

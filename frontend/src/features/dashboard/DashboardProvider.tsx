@@ -21,7 +21,7 @@ interface DashboardState {
   adminTab: AdminTab;
 }
 
-const STORAGE_KEY = 'shareit_dashboard';
+const STORAGE_KEY = 'nutkeep_dashboard';
 
 function loadState(): DashboardState {
   if (typeof window === 'undefined')

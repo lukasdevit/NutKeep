@@ -45,12 +45,13 @@ export function LoginForm({
 
       <div className="w-full">
         {/* Branding */}
-        <div className="flex items-center gap-3 mb-8">
-          <img src="/logo.svg" alt="" className="w-10 h-10" />
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-zinc-100">ShareIT</h1>
-            <p className="text-xs text-zinc-500">Self-hosted file sharing</p>
+        <div className="flex flex-col mb-8">
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-xl mr-0.5">🐿️</span>
+            <span className="text-2xl font-semibold text-zinc-200">Nut</span>
+            <span className="text-2xl font-bold text-zinc-100">Keep</span>
           </div>
+          <p className="text-xs text-zinc-500 mt-1">File sharing that just works</p>
         </div>
 
         {/* Card */}
