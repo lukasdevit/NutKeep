@@ -5,7 +5,7 @@ A self-hosted file sharing app you can run on your own server. Upload files, sha
 
 Think of it as your personal Imgur or Dropbox — but you own the data.
 
-<img src="docs/preview.png" alt="ShareIT screenshot" width="600" />
+<img src="docs/preview.png" alt="Share screenshot" width="600" />
 
 **Try the live demo:** [shareit.goletz.dev](https://shareit.goletz.dev)
 
