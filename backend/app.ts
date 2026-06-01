@@ -113,7 +113,7 @@ export async function buildApp(opts: AppOptions = {}) {
 
   await app.register(cors, {
     origin: CORS_ORIGIN,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   // Global error handler — catches schema validation + unhandled errors
