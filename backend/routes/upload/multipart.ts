@@ -11,14 +11,10 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { requireAuth } from '../../middleware/index.js';
-import { BASE_URL } from '../../config/index.js';
 import { sanitizeFilename, validateFile, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
 import { buildStorageKey, getCurrentS3Client } from '../../services/storage/index.js';
 
 const PRESIGN_EXPIRY_SECONDS = 3600; // 1 hour per part URL
-
-// Server-side presigned URL storage — never exposed to browser
-const proxyTokens = new Map<string, string>();
 
 export async function multipartUploadRoutes(app: FastifyInstance) {
   /**
@@ -108,66 +104,15 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
           expiresIn: PRESIGN_EXPIRY_SECONDS,
         });
 
-        // Store presigned URL server-side — never expose it to the browser
-        const token = nanoid(32);
-        proxyTokens.set(token, url);
-        // Auto-expire after presigned URL expires
-        setTimeout(() => proxyTokens.delete(token), PRESIGN_EXPIRY_SECONDS * 1000);
-
+        // Return presigned URL directly — browser uploads to B2, bypassing backend proxy.
+        // B2 bucket CORS is pre-configured to allow cross-origin PUT + expose ETag.
         return reply.send({
-          data: {
-            url: `${BASE_URL}/upload/multipart/part-proxy/${token}`,
-          },
+          data: { url },
         });
       } catch (err) {
         const e = err as Error;
         app.log.error({ err: e }, 'sign-part failed');
         return reply.code(500).send({ error: `sign-part failed: ${e.message}` });
-      }
-    }
-  );
-
-  /**
-   * PUT /upload/multipart/part-proxy/:token
-   * Proxies part upload to B2. Token maps to a server-side presigned URL.
-   * No auth needed — the presigned URL IS the authorization.
-   */
-  app.put(
-    '/upload/multipart/part-proxy/:token',
-    async (request, reply) => {
-      const { token } = request.params as { token: string };
-      const presignedUrl = proxyTokens.get(token);
-      if (!presignedUrl) {
-        return reply.code(404).send({ error: 'Token not found or expired' });
-      }
-
-      const body = request.body as Buffer;
-      if (!body || body.length === 0) {
-        return reply.code(400).send({ error: 'no body' });
-      }
-
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30_000);
-      try {
-        const upstream = await fetch(presignedUrl, {
-          method: 'PUT',
-          body: new Uint8Array(body),
-          signal: controller.signal,
-        });
-        if (!upstream.ok) {
-          const text = await upstream.text();
-          return reply.code(upstream.status).send(text);
-        }
-        // Return ETag so Uppy can use it for completion
-        const etag = upstream.headers.get('etag') || '';
-        return reply.header('ETag', etag).code(200).send('');
-      } catch (err) {
-        if ((err as Error).name === 'AbortError') {
-          return reply.code(504).send({ error: 'Proxy to storage timed out after 30s' });
-        }
-        return reply.code(502).send({ error: `Proxy failed: ${(err as Error).message}` });
-      } finally {
-        clearTimeout(timeout);
       }
     }
   );
