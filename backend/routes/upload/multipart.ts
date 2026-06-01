@@ -11,6 +11,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { requireAuth } from '../../middleware/index.js';
+import { BASE_URL } from '../../config/index.js';
 import { sanitizeFilename, validateFile, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
 import { buildStorageKey, getCurrentS3Client } from '../../services/storage/index.js';
 
