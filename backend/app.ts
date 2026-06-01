@@ -98,10 +98,17 @@ export async function buildApp(opts: AppOptions = {}) {
     crossOriginResourcePolicy: { policy: 'cross-origin' },
     contentSecurityPolicy: {
       directives: {
-        'img-src': ["'self'", 'data:', 'blob:', '*'],
+        'default-src': ["'self'"],
+        'script-src': ["'self'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'data:', 'blob:'],
+        'media-src': ["'self'", 'blob:'],
+        'connect-src': ["'self'"],
+        'object-src': ["'none'"],
+        'base-uri': ["'self'"],
+        'frame-ancestors': ["'none'"],
       },
     },
-    xContentTypeOptions: false,
   });
 
   await app.register(cors, {

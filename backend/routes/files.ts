@@ -64,7 +64,6 @@ export async function filesRoutes(app: FastifyInstance) {
           reply.header('Content-Type', file.mime_type);
         }
 
-        reply.header('X-Content-Type-Options', 'nosniff');
         reply.header('Accept-Ranges', 'bytes');
         reply.header('Cache-Control', 'public, max-age=31536000');
         reply.header('Access-Control-Allow-Origin', '*');
@@ -133,10 +132,16 @@ export async function filesRoutes(app: FastifyInstance) {
 
       const page = Math.max(1, parseInt(query.page || '1', 10) || 1);
       const limit = Math.min(100, Math.max(1, parseInt(query.limit || '50', 10) || 50));
-      const search = query.search?.trim() || undefined;
+      const search = query.search?.trim();
+      const fileType = query.type?.trim();
 
       try {
-        const result = await listUserFiles(request.user!.id, { page, limit, search, type: query.type });
+        const result = await listUserFiles(request.user!.id, {
+          page,
+          limit,
+          ...(search ? { search } : {}),
+          ...(fileType ? { type: fileType } : {}),
+        });
         return reply.send(result);
       } catch (err) {
         return reply.code(500).send({ error: (err as Error).message });

@@ -36,6 +36,54 @@ const LEVEL_NAMES: Record<number, string> = {
   60: 'fatal',
 };
 
+// ---- Body logging guards ----
+
+const SENSITIVE_FIELDS = new Set([
+  'password',
+  'token',
+  'refreshToken',
+  'accessToken',
+  'currentPassword',
+  'newPassword',
+  'secret',
+  'apiKey',
+  'authorization',
+]);
+
+const MAX_BODY_LOG_BYTES = 2048;
+
+/** Deep-redact sensitive fields from an object (mutates a clone). */
+function sanitizeBody(obj: unknown): unknown {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return (obj as unknown[]).map(sanitizeBody);
+  const clone: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(obj as Record<string, unknown>)) {
+    if (SENSITIVE_FIELDS.has(key)) {
+      clone[key] = '[REDACTED]';
+    } else if (typeof val === 'object' && val !== null) {
+      clone[key] = sanitizeBody(val);
+    } else {
+      clone[key] = val;
+    }
+  }
+  return clone;
+}
+
+function formatBodyForLog(entry: LogEntry): string | undefined {
+  if (!entry.body) return undefined;
+
+  // Never log auth endpoints, even in debug mode
+  if (entry.url && /^\/auth\//.test(entry.url)) return undefined;
+
+  // Only log bodies when explicitly enabled (default OFF on prod)
+  if (process.env.DEBUG_LOG_BODIES !== 'true') return undefined;
+
+  const sanitized = sanitizeBody(entry.body);
+  const json = JSON.stringify(sanitized);
+  if (json.length > MAX_BODY_LOG_BYTES) return '[BODY_TOO_LARGE]';
+  return json;
+}
+
 function formatLogLine(entry: LogEntry): string {
   const level = LEVEL_NAMES[entry.level] || String(entry.level);
   let line = `${entry.time} [${level}] ${entry.msg}`;
@@ -44,7 +92,8 @@ function formatLogLine(entry: LogEntry): string {
   if (entry.method && entry.url) line += ` ${entry.method} ${entry.url}`;
   if (entry.statusCode) line += ` status=${entry.statusCode}`;
   if (entry.responseTime !== undefined) line += ` ${entry.responseTime}ms`;
-  if (entry.body) line += ` body=${JSON.stringify(entry.body)}`;
+  const bodyStr = formatBodyForLog(entry);
+  if (bodyStr) line += ` body=${bodyStr}`;
   if (entry.err) {
     const errObj = entry.err as Record<string, unknown>;
     line += ` err=${errObj.message || JSON.stringify(entry.err)}`;
