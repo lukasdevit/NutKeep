@@ -13,6 +13,10 @@ export async function bootstrap(app: FastifyInstance) {
   // Populate local storage path cache before any resolveProvider('local') calls
   await initLocalPath();
 
+  // Ensure CORS is configured on cloud buckets so browsers can PUT parts
+  // via presigned URLs (multipart upload without backend proxy).
+  await ensureStorageCors(app);
+
   startCleanupJobs(app.log);
   await initScanner();
 
@@ -44,4 +48,17 @@ function startBackupJob(app: FastifyInstance) {
   }
 
   setTimeout(runBackup, 2000);
+}
+
+async function ensureStorageCors(app: FastifyInstance) {
+  try {
+    const { getStorageBackend } = await import('./config/index.js');
+    const backend = await getStorageBackend();
+    if (backend === 'b2') {
+      const { ensureBucketCors } = await import('./services/storage/b2/client.js');
+      await ensureBucketCors();
+    }
+  } catch (err) {
+    app.log.warn({ err }, 'Failed to configure storage CORS (multipart upload may not work in browser)');
+  }
 }

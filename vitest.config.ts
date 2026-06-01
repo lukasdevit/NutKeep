@@ -28,6 +28,11 @@ export default defineConfig({
     // SQLite doesn't handle parallel writes — run test files one at a time
     fileParallelism: false,
 
+    api: {
+      allowWrite: false,
+      allowExec: false,
+    },
+
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

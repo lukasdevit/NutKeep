@@ -106,7 +106,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
         });
 
         // Return presigned URL directly — browser uploads to B2, bypassing backend proxy.
-        // B2 bucket CORS is pre-configured to allow cross-origin PUT + expose ETag.
+        // B2 bucket CORS is configured at startup via ensureBucketCors().
         return reply.send({
           data: { url },
         });
