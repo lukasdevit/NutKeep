@@ -11,6 +11,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { requireAuth } from '../../middleware/index.js';
+import { BASE_URL } from '../../config/index.js';
 import { sanitizeFilename, validateFile, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
 import { buildStorageKey, getCurrentS3Client } from '../../services/storage/index.js';
 
@@ -112,10 +113,9 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       // Auto-expire after presigned URL expires
       setTimeout(() => proxyTokens.delete(token), PRESIGN_EXPIRY_SECONDS * 1000);
 
-      const base = process.env.BASE_URL || 'http://localhost:3000';
       return reply.send({
         data: {
-          url: `${base}/upload/multipart/part-proxy/${token}`,
+          url: `${BASE_URL}/upload/multipart/part-proxy/${token}`,
         },
       });
     }
@@ -240,7 +240,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
 
       return reply.send({
         data: {
-          url: `${process.env.BASE_URL || 'http://localhost:3000'}/file/${filename}`,
+          url: `${BASE_URL}/file/${filename}`,
           key: body.key,
         },
       });

@@ -93,7 +93,6 @@ export function UploadZone({ s3Enabled, token, onUploadComplete }: Props) {
             <span className={`text-sm font-medium transition-colors ${dragOver ? 'text-blue-300' : 'text-zinc-400'}`}>
               {dragOver ? 'Drop to upload' : 'Drop a file here or click to browse'}
             </span>
-            {s3Enabled && <span className="text-[11px] text-zinc-600 mt-1">Multipart upload direct to storage</span>}
           </>
         )}
         <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple aria-label="Choose files to upload" />

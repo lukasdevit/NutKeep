@@ -7,10 +7,30 @@ function envOrCrash(key: string): string {
 }
 
 export const PORT = 3000;
-export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+
+/**
+ * Strip trailing slash so URL concatenation never produces double slashes
+ * (e.g. "https://app.nutkeep.com/" → "https://app.nutkeep.com").
+ */
+function stripTrailingSlash(val: string): string {
+  return val.endsWith('/') ? val.slice(0, -1) : val;
+}
+
+export const BASE_URL = stripTrailingSlash(
+  process.env.BASE_URL || `http://localhost:${PORT}`
+);
 export const LOG_PRETTY = process.env.LOG_PRETTY === 'true';
 export const DEFAULT_UPLOAD_DIR = path.join(process.cwd(), 'uploads');
-export const CORS_ORIGIN = process.env.CORS_ORIGIN || true;
+
+/**
+ * Strip trailing slash — browsers send Origin without one
+ * (e.g. "https://app.nutkeep.com/" → "https://app.nutkeep.com").
+ */
+export const CORS_ORIGIN: string | true =
+  typeof process.env.CORS_ORIGIN === 'string'
+    ? stripTrailingSlash(process.env.CORS_ORIGIN)
+    : true;
+
 export const DOMAIN = process.env.DOMAIN || 'localhost';
 
 export const JWT_SECRET = envOrCrash('JWT_SECRET');
