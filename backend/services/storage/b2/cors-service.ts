@@ -5,7 +5,7 @@ import { getS3Client, getBucket } from './client.js';
 export const DEFAULT_CORS_RULES: CORSRule[] = [
   {
     AllowedHeaders: ['*'],
-    AllowedMethods: ['PUT', 'GET', 'HEAD', 'DELETE', 'OPTIONS'],
+    AllowedMethods: ['PUT', 'GET', 'HEAD', 'DELETE'],
     AllowedOrigins: ['*'],
     ExposeHeaders: ['ETag', 'Content-Length', 'Content-Type'],
     MaxAgeSeconds: 3600,
