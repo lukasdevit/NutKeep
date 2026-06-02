@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { VisibilityToggle } from '@/components/ui/VisibilityToggle';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
+import { B2CorsConfig } from '@/components/admin/B2CorsConfig';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -306,6 +307,10 @@ export function StorageConfig({ apiFetch }: Props) {
               />
             </button>
           </div>
+
+          {form.backend === 'b2' && (
+            <B2CorsConfig apiFetch={apiFetch} />
+          )}
         </div>
     </section>
   );

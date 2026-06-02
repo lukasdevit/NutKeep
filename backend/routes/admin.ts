@@ -3,6 +3,7 @@ import { requireAdmin } from '../middleware/index.js';
 import { adminUserRoutes } from './admin/users.js';
 import { adminDbRoutes } from './admin/db.js';
 import { adminStorageRoutes, adminSslRoutes } from './admin/storage.js';
+import { adminCorsRoutes } from './admin/cors.js';
 import { adminAnalyticsRoutes } from './admin/analytics.js';
 import { adminBackupRoutes } from './admin/backup.js';
 import { adminBackupManageRoutes } from './admin/backup-manage.js';
@@ -18,6 +19,7 @@ export async function adminRoutes(app: FastifyInstance) {
   await adminDbRoutes(app);
   await adminStorageRoutes(app);
   await adminSslRoutes(app);
+  await adminCorsRoutes(app);
   await adminAnalyticsRoutes(app);
   await adminBackupRoutes(app);
   await adminBackupManageRoutes(app);

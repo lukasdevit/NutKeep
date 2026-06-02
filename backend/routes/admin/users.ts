@@ -78,7 +78,12 @@ export async function adminUserRoutes(app: FastifyInstance) {
 
       try {
         const result = await createUser(
-          { username, password, isAdmin: is_admin, storageLimit: storage_limit },
+          {
+            username,
+            password,
+            ...(is_admin !== undefined ? { isAdmin: is_admin } : {}),
+            ...(storage_limit !== undefined ? { storageLimit: storage_limit } : {}),
+          },
           request.user?.username
         );
         return reply.send(result);
@@ -115,7 +120,11 @@ export async function adminUserRoutes(app: FastifyInstance) {
       try {
         await editUser(
           parseInt(id, 10),
-          { storageLimit: storage_limit, isAdmin: is_admin, newPassword: new_password },
+          {
+            ...(storage_limit !== undefined ? { storageLimit: storage_limit } : {}),
+            ...(is_admin !== undefined ? { isAdmin: is_admin } : {}),
+            ...(new_password !== undefined ? { newPassword: new_password } : {}),
+          },
           request.user?.username
         );
         return reply.send({ ok: true });
