@@ -227,7 +227,7 @@ function LogLine({ entry, expanded, onToggle }: { entry: LogEntry; expanded: boo
             </div>
           )}
           {/* Request body */}
-          {entry.body && (
+          {entry.body != null && (
             <div>
               <span className="text-zinc-500">Body: </span>
               <pre className="text-zinc-400 mt-0.5 whitespace-pre-wrap text-[10px] max-h-32 overflow-y-auto bg-zinc-900/50 rounded p-1.5">
