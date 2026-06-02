@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-ARG NEXT_PUBLIC_API_URL=
+ARG NEXT_PUBLIC_API_URL=http://localhost:3000
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Build Next.js for production

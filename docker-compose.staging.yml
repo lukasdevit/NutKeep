@@ -1,0 +1,61 @@
+# ═══════════════════════════════════════════════════════════════
+#  NutKeep — Staging Docker Compose
+#  Lower resource limits, Caddy on internal port (host Caddy proxies)
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  api:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - DB_PATH=/app/data/database.db
+    volumes:
+      - staging_db_data:/app/data
+      - staging_uploads:/app/uploads
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        # Empty = use relative URLs (Caddy proxies /api/* on same domain)
+        NEXT_PUBLIC_API_URL: ''
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+
+  caddy:
+    image: caddy:alpine
+    ports:
+      - '9080:80'
+    environment:
+      - DOMAIN=${DOMAIN:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/certs:/etc/caddy/certs
+      - staging_caddy_data:/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: '0.1'
+
+volumes:
+  staging_db_data:
+  staging_uploads:
+  staging_caddy_data:
