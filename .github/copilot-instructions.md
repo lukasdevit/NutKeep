@@ -1,12 +1,18 @@
 # Copilot / AI Instructions for NutKeep
 
-**Version:** 3.0 | **Date:** 31.05.2026
+**Version:** 3.1 | **Date:** 02.06.2026
 
 ## STATE RULE (CRITICAL)
 
 If state is unclear → ask before continuing.
 
 Agent must NOT rely on full conversation history.
+
+## Branch Convention (CRITICAL)
+
+- **staging** — ALL changes go here first. Never commit directly to main.
+- **main** — production only; merged from staging after verification.
+- All file edits, commits, and pushes must target `staging` branch.
 
 Before each action, assume only:
 - current task
