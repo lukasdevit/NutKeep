@@ -37,6 +37,12 @@ function mapCorsError(err: Error): { status: number; message: string } {
   if (msg.includes('AccessDenied') || msg.includes('Forbidden')) {
     return { status: 403, message: 'B2 access denied. The configured key may not have permission to manage CORS.' };
   }
+  if (msg.includes('B2 Native CORS') || msg.includes('B2 Native API')) {
+    return { status: 400, message: 'B2 bucket uses Native CORS rules. In the B2 console, go to bucket settings → CORS Rules → switch to "S3 Compatible API" or "Both".' };
+  }
+  if (msg.includes('unsupported http method') || msg.includes('Unsupported method')) {
+    return { status: 400, message: 'CORS rules contain an unsupported HTTP method (e.g. OPTIONS). Remove it — OPTIONS is handled automatically by CORS.' };
+  }
   return { status: 502, message: `B2 API error: ${msg}` };
 }
 
@@ -108,6 +114,7 @@ export async function adminCorsRoutes(app: FastifyInstance) {
 
         return reply.send({ rules: DEFAULT_CORS_RULES, source: 'default' });
       } catch (err) {
+        request.log.error({ err }, 'CORS fetch failed');
         const { status, message } = mapCorsError(err as Error);
         return reply.code(status).send({ error: `Failed to fetch CORS config: ${message}` });
       }
@@ -159,6 +166,7 @@ export async function adminCorsRoutes(app: FastifyInstance) {
 
         return reply.send({ ok: true, rules: validation.rules });
       } catch (err) {
+        request.log.error({ err }, 'CORS apply failed');
         const { status, message } = mapCorsError(err as Error);
         return reply.code(status).send({ error: `Failed to apply CORS config: ${message}` });
       }
