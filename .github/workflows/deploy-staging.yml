@@ -1,0 +1,36 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [staging]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Staging to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2222
+          script: |
+            set -e
+
+            cd ~/NutKeep-staging
+
+            git fetch origin staging
+            git reset --hard origin/staging
+
+            sg docker -c "docker compose -f docker-compose.staging.yml down"
+            sg docker -c "docker compose -f docker-compose.staging.yml up -d --build --remove-orphans --force-recreate"
