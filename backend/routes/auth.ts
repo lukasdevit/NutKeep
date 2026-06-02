@@ -11,6 +11,7 @@ import {
   cleanupDemoSession,
 } from '../services/auth-service.js';
 import { DEMO_IP_RATE_LIMIT, DEMO_RATE_WINDOW_MS } from '../config/index.js';
+import { writeLog } from '../services/log-service.js';
 
 export async function authRoutes(app: FastifyInstance) {
   const isTest = DB_PATH.includes('test');
@@ -98,9 +99,31 @@ export async function authRoutes(app: FastifyInstance) {
       try {
         const user = await loginUser(username, password);
         const token = signToken(user.id, user.username, user.isAdmin);
+        writeLog({
+          time: new Date().toISOString(),
+          level: 30,
+          levelName: 'info',
+          category: 'security',
+          msg: `Login success: ${username}`,
+          user: username,
+          method: 'POST',
+          url: '/auth/login',
+          reqId: request.id,
+        });
         return reply.send({ token, user });
       } catch (err) {
         const e = err as { statusCode?: number; message: string };
+        writeLog({
+          time: new Date().toISOString(),
+          level: 40,
+          levelName: 'warn',
+          category: 'security',
+          msg: `Login failure: ${username} — ${e.message}`,
+          user: username,
+          method: 'POST',
+          url: '/auth/login',
+          reqId: request.id,
+        });
         return reply.code(e.statusCode || 500).send({ error: e.message });
       }
     }
@@ -140,6 +163,17 @@ export async function authRoutes(app: FastifyInstance) {
 
       try {
         await changeUserPassword(user.id, currentPassword, newPassword);
+        writeLog({
+          time: new Date().toISOString(),
+          level: 30,
+          levelName: 'info',
+          category: 'security',
+          msg: `Password changed for: ${user.username}`,
+          user: user.username,
+          method: 'POST',
+          url: '/auth/change-password',
+          reqId: request.id,
+        });
         return reply.send({ ok: true });
       } catch (err) {
         const e = err as { statusCode?: number; message: string };

@@ -1,6 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/index.js';
+import { writeLog } from '../services/log-service.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -45,10 +46,33 @@ export async function requireAuth(
   reply: FastifyReply
 ) {
   const token = getTokenFromHeader(request);
-  if (!token) return reply.code(401).send({ error: 'Missing token' });
+  if (!token) {
+    writeLog({
+      time: new Date().toISOString(),
+      level: 40,
+      levelName: 'warn',
+      category: 'security',
+      msg: 'Auth failure: missing token',
+      method: request.method,
+      url: request.url,
+      reqId: request.id,
+    });
+    return reply.code(401).send({ error: 'Missing token' });
+  }
   const payload = verifyToken(token);
-  if (!payload)
+  if (!payload) {
+    writeLog({
+      time: new Date().toISOString(),
+      level: 40,
+      levelName: 'warn',
+      category: 'security',
+      msg: 'Auth failure: invalid or expired token',
+      method: request.method,
+      url: request.url,
+      reqId: request.id,
+    });
     return reply.code(401).send({ error: 'Invalid or expired token' });
+  }
   request.user = payload;
 }
 
@@ -59,6 +83,17 @@ export async function requireAdmin(
   await requireAuth(request, reply);
   if (reply.sent) return;
   if (!request.user?.isAdmin) {
+    writeLog({
+      time: new Date().toISOString(),
+      level: 40,
+      levelName: 'warn',
+      category: 'security',
+      msg: `Admin access denied for user: ${request.user?.username || 'unknown'}`,
+      user: request.user?.username,
+      method: request.method,
+      url: request.url,
+      reqId: request.id,
+    });
     return reply.code(403).send({ error: 'Admin only' });
   }
 }

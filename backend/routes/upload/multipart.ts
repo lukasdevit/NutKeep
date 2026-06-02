@@ -14,6 +14,7 @@ import { requireAuth } from '../../middleware/index.js';
 import { BASE_URL } from '../../config/index.js';
 import { sanitizeFilename, validateFile, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
 import { buildStorageKey, getCurrentS3Client } from '../../services/storage/index.js';
+import { writeLog } from '../../services/log-service.js';
 
 const PRESIGN_EXPIRY_SECONDS = 3600; // 1 hour per part URL
 
@@ -62,6 +63,18 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       });
 
       const { UploadId } = await s3.send(createCmd);
+
+      writeLog({
+        time: new Date().toISOString(),
+        level: 20,
+        levelName: 'debug',
+        category: 'debug',
+        msg: `Multipart init: ${body.filename} (${body.mimeType}) uploadId=${UploadId}`,
+        user: request.user!.username,
+        method: 'POST',
+        url: '/upload/multipart/init',
+        reqId: request.id,
+      });
 
       return reply.send({
         data: {
@@ -198,6 +211,18 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
           .send({ error: (err as Error).message });
       }
 
+      writeLog({
+        time: new Date().toISOString(),
+        level: 20,
+        levelName: 'debug',
+        category: 'debug',
+        msg: `Multipart complete: ${filename} (${size} bytes, ${body.parts.length} parts)`,
+        user: request.user!.username,
+        method: 'POST',
+        url: `/upload/multipart/${uploadId}/complete`,
+        reqId: request.id,
+      });
+
       return reply.send({
         data: {
           url: `${BASE_URL}/file/${filename}`,
@@ -226,6 +251,19 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       });
 
       await s3.send(cmd);
+
+      writeLog({
+        time: new Date().toISOString(),
+        level: 20,
+        levelName: 'debug',
+        category: 'debug',
+        msg: `Multipart aborted: key=${key} uploadId=${uploadId}`,
+        user: request.user!.username,
+        method: 'DELETE',
+        url: `/upload/multipart/${uploadId}`,
+        reqId: request.id,
+      });
+
       return reply.send({ data: { aborted: true } });
     }
   );

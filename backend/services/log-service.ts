@@ -3,14 +3,26 @@ import path from 'path';
 import { DEFAULT_UPLOAD_DIR } from '../config/index.js';
 
 const LOG_DIR = path.join(DEFAULT_UPLOAD_DIR, 'logs');
-const LOG_FILE = path.join(LOG_DIR, 'app.log');
 const RING_SIZE = 2000;
+const MAX_DISK_LINES = 10_000; // max lines per category file before trimming
+
+export type LogCategory = 'audit' | 'security' | 'debug' | 'general';
+
+export const LOG_CATEGORIES: LogCategory[] = ['audit', 'security', 'debug', 'general'];
+
+const CATEGORY_FILES: Record<LogCategory, string> = {
+  audit: path.join(LOG_DIR, 'audit.log'),
+  security: path.join(LOG_DIR, 'security.log'),
+  debug: path.join(LOG_DIR, 'debug.log'),
+  general: path.join(LOG_DIR, 'app.log'),
+};
 
 interface LogEntry {
   time: string;
   level: number;
   levelName: string;
   msg: string;
+  category: LogCategory;
   reqId?: string;
   user?: string | undefined;
   method?: string;
@@ -22,6 +34,9 @@ interface LogEntry {
 }
 
 const ring: LogEntry[] = [];
+
+// Per-category line counters for disk trimming (reset on restart — acceptable)
+const diskLineCount: Record<string, number> = {};
 
 function ensureDir(): void {
   if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
@@ -86,7 +101,7 @@ function formatBodyForLog(entry: LogEntry): string | undefined {
 
 function formatLogLine(entry: LogEntry): string {
   const level = LEVEL_NAMES[entry.level] || String(entry.level);
-  let line = `${entry.time} [${level}] ${entry.msg}`;
+  let line = `${entry.time} [${level}] [${entry.category}] ${entry.msg}`;
   if (entry.reqId) line += ` req=${entry.reqId}`;
   if (entry.user) line += ` user=${entry.user}`;
   if (entry.method && entry.url) line += ` ${entry.method} ${entry.url}`;
@@ -102,18 +117,50 @@ function formatLogLine(entry: LogEntry): string {
 }
 
 /**
+ * Trim a log file to the most recent KEEP_LINES when it exceeds MAX_DISK_LINES.
+ * Reads the file, keeps the last half, rewrites. Best-effort, non-blocking.
+ */
+function trimLogFile(filePath: string): void {
+  try {
+    if (!fs.existsSync(filePath)) return;
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const lines = content.split('\n').filter((l) => l.length > 0);
+    if (lines.length <= MAX_DISK_LINES) return;
+    const keep = lines.slice(-Math.floor(MAX_DISK_LINES / 2));
+    fs.writeFileSync(filePath, keep.join('\n') + '\n');
+  } catch {
+    /* best effort — don't crash on trim failure */
+  }
+}
+
+/**
  * Write a log entry to the ring buffer and disk.
  * Call this from a pino transport or from Fastify hooks.
+ *
+ * @param entry — must include a `category` field.
+ *   Use 'security' for auth events, 'audit' for admin actions,
+ *   'debug' for request/response and technical logs, 'general' for everything else.
  */
 export function writeLog(entry: LogEntry): void {
+  // Ensure category is set (default for backward compat)
+  if (!entry.category) entry.category = 'general';
+
   // Ring buffer
   ring.push(entry);
   if (ring.length > RING_SIZE) ring.shift();
 
-  // Disk (best-effort, non-blocking)
+  // Disk — write to category-specific file (best-effort, non-blocking)
   try {
     ensureDir();
-    fs.appendFileSync(LOG_FILE, formatLogLine(entry) + '\n');
+    const filePath = CATEGORY_FILES[entry.category] || CATEGORY_FILES.general;
+    fs.appendFileSync(filePath, formatLogLine(entry) + '\n');
+
+    // Trim file when it exceeds max lines (checked every ~100 writes per category)
+    const count = (diskLineCount[entry.category] || 0) + 1;
+    diskLineCount[entry.category] = count;
+    if (count % 100 === 0) {
+      trimLogFile(filePath);
+    }
   } catch {
     /* log write failure shouldn't crash */
   }
@@ -123,31 +170,55 @@ export function writeLog(entry: LogEntry): void {
  * Get recent log entries from the ring buffer.
  * @param lines max entries
  * @param minLevel minimum log level to include (default 30 = info)
+ * @param category optional category filter — returns all categories when omitted
  */
-export function getLogs(lines = 200, minLevel = 30): LogEntry[] {
-  return ring.filter((e) => e.level >= minLevel).slice(-lines);
+export function getLogs(
+  lines = 200,
+  minLevel = 30,
+  category?: LogCategory
+): LogEntry[] {
+  let filtered = ring.filter((e) => e.level >= minLevel);
+  if (category) {
+    filtered = filtered.filter((e) => e.category === category);
+  }
+  return filtered.slice(-lines);
 }
 
 /**
- * Clear the log file on disk and the ring buffer.
+ * Clear all log files on disk and the ring buffer.
  */
 export function clearLogs(): void {
   ring.length = 0;
   try {
     ensureDir();
-    fs.writeFileSync(LOG_FILE, '');
+    for (const filePath of Object.values(CATEGORY_FILES)) {
+      fs.writeFileSync(filePath, '');
+    }
   } catch {
     /* best effort */
   }
 }
 
 /**
- * Read raw log file content (for download).
+ * Read raw log file content for a specific category (for download).
+ * Returns all log files concatenated when category is omitted.
  */
-export function readLogFile(): string {
+export function readLogFile(category?: LogCategory): string {
   try {
-    if (!fs.existsSync(LOG_FILE)) return '';
-    return fs.readFileSync(LOG_FILE, 'utf-8');
+    if (!fs.existsSync(LOG_DIR)) return '';
+    if (category) {
+      const filePath = CATEGORY_FILES[category];
+      return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf-8') : '';
+    }
+    // Concatenate all category files
+    let all = '';
+    for (const cat of LOG_CATEGORIES) {
+      const filePath = CATEGORY_FILES[cat];
+      if (fs.existsSync(filePath)) {
+        all += fs.readFileSync(filePath, 'utf-8');
+      }
+    }
+    return all;
   } catch {
     return '';
   }
