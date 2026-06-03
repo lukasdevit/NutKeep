@@ -38,8 +38,6 @@ services:
     ports:
       - '80:80'
       - '443:443'
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
     environment:
       - DOMAIN=${DOMAIN:-}
     volumes:
@@ -48,6 +46,7 @@ services:
       - caddy_data:/data
     restart: unless-stopped
     networks:
+      - default
       - linqoy-shared
     deploy:
       resources:
@@ -56,6 +55,7 @@ services:
           cpus: '0.25'
 
 networks:
+  default:
   linqoy-shared:
     external: true
 
