@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { FileInfo } from '@/types';
 
-const VOLUME_KEY = 'nutkeep_audio_volume';
+const VOLUME_KEY = 'linqoy_audio_volume';
 
 function getSavedVolume(): number {
   if (typeof window === 'undefined') return 1;

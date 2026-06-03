@@ -21,7 +21,7 @@ interface DashboardState {
   adminTab: AdminTab;
 }
 
-const STORAGE_KEY = 'nutkeep_dashboard';
+const STORAGE_KEY = 'linqoy_dashboard';
 
 function loadState(): DashboardState {
   if (typeof window === 'undefined')

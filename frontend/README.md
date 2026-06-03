@@ -1,6 +1,6 @@
-# NutKeep Frontend
+# linqoy Frontend
 
-Next.js frontend for [NutKeep](https://github.com/lukasdevit/NutKeep).
+Next.js frontend for [linqoy](https://github.com/lukasdevit/linqoy).
 
 Dev: `npm run dev` (localhost:3001)  
 Test: `npm test`

@@ -1,9 +1,9 @@
-![NutKeep](https://healthchecks.io/b/2/85d9c28f-214f-4e72-8332-c72f1a741e73.svg)
-# NutKeep
+![linqoy](https://healthchecks.io/b/2/85d9c28f-214f-4e72-8332-c72f1a741e73.svg)
+# linqoy
 
 A file sharing app with a clean interface and zero clutter. Upload, share, manage — that's it.
 
-**Live:** [app.nutkeep.com](https://app.nutkeep.com) · **Self-host:** clone from GitHub and run with Docker
+**Live:** [app.linqoy.com](https://app.linqoy.com) · **Self-host:** clone from GitHub and run with Docker
 
 <img src="docs/preview-v2.png" alt="Share screenshot" width="600" />
 
@@ -36,8 +36,8 @@ You can store files on the local disk or any SUPPORTED storage provider.
 ## Getting started
 
 ```bash
-git clone https://github.com/lukasdevit/NutKeep.git
-cd NutKeep
+git clone https://github.com/lukasdevit/linqoy.git
+cd linqoy
 cp .env.example .env   # fill in your secrets
 docker compose -f docker-compose.dev.yml up -d
 ```

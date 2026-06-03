@@ -9,7 +9,7 @@ const DEFAULTS = {
   endpoint: 'https://s3.eu-central-003.backblazeb2.com',
   region: 'eu-central-003',
   bucket: 'my-bucket-name',
-  prefix: 'nutkeep/storage/',
+  prefix: 'linqoy/storage/',
 } as const;
 
 let _s3Client: S3Client | null = null;

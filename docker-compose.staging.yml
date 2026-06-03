@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-#  NutKeep — Staging Docker Compose
+#  linqoy — Staging Docker Compose
 #  Lower resource limits, Caddy on internal port (host Caddy proxies)
 # ═══════════════════════════════════════════════════════════════
 

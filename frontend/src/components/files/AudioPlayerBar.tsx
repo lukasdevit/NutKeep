@@ -7,7 +7,7 @@ import { CopyButton } from '@/components/ui/CopyButton';
 import { DeleteButton } from '@/components/ui/DeleteButton';
 import type { FileInfo } from '@/types';
 
-const VOLUME_KEY = 'nutkeep_audio_volume';
+const VOLUME_KEY = 'linqoy_audio_volume';
 
 function loadVolume(): number {
   if (typeof window === 'undefined') return 1;
