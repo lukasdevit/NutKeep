@@ -45,10 +45,11 @@ jobs:
           script: |
             set -e
 
-            cd ~/NutKeep
+            cd ~/linqoy
 
             git fetch origin main
             git reset --hard origin/main
 
-            sg docker -c "DOMAIN=app.nutkeep.com docker compose down"
-            sg docker -c "DOMAIN=app.nutkeep.com docker compose up -d --build --remove-orphans --force-recreate"
+            export DOCKER_HOST=unix:///run/user/1000/docker.sock
+            DOMAIN=app.linqoy.com docker compose down
+            DOMAIN=app.linqoy.com docker compose up -d --build --remove-orphans --force-recreate
