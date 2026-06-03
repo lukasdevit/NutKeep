@@ -45,11 +45,17 @@ services:
       - ./caddy/certs:/etc/caddy/certs
       - caddy_data:/data
     restart: unless-stopped
+    networks:
+      - linqoy-shared
     deploy:
       resources:
         limits:
           memory: 128M
           cpus: '0.25'
+
+networks:
+  linqoy-shared:
+    external: true
 
 volumes:
   db_data:

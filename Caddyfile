@@ -35,6 +35,16 @@
   reverse_proxy web:3000
 }
 
+# ── Apex + WWW redirect → app ──
+linqoy.com, www.linqoy.com {
+  redir https://app.linqoy.com{uri} permanent
+}
+
+# ── Staging site ──
+staging.linqoy.com {
+  reverse_proxy staging-caddy:80
+}
+
 # ── Drop all direct IP / unknown-host requests ──
 # Prevents Shodan/Censys from fingerprinting your real IP.
 # Returns nothing — connection is closed, no redirect, no response.
