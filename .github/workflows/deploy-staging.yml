@@ -27,7 +27,7 @@ jobs:
           script: |
             set -e
 
-            cd ~/NutKeep-staging
+            cd ~/linqoy-staging
 
             git fetch origin staging
             git reset --hard origin/staging
