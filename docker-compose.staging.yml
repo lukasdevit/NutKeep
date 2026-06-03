@@ -41,7 +41,7 @@ services:
   staging-caddy:
     image: caddy:alpine
     environment:
-      - DOMAIN=${DOMAIN:-}
+      - DOMAIN=staging.linqoy.com
     volumes:
       - ./Caddyfile.staging:/etc/caddy/Caddyfile
       - ./caddy/certs:/etc/caddy/certs
