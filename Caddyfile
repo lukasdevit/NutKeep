@@ -42,7 +42,7 @@ linqoy.com, www.linqoy.com {
 
 # ── Staging site ──
 staging.linqoy.com {
-  reverse_proxy host.docker.internal:9080
+  reverse_proxy staging-caddy:80
 }
 
 # ── Drop all direct IP / unknown-host requests ──
