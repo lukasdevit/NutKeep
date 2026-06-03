@@ -366,7 +366,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
                 }}
                 className={`px-3 py-1.5 rounded-md text-xs transition-colors flex items-center gap-2 cursor-pointer ${
                   activeCheckId === c.check_id
-                    ? 'bg-blue-500/15 border border-blue-500/30 text-blue-300'
+                    ? 'bg-violet-500/15 border border-violet-500/30 text-violet-300'
                     : 'bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -395,7 +395,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
           placeholder="Filter: username/id"
           value={scanUserId}
           onChange={(e) => setScanUserId(e.target.value)}
-          className="px-2 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs w-44 focus:outline-none focus:border-blue-500"
+          className="px-2 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs w-44 focus:outline-none focus:border-violet-500"
         />
         <button
           type="button"
@@ -702,7 +702,7 @@ function IssueRow({
             checked={checked}
             onChange={onToggle}
             onClick={(e) => e.stopPropagation()}
-            className="mt-0.5 w-4 h-4 rounded accent-blue-500 cursor-pointer"
+            className="mt-0.5 w-4 h-4 rounded accent-violet-500 cursor-pointer"
           />
         )}
         <div className="min-w-0 space-y-1 flex-1">

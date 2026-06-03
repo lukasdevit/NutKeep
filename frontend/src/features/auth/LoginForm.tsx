@@ -1,6 +1,7 @@
 'use client';
 
 import { useGlowEffect } from '@/hooks/use-glow-effect';
+import { BrandLogo } from '@/components/BrandLogo';
 
 interface Props {
   mode: 'login' | 'register';
@@ -46,9 +47,7 @@ export function LoginForm({
       <div className="w-full">
         {/* Branding */}
         <div className="flex flex-col mb-8">
-          <div className="flex items-baseline gap-0.5">
-            <span className="text-2xl font-bold text-zinc-100">linqoy.</span>
-          </div>
+          <BrandLogo size="text-2xl" />
           <p className="text-xs text-zinc-500 mt-1">File sharing that just works</p>
         </div>
 
@@ -57,7 +56,7 @@ export function LoginForm({
           ref={glowRef}
           onMouseMove={glowMove}
           onMouseLeave={glowLeave}
-          className="glow-hover glow-blue p-6 rounded-xl border border-zinc-800 bg-zinc-900/50"
+          className="glow-hover glow-violet p-6 rounded-xl border border-zinc-800 bg-zinc-900/50"
         >
           <p className="text-sm text-zinc-400 mb-5">
             {mode === 'login'
@@ -77,7 +76,7 @@ export function LoginForm({
                 placeholder="Enter your username"
                 autoComplete="username"
                 autoFocus
-                className="w-full px-3 py-2 rounded-lg text-sm bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
+                className="w-full px-3 py-2 rounded-lg text-sm bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-600 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition-all"
               />
             </div>
 
@@ -92,7 +91,7 @@ export function LoginForm({
                 onChange={(e) => onPasswordChange(e.target.value)}
                 placeholder="Enter your password"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                className="w-full px-3 py-2 rounded-lg text-sm bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
+                className="w-full px-3 py-2 rounded-lg text-sm bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-600 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition-all"
               />
             </div>
 
@@ -109,7 +108,7 @@ export function LoginForm({
 
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] transition-all duration-150"
+              className="w-full py-2.5 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white hover:shadow-lg hover:shadow-violet-500/20 active:scale-[0.98] transition-all duration-150"
             >
               {mode === 'login' ? 'Sign in' : 'Create account'}
             </button>
@@ -124,7 +123,7 @@ export function LoginForm({
           <button
             type="button"
             onClick={() => onModeChange(mode === 'login' ? 'register' : 'login')}
-            className="pressable text-blue-400 hover:text-blue-300"
+            className="pressable text-violet-400 hover:text-violet-300"
           >
             {mode === 'login' ? 'Sign up' : 'Sign in'}
           </button>

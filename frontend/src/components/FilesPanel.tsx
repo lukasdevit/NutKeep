@@ -176,7 +176,7 @@ export function FilesPanel() {
               onChange={e => setSearch(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') fetchFiles(filesViewMode, 1, search); }}
               placeholder="Search files..." aria-label="Search files"
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800/60 text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/50 focus:bg-zinc-900 transition-all"
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800/60 text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/50 focus:bg-zinc-900 transition-all"
             />
             {search && (
               <button

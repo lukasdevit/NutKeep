@@ -3,6 +3,7 @@
 import { useDemoLogin } from '@/hooks/use-demo-login';
 import { useGlowEffect } from '@/hooks/use-glow-effect';
 import { UploadCloud, Link, Image, LayoutDashboard } from 'lucide-react';
+import { BrandLogo } from '@/components/BrandLogo';
 import type { ReactNode } from 'react';
 import type { ComponentType } from 'react';
 
@@ -11,9 +12,9 @@ const features = [
     icon: UploadCloud,
     title: 'Drag, drop, done',
     desc: 'Drag, drop, done. Images, docs, archives — share anything with a link in seconds.',
-    gradient: 'from-blue-500/20 to-cyan-500/10',
-    iconBg: 'bg-blue-500/15 text-blue-400',
-    glow: 'glow-blue',
+    gradient: 'from-violet-500/20 to-fuchsia-500/10',
+    iconBg: 'bg-violet-500/15 text-violet-400',
+    glow: 'glow-violet',
   },
   {
     icon: Link,
@@ -62,14 +63,20 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* ── Hero ── */}
-      <section className="flex flex-col items-center text-center px-4 pt-20 sm:pt-28 pb-8 max-w-4xl mx-auto">
-        <div className="flex items-baseline gap-0.5 mb-6">
-          <span className="text-3xl sm:text-4xl font-bold text-zinc-100">linqoy.</span>
+      <section className="relative flex flex-col items-center text-center px-4 pt-20 sm:pt-28 pb-8 max-w-4xl mx-auto">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
+
+        {/* Ambient glow behind brand */}
+        <div className="absolute top-12 left-1/2 -translate-x-1/2 w-80 h-32 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative flex items-center gap-2 mb-6">
+          <BrandLogo size="text-3xl sm:text-4xl" />
         </div>
 
-        <p className="text-base sm:text-lg text-zinc-400 max-w-xl mb-8 leading-relaxed">
+        <p className="relative text-base sm:text-lg text-zinc-400 max-w-xl mb-8 leading-relaxed">
           Drop files. Share links. That's it.{' '}
-          A clean, fast file sharing app — no clutter, no subscriptions, no surprises.
+          A clean, fast file sharing app — no clutter, no noise, no surprises.
         </p>
 
         <div className="flex gap-3 mb-6">
@@ -77,7 +84,7 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
             type="button"
             onClick={handleTryDemo}
             disabled={demoLoading}
-            className="pressable px-6 py-2.5 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white hover:shadow-lg hover:shadow-blue-500/20 disabled:opacity-50"
+            className="pressable px-6 py-2.5 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white hover:shadow-lg hover:shadow-violet-500/20 disabled:opacity-50"
           >
             {demoLoading ? 'Signing in…' : 'Try Demo'}
           </button>
@@ -96,7 +103,7 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
       {/* ── Features ── */}
       <section className="max-w-4xl mx-auto px-4 pt-16 pb-24">
         <h2 className="text-center text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-10">
-          What linqoy. can do
+          Everything you need, nothing you don&apos;t
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {features.map((f) => (

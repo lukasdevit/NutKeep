@@ -126,7 +126,7 @@ function UploadsChart({
                 {d.count}
               </span>
               <div
-                className="w-full bg-blue-500/60 hover:bg-blue-400 rounded-t transition-colors min-h-0.5"
+                className="w-full bg-violet-500/60 hover:bg-violet-400 rounded-t transition-colors min-h-0.5"
                 style={{
                   height: `${Math.max(2, (d.count / maxCount) * 100)}%`,
                 }}
@@ -161,7 +161,7 @@ function TopUsers({ users, maxBytes }: { users: TopUser[]; maxBytes: number }) {
                 </div>
                 <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 rounded-full"
+                    className="h-full bg-violet-500 rounded-full"
                     style={{ width: `${(u.bytes / maxBytes) * 100}%` }}
                   />
                 </div>

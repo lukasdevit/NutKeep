@@ -135,7 +135,7 @@ export function AudioPlayerBar({
         onClick={handleSeek}
       >
         <div
-          className="h-full bg-blue-500 transition-[width] duration-150 group-hover:bg-blue-400"
+          className="h-full bg-violet-500 transition-[width] duration-150 group-hover:bg-violet-400"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -208,7 +208,7 @@ export function AudioPlayerBar({
           }}
           className={`shrink-0 p-1.5 rounded-md transition-colors ${
             loop
-              ? 'bg-blue-600 text-white hover:bg-blue-500'
+              ? 'bg-violet-600 text-white hover:bg-violet-500'
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
           }`}
         >

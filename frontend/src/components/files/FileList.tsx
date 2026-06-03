@@ -58,7 +58,7 @@ function FileRow({
       onMouseLeave={onMouseLeave}
       className={`pressable glow-hover glow-blue flex items-center gap-3 p-3 rounded-lg border
         ${isOpenable(f.mime_type) ? 'cursor-pointer' : ''}
-        ${isNowPlaying ? 'border-blue-500/60 bg-blue-500/5 shadow-[0_0_12px_rgba(59,130,246,0.08)]' : 'bg-zinc-900/50 border-zinc-800 hover:border-zinc-700'}`}
+        ${isNowPlaying ? 'border-violet-500/60 bg-violet-500/5 shadow-[0_0_12px_rgba(139,92,246,0.08)]' : 'bg-zinc-900/50 border-zinc-800 hover:border-zinc-700'}`}
       onClick={onClick}
     >
       {children}
@@ -98,9 +98,9 @@ export function FileList({
             <TagBadge filename={f.original_name} />
             {isNowPlaying && (
               <span className="shrink-0 flex gap-0.5 items-end h-3">
-                <span className="w-0.5 bg-blue-400 rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '60%' }} />
-                <span className="w-0.5 bg-blue-400 rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '100%' }} />
-                <span className="w-0.5 bg-blue-400 rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
+                <span className="w-0.5 bg-violet-400 rounded-full animate-[pulse_0.6s_ease-in-out_infinite]" style={{ height: '60%' }} />
+                <span className="w-0.5 bg-violet-400 rounded-full animate-[pulse_0.6s_ease-in-out_0.2s_infinite]" style={{ height: '100%' }} />
+                <span className="w-0.5 bg-violet-400 rounded-full animate-[pulse_0.6s_ease-in-out_0.1s_infinite]" style={{ height: '80%' }} />
               </span>
             )}
             {/* Info */}

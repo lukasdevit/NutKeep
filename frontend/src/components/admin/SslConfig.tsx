@@ -194,7 +194,7 @@ export function SslConfig({ apiFetch }: Props) {
                 value={certPem}
                 onChange={(e) => setCertPem(e.target.value)}
                 placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-                className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-blue-500 resize-y"
+                className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-violet-500 resize-y"
               />
             </div>
             <div>
@@ -207,7 +207,7 @@ export function SslConfig({ apiFetch }: Props) {
                 value={keyPem}
                 onChange={(e) => setKeyPem(e.target.value)}
                 placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
-                className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-blue-500 resize-y"
+                className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-violet-500 resize-y"
               />
             </div>
             <button

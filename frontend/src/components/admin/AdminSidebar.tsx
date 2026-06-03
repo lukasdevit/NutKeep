@@ -5,6 +5,7 @@ import {
   Archive, ScrollText, ShieldCheck, History, Zap,
 } from 'lucide-react';
 import { ADMIN_TABS } from '@/config/constants';
+import { BrandLogo } from '@/components/BrandLogo';
 import type { AdminTab } from '@/config/constants';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -61,9 +62,7 @@ export function AdminSidebar({
         ) : (
           <>
             <div className="flex items-center gap-2">
-              <div className="flex items-baseline gap-0">
-                <span className="text-sm font-bold text-zinc-100 tracking-tight">linqoy.</span>
-              </div>
+              <BrandLogo size="text-sm" />
               <span className="text-[10px] text-zinc-600 bg-zinc-800 rounded px-1.5 py-0.5">Admin</span>
             </div>
             <p className="text-xs text-zinc-500 mt-1 truncate">{username}</p>

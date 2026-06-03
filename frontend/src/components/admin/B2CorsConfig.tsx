@@ -125,7 +125,7 @@ export function B2CorsConfig({ apiFetch }: Props) {
             placeholder={PLACEHOLDER_JSON}
             rows={14}
             spellCheck={false}
-            className="w-full px-3 py-2 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-blue-500 resize-y"
+            className="w-full px-3 py-2 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs font-mono focus:outline-none focus:border-violet-500 resize-y"
           />
         </div>
 
@@ -134,7 +134,7 @@ export function B2CorsConfig({ apiFetch }: Props) {
             type="button"
             onClick={fetchConfig}
             disabled={isBusy}
-            className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-xs font-medium text-white transition-colors"
+            className="px-3 py-1.5 rounded-md bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-xs font-medium text-white transition-colors"
           >
             {loading === 'fetch' ? 'Loading…' : 'Get current settings'}
           </button>

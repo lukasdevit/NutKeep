@@ -239,7 +239,7 @@ function BackupOverview({
             max="168"
             value={scheduleHours}
             onChange={(e) => setScheduleHours(e.target.value)}
-            className="w-16 px-2 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-16 px-2 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
           />
           <span className="text-xs text-zinc-500">hours</span>
         </div>
@@ -254,7 +254,7 @@ function BackupOverview({
             max="365"
             value={retentionDays}
             onChange={(e) => setRetentionDays(e.target.value)}
-            className="w-16 px-2 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
+            className="w-16 px-2 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
           />
           <span className="text-xs text-zinc-500">days</span>
         </div>

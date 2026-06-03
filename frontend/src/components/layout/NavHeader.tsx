@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useRouter, usePathname } from 'next/navigation';
+import { BrandLogo } from '@/components/BrandLogo';
 
 function CloudIcon() {
   return (
@@ -54,9 +55,9 @@ function NavButton({ active, icon, label, highlight, onClick }: NavButtonProps) 
       onClick={onClick}
       className={`pressable px-3.5 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all duration-200 ease-out ${
         active
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
+          ? 'bg-violet-600 text-white shadow-md shadow-violet-600/25'
           : highlight
-            ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white'
+            ? 'bg-violet-600/20 text-violet-400 hover:bg-violet-600 hover:text-white'
             : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
       }`}
     >
@@ -92,9 +93,9 @@ export function NavHeader() {
       <div className="flex items-center justify-between h-14 px-4 lg:px-6 max-w-screen-2xl mx-auto">
         <button
           onClick={() => navigate('/files')}
-          className="pressable flex items-center gap-0.5 text-xl tracking-tight transition-colors duration-200"
+          className="pressable flex items-center transition-colors duration-200"
         >
-          <span className="font-bold text-zinc-200 hover:text-white">linqoy.</span>
+          <BrandLogo size="text-lg" />
         </button>
 
         {/* ── Desktop nav ── */}
@@ -135,7 +136,7 @@ export function NavHeader() {
               onClick={() => navigate('/files')}
               className={`pressable w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${
                 pathname === '/files'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100'
               }`}
             >
@@ -149,7 +150,7 @@ export function NavHeader() {
                 onClick={() => navigate('/admin')}
                 className={`pressable w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${
                   pathname === '/admin'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-violet-600 text-white'
                     : 'text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100'
                 }`}
               >
@@ -166,7 +167,7 @@ export function NavHeader() {
               onClick={() => navigate('/settings')}
               className={`pressable w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm ${
                 pathname === '/settings'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100'
               }`}
             >

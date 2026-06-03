@@ -193,7 +193,7 @@ export function StorageConfig({ apiFetch }: Props) {
               id="storage-backend"
               value={form.backend}
               onChange={(e) => setForm({ ...form, backend: e.target.value })}
-              className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
             >
               {Object.entries(backends).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
@@ -213,7 +213,7 @@ export function StorageConfig({ apiFetch }: Props) {
                     type="text"
                     value={form[key] || ''}
                     onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
                   />
                 </div>
               ))}
@@ -229,7 +229,7 @@ export function StorageConfig({ apiFetch }: Props) {
                       value={form[key] || ''}
                       placeholder={data[key] ? '••••••••' : ''}
                       onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                      className="w-full px-3 py-2 pr-10 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
+                      className="w-full px-3 py-2 pr-10 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
                     />
                     <div className="absolute right-1 top-1/2 -translate-y-1/2">
                       <VisibilityToggle
@@ -253,7 +253,7 @@ export function StorageConfig({ apiFetch }: Props) {
               value={form.storage_path || ''}
               placeholder="linqoy/storage/"
               onChange={(e) => setForm({ ...form, storage_path: e.target.value })}
-              className="w-full sm:w-96 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500"
+              className="w-full sm:w-96 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
             />
             <p className="text-xs text-zinc-600 mt-1">
               Key prefix in the bucket. Leave empty for no prefix.
@@ -270,7 +270,7 @@ export function StorageConfig({ apiFetch }: Props) {
               min="0"
               value={form.total_storage_limit || '0'}
               onChange={(e) => setForm({ ...form, total_storage_limit: e.target.value })}
-              className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-blue-500 font-mono"
+              className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500 font-mono"
             />
             <p className="text-xs text-zinc-600 mt-1">
               0 = unlimited. Current usage shown in the metrics above.

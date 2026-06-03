@@ -324,7 +324,7 @@ export function UserManager({ apiFetch }: Props) {
       {showCreate && (
         <form
           onSubmit={handleCreate}
-          className="rounded-lg border border-blue-600/40 bg-zinc-800/30 p-4 space-y-3"
+          className="rounded-lg border border-violet-600/40 bg-zinc-800/30 p-4 space-y-3"
         >
           <h3 className="text-sm font-medium text-zinc-300">Create New User</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -388,7 +388,7 @@ export function UserManager({ apiFetch }: Props) {
                   type="checkbox"
                   checked={newIsAdmin}
                   onChange={(e) => setNewIsAdmin(e.target.checked)}
-                  className="rounded bg-zinc-900 border-zinc-700 text-blue-500 focus:ring-blue-500"
+                  className="rounded bg-zinc-900 border-zinc-700 text-violet-500 focus:ring-violet-500"
                 />
                 <span className="text-xs text-zinc-300">Admin user</span>
               </label>
@@ -411,7 +411,7 @@ export function UserManager({ apiFetch }: Props) {
             }}
             placeholder="Search users..."
             aria-label="Search users"
-            className="w-full px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-full px-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
           />
           {search && (
             <button
@@ -451,7 +451,7 @@ export function UserManager({ apiFetch }: Props) {
             return (
               <div
                 key={u.id}
-                className={`rounded-lg border p-3 transition-colors ${isEditing ? 'border-blue-600 bg-zinc-800/50' : 'border-zinc-800 bg-zinc-900/30 hover:border-zinc-700'}`}
+                className={`rounded-lg border p-3 transition-colors ${isEditing ? 'border-violet-600 bg-zinc-800/50' : 'border-zinc-800 bg-zinc-900/30 hover:border-zinc-700'}`}
               >
                 {isEditing ? (
                   <form onSubmit={handleSave} className="space-y-3">
@@ -504,7 +504,7 @@ export function UserManager({ apiFetch }: Props) {
                             type="checkbox"
                             checked={editAdmin}
                             onChange={(e) => setEditAdmin(e.target.checked)}
-                            className="rounded bg-zinc-900 border-zinc-700 text-blue-500 focus:ring-blue-500"
+                            className="rounded bg-zinc-900 border-zinc-700 text-violet-500 focus:ring-violet-500"
                           />
                           <span className="text-xs text-zinc-300">
                             Is admin

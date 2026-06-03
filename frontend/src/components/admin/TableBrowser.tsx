@@ -116,7 +116,7 @@ export function TableBrowser({
             onClick={() => handleTableClick(t.name)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-mono transition-colors border ${
               expanded === t.name
-                ? 'bg-blue-600/20 text-blue-300 border-blue-600/40'
+                ? 'bg-violet-600/20 text-violet-300 border-violet-600/40'
                 : 'bg-zinc-800/50 text-zinc-300 border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800'
             }`}
           >

@@ -235,7 +235,7 @@ export function VideoViewer({
               }}
               className={`p-1.5 rounded-md transition-colors ${
                 loop
-                  ? 'bg-blue-600 text-white hover:bg-blue-500'
+                  ? 'bg-violet-600 text-white hover:bg-violet-500'
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
               }`}
               title={loop ? 'Loop on' : 'Loop off'}
@@ -250,7 +250,7 @@ export function VideoViewer({
               onClick={togglePiP}
               className={`p-1.5 rounded-md transition-colors ${
                 isPiP
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
               }`}
               title="Picture-in-Picture (P)"

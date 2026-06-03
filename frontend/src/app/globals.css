@@ -28,7 +28,7 @@ body {
     transform: scale(0.97);
   }
   .btn-blue {
-    @apply px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 bg-blue-600 hover:bg-blue-500 text-white;
+    @apply px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 bg-violet-600 hover:bg-violet-500 text-white;
   }
   .btn-blue:active {
     transform: scale(0.97);
@@ -53,11 +53,11 @@ body {
   }
   .input {
     @apply w-full px-2.5 py-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-100 text-xs
-           focus:outline-none focus:border-blue-500 transition-colors placeholder:text-zinc-600;
+           focus:outline-none focus:border-violet-500 transition-colors placeholder:text-zinc-600;
   }
   .input-sm {
     @apply w-full px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs
-           focus:outline-none focus:border-blue-500 transition-colors placeholder:text-zinc-600;
+           focus:outline-none focus:border-violet-500 transition-colors placeholder:text-zinc-600;
   }
   .badge {
     @apply px-1.5 py-0.5 rounded text-[10px] font-medium;
@@ -135,7 +135,7 @@ body {
   @apply my-1;
 }
 .markdown-body a {
-  @apply text-blue-400 hover:underline;
+  @apply text-violet-400 hover:underline;
 }
 .markdown-body blockquote {
   @apply border-l-2 border-zinc-600 pl-4 my-3 text-zinc-400 italic;
@@ -185,6 +185,36 @@ body {
   animation: tab-fade-in 0.25s ease-out;
 }
 
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #18181b 25%, #27272a 50%, #18181b 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  color: transparent !important;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Gradient text ── */
+.text-gradient-brand {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Subtle grid background ── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
 /* ── Tab pill indicator ── */
 .tab-pill {
   transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -203,11 +233,7 @@ body {
   inset: 0;
   border-radius: inherit;
   opacity: 0;
-  background: radial-gradient(
-    350px circle at var(--glow-x) var(--glow-y),
-    var(--glow-color, rgba(59, 130, 246, 0.12)),
-    transparent 60%
-  );
+  background: radial-gradient(\n    350px circle at var(--glow-x) var(--glow-y),\n    var(--glow-color, rgba(139, 92, 246, 0.12)),\n    transparent 60%\n  );
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 0;
@@ -217,7 +243,7 @@ body {
 }
 
 /* Glow color variants */
-.glow-blue { --glow-color: rgba(59, 130, 246, 0.12); }
+.glow-violet-brand { --glow-color: rgba(139, 92, 246, 0.12); }
 .glow-violet { --glow-color: rgba(139, 92, 246, 0.12); }
 .glow-amber { --glow-color: rgba(245, 158, 11, 0.12); }
 .glow-emerald { --glow-color: rgba(16, 185, 129, 0.12); }
