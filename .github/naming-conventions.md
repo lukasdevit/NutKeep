@@ -1,4 +1,4 @@
-# Naming Convention – NutKeep
+# Naming Convention – linqoy
 
 **Version:** 1.3 | **Date:** 31.05.2026 | **Applies to:** Backend + Frontend
 

@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
-#  NutKeep — Caddy Reverse Proxy
-#  DOMAIN env var must be set to your real domain (e.g. app.nutkeep.com)
+#  linqoy — Caddy Reverse Proxy
+#  DOMAIN env var must be set to your real domain (e.g. app.linqoy.com)
 #  Falls back to "localhost" for local dev.
 # ═══════════════════════════════════════════════════════════════
 

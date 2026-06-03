@@ -325,7 +325,7 @@ export function LogViewer({ apiFetch }: Props) {
       const blob = await r.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = category !== 'all' ? `nutkeep-${category}.log` : 'nutkeep-all.log';
+      a.download = category !== 'all' ? `linqoy-${category}.log` : 'linqoy-all.log';
       a.click();
     } catch {
       toast('Failed to download logs', 'err');

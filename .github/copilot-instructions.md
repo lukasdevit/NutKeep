@@ -1,4 +1,4 @@
-# Copilot / AI Instructions for NutKeep
+# Copilot / AI Instructions for linqoy
 
 **Version:** 3.1 | **Date:** 02.06.2026
 

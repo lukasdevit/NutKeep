@@ -10,7 +10,7 @@ export const PORT = 3000;
 
 /**
  * Strip trailing slash so URL concatenation never produces double slashes
- * (e.g. "https://app.nutkeep.com/" → "https://app.nutkeep.com").
+ * (e.g. "https://app.linqoy.com/" → "https://app.linqoy.com").
  */
 function stripTrailingSlash(val: string): string {
   return val.endsWith('/') ? val.slice(0, -1) : val;
@@ -24,7 +24,7 @@ export const DEFAULT_UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 
 /**
  * Strip trailing slash — browsers send Origin without one
- * (e.g. "https://app.nutkeep.com/" → "https://app.nutkeep.com").
+ * (e.g. "https://app.linqoy.com/" → "https://app.linqoy.com").
  */
 export const CORS_ORIGIN: string | true =
   typeof process.env.CORS_ORIGIN === 'string'
@@ -109,7 +109,7 @@ export async function getStoragePath(): Promise<string> {
   const db = await loadDbSettings();
   if (db['storage_path']) return db['storage_path'];
   const backend = await getStorageBackend();
-  return backend === 'local' ? DEFAULT_UPLOAD_DIR : 'nutkeep/storage/';
+  return backend === 'local' ? DEFAULT_UPLOAD_DIR : 'linqoy/storage/';
 }
 
 export const DB_PATH =

@@ -78,7 +78,7 @@ describe('Global storage limit (507)', () => {
   });
 
   it('rejects upload when global storage limit is exceeded', async () => {
-    const tmpFile = path.join('/tmp', 'nutkeep-test-small.txt');
+    const tmpFile = path.join('/tmp', 'linqoy-test-small.txt');
     fs.writeFileSync(tmpFile, Buffer.alloc(100));
 
     const res = await request

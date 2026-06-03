@@ -43,7 +43,7 @@ export async function adminLogRoutes(app: FastifyInstance) {
     const { category } = request.query as { category?: string };
     const cat = parseCategory(category);
     const content = readLogFile(cat);
-    const filename = cat ? `nutkeep-${cat}.log` : 'nutkeep-all.log';
+    const filename = cat ? `linqoy-${cat}.log` : 'linqoy-all.log';
     reply.header('Content-Type', 'text/plain');
     reply.header('Content-Disposition', `attachment; filename=${filename}`);
     return reply.send(content);

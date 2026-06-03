@@ -132,7 +132,7 @@ function BackupOverview({
       const blob = await r.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'nutkeep-backup.db';
+      a.download = 'linqoy-backup.db';
       a.click();
     } catch {
       /* */

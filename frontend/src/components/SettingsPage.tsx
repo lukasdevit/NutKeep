@@ -39,7 +39,7 @@ export function SettingsPage({ apiFetch }: Props) {
     const b = await r.blob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
-    a.download = 'NutKeep.sxcu';
+    a.download = 'linqoy.sxcu';
     a.click();
   }
 

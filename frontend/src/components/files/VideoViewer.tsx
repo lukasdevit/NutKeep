@@ -7,7 +7,7 @@ import { DeleteButton } from '@/components/ui/DeleteButton';
 import { OpenInNewTab } from '@/components/ui/OpenInNewTab';
 import type { FileInfo } from '@/types';
 
-const VOLUME_KEY = 'nutkeep_video_volume';
+const VOLUME_KEY = 'linqoy_video_volume';
 
 function loadVolume(): number {
   if (typeof window === 'undefined') return 1;

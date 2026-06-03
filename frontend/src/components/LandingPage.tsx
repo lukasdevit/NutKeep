@@ -118,14 +118,14 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
       {/* ── Footer ── */}
       <footer className="text-center pb-8 text-xs text-zinc-600">
         <a
-          href="https://github.com/lukasdevit/NutKeep"
+          href="https://github.com/lukasdevit/linqoy"
           className="hover:text-zinc-400 transition-colors"
         >
           GitHub
         </a>
         <span className="mx-2">·</span>
         <a
-          href="https://github.com/lukasdevit/NutKeep#readme"
+          href="https://github.com/lukasdevit/linqoy#readme"
           className="hover:text-zinc-400 transition-colors"
         >
           Readme
