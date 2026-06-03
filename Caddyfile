@@ -35,6 +35,11 @@
   reverse_proxy web:3000
 }
 
+# ── Apex + WWW redirect → app ──
+linqoy.com, www.linqoy.com {
+  redir https://app.linqoy.com{uri} permanent
+}
+
 # ── Staging site ──
 staging.linqoy.com {
   reverse_proxy host.docker.internal:9080
