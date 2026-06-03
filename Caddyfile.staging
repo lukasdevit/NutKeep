@@ -1,0 +1,43 @@
+# ═══════════════════════════════════════════════════════════════
+#  linqoy — Staging Docker Caddy (internal proxy only)
+#  Host-level Caddy handles TLS, domains, and redirects separately.
+# ═══════════════════════════════════════════════════════════════
+
+{
+  auto_https off
+}
+
+{$DOMAIN:localhost} {
+  # Import custom cert snippet if any files exist (uploaded via admin panel)
+  import /etc/caddy/certs/*.caddy
+
+  # File downloads + uploads — always go to API (users share direct /file/* links)
+  handle /file/* {
+    reverse_proxy api:3000
+  }
+  handle /upload* {
+    reverse_proxy api:3000
+  }
+  handle /sharex/* {
+    reverse_proxy api:3000
+  }
+  handle /health* {
+    reverse_proxy api:3000
+  }
+
+  # API routes — only for fetch() calls (JSON), not browser page loads
+  @apiCall {
+    header Accept application/json
+  }
+  handle @apiCall {
+    reverse_proxy api:3000
+  }
+
+  # Everything else → Next.js frontend (browser gets proper HTML pages)
+  reverse_proxy web:3000
+}
+
+# ── Drop all direct IP / unknown-host requests ──
+:80, :443 {
+  respond 444
+}

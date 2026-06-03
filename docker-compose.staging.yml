@@ -45,7 +45,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN:-}
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile.staging:/etc/caddy/Caddyfile
       - ./caddy/certs:/etc/caddy/certs
       - staging_caddy_data:/data
     restart: unless-stopped
