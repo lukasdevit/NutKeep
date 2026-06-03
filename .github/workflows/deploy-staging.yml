@@ -29,8 +29,10 @@ jobs:
 
             cd ~/linqoy-staging
 
+            git update-index --no-skip-worktree Caddyfile 2>/dev/null || true
             git fetch origin staging
             git reset --hard origin/staging
 
-            sg docker -c "docker compose -f docker-compose.staging.yml down"
-            sg docker -c "docker compose -f docker-compose.staging.yml up -d --build --remove-orphans --force-recreate"
+            export DOCKER_HOST=unix:///run/user/1000/docker.sock
+            docker compose -f docker-compose.staging.yml down
+            docker compose -f docker-compose.staging.yml up -d --build --remove-orphans --force-recreate
