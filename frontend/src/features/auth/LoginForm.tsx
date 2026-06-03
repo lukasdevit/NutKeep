@@ -47,9 +47,7 @@ export function LoginForm({
         {/* Branding */}
         <div className="flex flex-col mb-8">
           <div className="flex items-baseline gap-0.5">
-            <span className="text-xl mr-0.5">🐿️</span>
-            <span className="text-2xl font-semibold text-zinc-200">Nut</span>
-            <span className="text-2xl font-bold text-zinc-100">Keep</span>
+            <span className="text-2xl font-bold text-zinc-100">linqoy.</span>
           </div>
           <p className="text-xs text-zinc-500 mt-1">File sharing that just works</p>
         </div>

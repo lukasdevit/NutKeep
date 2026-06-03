@@ -62,9 +62,7 @@ export function AdminSidebar({
           <>
             <div className="flex items-center gap-2">
               <div className="flex items-baseline gap-0">
-                <span className="text-xs mr-0.5">🐿️</span>
-                <span className="text-sm font-semibold text-zinc-300 tracking-tight">Nut</span>
-                <span className="text-sm font-bold text-zinc-100 tracking-tight">Keep</span>
+                <span className="text-sm font-bold text-zinc-100 tracking-tight">linqoy.</span>
               </div>
               <span className="text-[10px] text-zinc-600 bg-zinc-800 rounded px-1.5 py-0.5">Admin</span>
             </div>

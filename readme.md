@@ -9,7 +9,7 @@ A file sharing app with a clean interface and zero clutter. Upload, share, manag
 
 ---
 
-## What this squirrel can do
+## What linqoy. can do
 
 - **Drag & drop to upload** — small files go in one request, big files are automatically split into chunks. The only limit is your storage quota.
 - **ShareX ready** — one-click config. Screenshot → upload → link.

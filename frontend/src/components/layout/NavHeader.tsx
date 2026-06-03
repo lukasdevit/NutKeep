@@ -94,9 +94,7 @@ export function NavHeader() {
           onClick={() => navigate('/files')}
           className="pressable flex items-center gap-0.5 text-xl tracking-tight transition-colors duration-200"
         >
-          <span className="text-base mr-0.5">🐿️</span>
-          <span className="font-semibold text-zinc-200 hover:text-white">Nut</span>
-          <span className="font-bold text-zinc-200 hover:text-white">Keep</span>
+          <span className="font-bold text-zinc-200 hover:text-white">linqoy.</span>
         </button>
 
         {/* ── Desktop nav ── */}

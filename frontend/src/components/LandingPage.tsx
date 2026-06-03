@@ -10,7 +10,7 @@ const features = [
   {
     icon: UploadCloud,
     title: 'Drag, drop, done',
-    desc: 'Toss your files in like acorns into a burrow. Images, docs, archives. The only limit is your hard drive.',
+    desc: 'Drag, drop, done. Images, docs, archives — share anything with a link in seconds.',
     gradient: 'from-blue-500/20 to-cyan-500/10',
     iconBg: 'bg-blue-500/15 text-blue-400',
     glow: 'glow-blue',
@@ -34,7 +34,7 @@ const features = [
   {
     icon: LayoutDashboard,
     title: 'Admin dashboard',
-    desc: 'Manage users, check analytics, run backups. You\'re the head squirrel now. Act accordingly.',
+    desc: 'Manage users, check analytics, run backups. Full control, no fluff.',
     gradient: 'from-emerald-500/20 to-green-500/10',
     iconBg: 'bg-emerald-500/15 text-emerald-400',
     glow: 'glow-emerald',
@@ -64,9 +64,7 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
       {/* ── Hero ── */}
       <section className="flex flex-col items-center text-center px-4 pt-20 sm:pt-28 pb-8 max-w-4xl mx-auto">
         <div className="flex items-baseline gap-0.5 mb-6">
-          <span className="text-2xl sm:text-3xl mr-1">🐿️</span>
-          <span className="text-3xl sm:text-4xl font-semibold text-zinc-300">Nut</span>
-          <span className="text-3xl sm:text-4xl font-bold text-zinc-100">Keep</span>
+          <span className="text-3xl sm:text-4xl font-bold text-zinc-100">linqoy.</span>
         </div>
 
         <p className="text-base sm:text-lg text-zinc-400 max-w-xl mb-8 leading-relaxed">
@@ -98,7 +96,7 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
       {/* ── Features ── */}
       <section className="max-w-4xl mx-auto px-4 pt-16 pb-24">
         <h2 className="text-center text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-10">
-          What this squirrel can do
+          What linqoy. can do
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {features.map((f) => (
