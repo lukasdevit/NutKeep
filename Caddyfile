@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
 #  NutKeep — Caddy Reverse Proxy
-#  DOMAIN env var must be set to your real domain (e.g. app.nutkeep.com)
+#  DOMAIN env var must be set to your real domain (e.g. app.linqoy.com)
 #  Falls back to "localhost" for local dev.
 # ═══════════════════════════════════════════════════════════════
 
@@ -33,6 +33,11 @@
 
   # Everything else → Next.js frontend (browser gets proper HTML pages)
   reverse_proxy web:3000
+}
+
+# ── Staging site ──
+staging.linqoy.com {
+  reverse_proxy host.docker.internal:9080
 }
 
 # ── Drop all direct IP / unknown-host requests ──
