@@ -44,6 +44,7 @@ function createAdminLogStream(): Writable {
           time: (entry.time as string) || new Date().toISOString(),
           level,
           levelName: LEVEL_LABELS[level] || 'info',
+          category: 'debug',
           msg: (entry.msg as string) || '',
           err: entry.err,
         });
@@ -135,6 +136,7 @@ export async function buildApp(opts: AppOptions = {}) {
         time: new Date().toISOString(),
         level: 50,
         levelName: 'error',
+        category: 'debug',
         msg: error.message ?? 'Unknown error',
         err: error,
       });
@@ -156,11 +158,23 @@ export async function buildApp(opts: AppOptions = {}) {
       ._logStart as number;
     const responseTime = start ? Date.now() - start : undefined;
 
+    // Skip health checks entirely
+    if (request.url === '/health') return;
+
+    // GET/HEAD/OPTIONS -> trace level (hidden by default in admin panel)
+    // POST/PUT/PATCH/DELETE -> info level (visible)
+    const isWrite = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(request.method);
+    const level = isWrite
+      ? reply.statusCode >= 400 ? 40 : 30
+      : 10;
+    const levelName = isWrite
+      ? reply.statusCode >= 400 ? 'warn' : 'info'
+      : 'trace';
+
     // Build a descriptive message that includes what was changed
-    let msg = 'request completed';
+    let msg = isWrite ? 'request completed' : `${request.method} ${request.url}`;
     let body: unknown = undefined;
-    const writeMethods = ['POST', 'PATCH', 'PUT', 'DELETE'];
-    if (writeMethods.includes(request.method) && request.body) {
+    if (isWrite && request.body) {
       body = redactSensitive(request.body, request.url);
       const summary = summarizeAction(request.method, request.url, request.body);
       if (summary) msg = summary;
@@ -168,8 +182,9 @@ export async function buildApp(opts: AppOptions = {}) {
 
     writeLog({
       time: new Date().toISOString(),
-      level: reply.statusCode >= 400 ? 40 : 30,
-      levelName: reply.statusCode >= 400 ? 'warn' : 'info',
+      level,
+      levelName,
+      category: 'debug',
       msg,
       reqId: request.id,
       user: request.user?.username,

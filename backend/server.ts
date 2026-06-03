@@ -18,5 +18,6 @@ writeLog({
   time: new Date().toISOString(),
   level: 30,
   levelName: 'info',
+  category: 'general',
   msg: `Server listening on port ${PORT}`,
 });
