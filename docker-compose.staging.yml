@@ -3,6 +3,8 @@
 #  Lower resource limits, Caddy on internal port (host Caddy proxies)
 # ═══════════════════════════════════════════════════════════════
 
+name: linqoy-staging
+
 services:
   api:
     build: .
@@ -40,14 +42,13 @@ services:
 
   staging-caddy:
     image: caddy:alpine
-    environment:
-      - DOMAIN=staging.linqoy.com
     volumes:
       - ./Caddyfile.staging:/etc/caddy/Caddyfile
       - ./caddy/certs:/etc/caddy/certs
       - staging_caddy_data:/data
     restart: unless-stopped
     networks:
+      - default
       - linqoy-shared
     deploy:
       resources:
@@ -56,6 +57,7 @@ services:
           cpus: '0.1'
 
 networks:
+  default:
   linqoy-shared:
     external: true
 

@@ -3,15 +3,8 @@
 #  Host-level Caddy handles TLS, domains, and redirects separately.
 # ═══════════════════════════════════════════════════════════════
 
-{
-  auto_https off
-}
-
-{$DOMAIN:localhost} {
-  # Import custom cert snippet if any files exist (uploaded via admin panel)
-  import /etc/caddy/certs/*.caddy
-
-  # File downloads + uploads — always go to API (users share direct /file/* links)
+:80 {
+  # File downloads + uploads — always go to API
   handle /file/* {
     reverse_proxy api:3000
   }
@@ -33,11 +26,6 @@
     reverse_proxy api:3000
   }
 
-  # Everything else → Next.js frontend (browser gets proper HTML pages)
+  # Everything else → Next.js frontend
   reverse_proxy web:3000
-}
-
-# ── Drop all direct IP / unknown-host requests ──
-:80, :443 {
-  respond 444
 }
