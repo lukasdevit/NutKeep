@@ -57,7 +57,10 @@ function createAdminLogStream(): Writable {
 }
 
 export async function buildApp(opts: AppOptions = {}) {
-  const app = Fastify({ logger: opts.logger ? {} : false });
+  const app = Fastify({
+    logger: opts.logger ? {} : false,
+    bodyLimit: 6 * 1024 * 1024, // 6 MB — accommodate 5 MB chunks + overhead
+  });
 
   if (opts.logger) {
     const streams: StreamEntry[] = [
