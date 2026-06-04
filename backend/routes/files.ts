@@ -65,7 +65,15 @@ export async function filesRoutes(app: FastifyInstance) {
         }
 
         reply.header('Accept-Ranges', 'bytes');
-        reply.header('Cache-Control', 'public, max-age=31536000');
+
+        // Public files → CDN/browser can cache aggressively
+        // Private files (owner only) → zero cache, always revalidate
+        if (file.is_public) {
+          reply.header('Cache-Control', 'public, max-age=31536000');
+        } else {
+          reply.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+        }
+
         reply.header('Access-Control-Allow-Origin', '*');
 
         // Handle HTTP Range requests (required for video/audio seeking)

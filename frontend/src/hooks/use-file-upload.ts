@@ -3,8 +3,90 @@
 import { useState, useCallback, useRef } from 'react';
 import { API_BASE } from '@/lib/api-client';
 
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB per chunk
+
+function authHeaders(token: string | null): Record<string, string> {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 /**
- * Hook for file upload with XHR progress tracking and drag-and-drop support.
+ * Upload a single file using local chunked upload.
+ * Splits file into 5 MB chunks and streams them to /upload/local/* endpoints.
+ */
+async function uploadFileChunked(
+  file: File,
+  token: string | null,
+  expiry: string,
+  onProgress: (pct: number) => void
+): Promise<string> {
+  const totalParts = Math.ceil(file.size / CHUNK_SIZE) || 1;
+
+  // 1. Init
+  const initRes = await fetch(`${API_BASE}/upload/local/init`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+    },
+    body: JSON.stringify({
+      filename: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      totalParts,
+      totalSize: file.size,
+      ...(expiry ? { expiresInDays: parseInt(expiry, 10) || undefined } : {}),
+    }),
+  });
+  if (!initRes.ok) {
+    const d = await initRes.json().catch(() => ({ error: 'Init failed' }));
+    throw new Error(d.error || 'Init failed');
+  }
+  const { data } = await initRes.json();
+  const uploadId: string = data.uploadId;
+
+  // 2. Upload each chunk
+  for (let part = 1; part <= totalParts; part++) {
+    const start = (part - 1) * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunk = file.slice(start, end);
+
+    const partRes = await fetch(
+      `${API_BASE}/upload/local/part?uploadId=${encodeURIComponent(uploadId)}&partNumber=${part}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          ...authHeaders(token),
+        },
+        body: chunk,
+      }
+    );
+    if (!partRes.ok) {
+      const d = await partRes.json().catch(() => ({ error: 'Part upload failed' }));
+      throw new Error(d.error || `Part ${part} failed`);
+    }
+
+    onProgress(Math.round((part / totalParts) * 100));
+  }
+
+  // 3. Complete
+  const completeRes = await fetch(`${API_BASE}/upload/local/complete`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(token),
+    },
+    body: JSON.stringify({ uploadId }),
+  });
+  if (!completeRes.ok) {
+    const d = await completeRes.json().catch(() => ({ error: 'Complete failed' }));
+    throw new Error(d.error || 'Complete failed');
+  }
+  const result = await completeRes.json();
+  return result.data.url as string;
+}
+
+/**
+ * Hook for file upload with chunked upload + progress tracking and drag-and-drop support.
  */
 export function useFileUpload(
   api: (path: string, options?: RequestInit) => Promise<Response>,
@@ -37,39 +119,8 @@ export function useFileUpload(
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
-        const form = new FormData();
-        form.append('file', file);
-
         try {
-          await new Promise<void>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.upload.addEventListener('progress', (e) => {
-              if (e.lengthComputable) {
-                setUploadProgress(Math.round((e.loaded / e.total) * 100));
-              }
-            });
-            xhr.addEventListener('load', () => {
-              if (xhr.status >= 200 && xhr.status < 300) resolve();
-              else {
-                try {
-                  const d = JSON.parse(xhr.responseText);
-                  reject(new Error(d.error || 'Upload failed'));
-                } catch {
-                  reject(new Error('Upload failed'));
-                }
-              }
-            });
-            xhr.addEventListener('error', () =>
-              reject(new Error('Network error'))
-            );
-
-            let url = `${API_BASE}/upload`;
-            if (expiry) url += `?expires=${expiry}`;
-            xhr.open('POST', url);
-            if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-            xhr.setRequestHeader('X-File-Expires', expiry);
-            xhr.send(form);
-          });
+          await uploadFileChunked(file, token, expiry, setUploadProgress);
         } catch (err) {
           setError(`${file.name}: ${(err as Error).message}`);
           setUploading(false);

@@ -14,7 +14,7 @@ import {
   CORS_ORIGIN,
   DEFAULT_STORAGE_LIMIT,
 } from './config/index.js';
-import { uploadRoutes, multipartUploadRoutes } from './routes/upload/index.js';
+import { uploadRoutes, multipartUploadRoutes, localChunkedRoutes } from './routes/upload/index.js';
 import { filesRoutes } from './routes/files.js';
 import { sharexRoutes } from './routes/sharex.js';
 import { authRoutes } from './routes/auth.js';
@@ -198,6 +198,7 @@ export async function buildApp(opts: AppOptions = {}) {
 
   await app.register(uploadRoutes);
   await app.register(multipartUploadRoutes);
+  await app.register(localChunkedRoutes);
   await app.register(filesRoutes);
   await app.register(sharexRoutes);
   await app.register(authRoutes);
