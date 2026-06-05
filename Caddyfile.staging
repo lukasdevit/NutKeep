@@ -6,10 +6,17 @@
 :80 {
   # File downloads + uploads — always go to API
   handle /file/* {
-    reverse_proxy api:3000
+    reverse_proxy api:3000 {
+      flush_interval -1
+    }
   }
   handle /upload* {
-    reverse_proxy api:3000
+    reverse_proxy api:3000 {
+      transport http {
+        read_timeout 300s
+        write_timeout 300s
+      }
+    }
   }
   handle /sharex/* {
     reverse_proxy api:3000
