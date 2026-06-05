@@ -5,6 +5,8 @@ import {
   DeleteObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
+  ListMultipartUploadsCommand,
+  AbortMultipartUploadCommand,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getS3Client, getBucket } from './client.js';
@@ -102,6 +104,50 @@ export class B2Storage implements StorageProvider {
     } catch {
       return false;
     }
+  }
+
+  async cleanupUnfinishedMultipart(): Promise<number> {
+    const [client, bucket] = await Promise.all([this.s3(), getBucket()]);
+    let count = 0;
+    let keyMarker: string | undefined;
+    let uploadIdMarker: string | undefined;
+
+    do {
+      const cmd = new ListMultipartUploadsCommand({
+        Bucket: bucket,
+        ...(keyMarker ? { KeyMarker: keyMarker } : {}),
+        ...(uploadIdMarker ? { UploadIdMarker: uploadIdMarker } : {}),
+      });
+      const result = await client.send(cmd);
+
+      if (result.Uploads) {
+        for (const upload of result.Uploads) {
+          if (upload.Key && upload.UploadId) {
+            try {
+              await client.send(
+                new AbortMultipartUploadCommand({
+                  Bucket: bucket,
+                  Key: upload.Key,
+                  UploadId: upload.UploadId,
+                })
+              );
+              count++;
+            } catch {
+              /* already gone or permission issue — skip */
+            }
+          }
+        }
+      }
+
+      if (result.IsTruncated) {
+        keyMarker = result.NextKeyMarker;
+        uploadIdMarker = result.NextUploadIdMarker;
+      } else {
+        break;
+      }
+    } while (true);
+
+    return count;
   }
 
   async listKeys(prefix: string): Promise<string[]> {

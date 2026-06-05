@@ -17,6 +17,7 @@ export async function saveFromPath(
   originalName: string,
   mimeType: string,
   userId: number,
+  username: string,
   expiresInDays?: number,
   expectedSize?: number
 ): Promise<string> {
@@ -41,7 +42,7 @@ export async function saveFromPath(
   }
 
   const storage = await getStorage();
-  const storageKey = await buildStorageKey(userId, filename);
+  const storageKey = await buildStorageKey(username, filename);
   const readStream = fs.createReadStream(tmpPath);
   await storage.save(storageKey, readStream);
 

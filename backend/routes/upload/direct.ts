@@ -41,7 +41,7 @@ export async function uploadRoutes(app: FastifyInstance) {
     }
 
     try {
-      const result = await handleUpload(file, user.id, expiresInDays);
+      const result = await handleUpload(file, user.id, user.username, expiresInDays);
       writeLog({
         time: new Date().toISOString(),
         level: 20,

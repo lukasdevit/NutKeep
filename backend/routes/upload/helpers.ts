@@ -11,7 +11,8 @@ import { buildStorageKey } from '../../services/storage/index.js';
  */
 export async function prepareUploadInit(
   body: { filename: string; mimeType: string; totalSize?: number },
-  userId: number
+  userId: number,
+  username: string
 ) {
   const originalName = sanitizeFilename(body.filename);
 
@@ -25,7 +26,7 @@ export async function prepareUploadInit(
   const id = nanoid(10);
   const ext = path.extname(originalName);
   const filename = `${id}${ext}`;
-  const storageKey = await buildStorageKey(userId, filename);
+  const storageKey = await buildStorageKey(username, filename);
 
   return { originalName, filename, storageKey };
 }

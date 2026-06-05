@@ -11,6 +11,7 @@ import { recordAction } from '../../services/action-log-service.js';
 import { getAllSettings, upsertSetting } from '../../repositories/settings-repository.js';
 import { getStorageStats } from '../../repositories/storage-stats-repository.js';
 import { saveCustomCertificate, readSslStatus } from '../../services/storage/ssl-service.js';
+import { getStorage, resolveProvider } from '../../services/storage/index.js';
 import { isCorsSupported } from './cors.js';
 
 const STORAGE_RATE_LIMIT = 60; // requests per window
@@ -196,6 +197,46 @@ export async function adminSslRoutes(app: FastifyInstance) {
     }
     return reply.send({ ok: true });
   });
+
+  app.post(
+    '/admin/storage/cleanup-multipart',
+    {
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: STORAGE_RATE_WINDOW_MS,
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const backend = await getStorageBackend();
+        const storage = resolveProvider(backend);
+
+        if (!storage.cleanupUnfinishedMultipart) {
+          return reply.code(400).send({
+            error: `Cleanup not supported for backend: ${backend}`,
+          });
+        }
+
+        const count = await storage.cleanupUnfinishedMultipart();
+
+        if (request.user?.username) {
+          await recordAction(
+            request.user!.username,
+            'multipart-cleanup',
+            `Cleaned up ${count} unfinished multipart uploads`,
+            { count, backend }
+          );
+        }
+
+        return reply.send({ ok: true, cleaned: count, backend });
+      } catch (err) {
+        const e = err as Error;
+        return reply.code(500).send({ error: `Cleanup failed: ${e.message}` });
+      }
+    }
+  );
 
   app.delete('/admin/ssl/cert', async (request, reply) => {
     const certsDir = path.join(process.cwd(), 'caddy', 'certs');

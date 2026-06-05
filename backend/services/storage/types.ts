@@ -19,4 +19,6 @@ export interface StorageProvider {
   mtime?(key: string): Promise<number>;
   /** List keys under a prefix (optional — rotate backups needs this). */
   listKeys?(prefix: string): Promise<string[]>;
+  /** Clean up unfinished multipart uploads. Returns count of cleaned uploads. */
+  cleanupUnfinishedMultipart?(): Promise<number>;
 }

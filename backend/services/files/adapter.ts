@@ -24,11 +24,11 @@ export function toRelativePath(p: string): string {
   return p.startsWith(DEFAULT_UPLOAD_DIR) ? path.relative(DEFAULT_UPLOAD_DIR, p) : p;
 }
 
-/** Extract user ID from a storage path like "2/2026/05/28/file.txt" → 2 */
-export function extractUserIdFromPath(diskPath: string): number | null {
+/** Extract username from a storage path like "john/file.txt" → "john" */
+export function extractUsernameFromPath(diskPath: string): string | null {
   const parts = diskPath.split(path.sep);
   const first = parts[0];
-  if (first && /^\d+$/.test(first)) return parseInt(first, 10);
+  if (first && !first.includes('.') && first.length > 0) return first;
   return null;
 }
 
@@ -51,10 +51,15 @@ export function getMimeType(filepath: string): string {
 /** Remove empty parent directories after deleting a file. */
 export function cleanEmptyDirs(absPath: string): void {
   let dir = path.dirname(absPath);
-  while (dir !== DEFAULT_UPLOAD_DIR) {
+  // Walk up until we hit the base upload dir, cleaning empty dirs
+  while (dir !== DEFAULT_UPLOAD_DIR && dir !== path.dirname(DEFAULT_UPLOAD_DIR)) {
     try {
-      if (fs.readdirSync(dir).length === 0) fs.rmdirSync(dir);
-      else break;
+      const entries = fs.readdirSync(dir);
+      if (entries.length === 0) {
+        fs.rmdirSync(dir);
+      } else {
+        break;
+      }
     } catch { break; }
     dir = path.dirname(dir);
   }
