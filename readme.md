@@ -5,7 +5,7 @@ A file sharing app with a clean interface and zero clutter. Upload, share, manag
 
 **Live:** [app.linqoy.com](https://app.linqoy.com) · **Self-host:** clone from GitHub and run with Docker
 
-<img src="docs/preview-v2.png" alt="Share screenshot" width="600" />
+<img src="docs/preview.png" alt="Share screenshot" width="600" />
 
 ---
 
