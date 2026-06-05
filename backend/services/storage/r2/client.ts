@@ -2,6 +2,7 @@ import { S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from '@smithy/node-http-handler';
 import https from 'https';
 import { getStorageSetting } from '../../../config/index.js';
+import { ensureBucketCors as setBucketCors } from '../s3-cors.js';
 
 /** Admin-configurable setting keys for this provider (prefixed). */
 export const R2_SETTING_KEYS = ['r2_endpoint', 'r2_region', 'r2_bucket', 'r2_access_key', 'r2_secret_key'] as const;
@@ -61,6 +62,15 @@ export async function getBucket(): Promise<string> {
   const bucket = await getStorageSetting('bucket');
   _cachedBucket = bucket || DEFAULTS.bucket;
   return _cachedBucket;
+}
+
+/**
+ * Ensure CORS is configured on the R2 bucket so browsers can PUT parts directly
+ * via presigned URLs. Runs once at startup, safe to call multiple times.
+ */
+export async function ensureBucketCors(): Promise<void> {
+  const [client, bucket] = await Promise.all([getS3Client(), getBucket()]);
+  await setBucketCors(client, bucket, 'R2');
 }
 
 /** Clear cached client + bucket — used when admin updates settings */
