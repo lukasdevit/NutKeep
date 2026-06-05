@@ -54,8 +54,8 @@ async function ensureStorageCors(app: FastifyInstance) {
   try {
     const { getStorageBackend } = await import('./config/index.js');
     const backend = await getStorageBackend();
-    if (backend === 'b2') {
-      const { ensureBucketCors } = await import('./services/storage/b2/client.js');
+    if (backend === 'b2' || backend === 'r2') {
+      const { ensureBucketCors } = await import(`./services/storage/${backend}/client.js`);
       await ensureBucketCors();
     }
   } catch (err) {

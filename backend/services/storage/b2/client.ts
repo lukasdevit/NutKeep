@@ -1,5 +1,6 @@
-import { S3Client, PutBucketCorsCommand, type S3ClientConfig } from '@aws-sdk/client-s3';
+import { S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
 import { getStorageSetting } from '../../../config/index.js';
+import { ensureBucketCors as setBucketCors } from '../s3-cors.js';
 
 /** Admin-configurable setting keys for this provider (prefixed). */
 export const B2_SETTING_KEYS = ['b2_endpoint', 'b2_region', 'b2_bucket', 'b2_key_id', 'b2_app_key'] as const;
@@ -63,27 +64,6 @@ export async function getBucket(): Promise<string> {
  * via presigned URLs. Runs once at startup, safe to call multiple times.
  */
 export async function ensureBucketCors(): Promise<void> {
-  try {
-    const s3 = await getS3Client();
-    const bucket = await getBucket();
-    await s3.send(
-      new PutBucketCorsCommand({
-        Bucket: bucket,
-        CORSConfiguration: {
-          CORSRules: [
-            {
-              AllowedHeaders: ['*'],
-              AllowedMethods: ['PUT', 'GET', 'HEAD', 'DELETE', 'OPTIONS'],
-              AllowedOrigins: ['*'],
-              ExposeHeaders: ['ETag', 'Content-Length', 'Content-Type'],
-              MaxAgeSeconds: 3600,
-            },
-          ],
-        },
-      })
-    );
-    console.warn('B2 CORS configuration applied');
-  } catch (err) {
-    console.warn('Failed to configure B2 CORS:', (err as Error).message);
-  }
+  const [client, bucket] = await Promise.all([getS3Client(), getBucket()]);
+  await setBucketCors(client, bucket, 'B2');
 }
