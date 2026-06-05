@@ -2,6 +2,7 @@ import path from 'path';
 import { DEFAULT_UPLOAD_DIR } from '../../config/index.js';
 import { LocalStorage } from '../storage/local.js';
 import { B2Storage } from '../storage/b2/index.js';
+import { R2Storage } from '../storage/r2/index.js';
 import type { StorageProvider } from '../storage/types.js';
 import { recordAction } from '../action-log-service.js';
 import {
@@ -26,11 +27,13 @@ import {
 } from './adapter.js';
 
 const local: StorageProvider = new LocalStorage();
-// B2 is lazily created only when needed (avoids import overhead when B2 not configured)
+// Cloud providers are lazily created only when needed
 
-function getB2Provider(): StorageProvider | null {
+function getCloudProvider(backend: string): StorageProvider | null {
   try {
-    return new B2Storage();
+    if (backend === 'b2') return new B2Storage();
+    if (backend === 'r2') return new R2Storage();
+    return null;
   } catch {
     return null;
   }
@@ -41,8 +44,8 @@ export async function runIntegrityCheck(
 ): Promise<{ checkId: string; total: number; summary: { missingFiles: number; orphanedFiles: number; sizeMismatches: number } }> {
   const dbFiles = await getFilesForScan(userId);
 
-  const localDbFiles = dbFiles.filter((f) => f.storage_backend !== 'b2');
-  const b2DbFiles = dbFiles.filter((f) => f.storage_backend === 'b2');
+  const localDbFiles = dbFiles.filter((f) => f.storage_backend === 'local' || !f.storage_backend);
+  const cloudDbFiles = dbFiles.filter((f) => f.storage_backend !== 'local' && f.storage_backend);
 
   const dbByPath = new Map<string, (typeof dbFiles)[0]>();
   for (const f of localDbFiles) dbByPath.set(toRelativePath(f.path), f);
@@ -65,18 +68,17 @@ export async function runIntegrityCheck(
     }
   }
 
-  if (b2DbFiles.length > 0) {
-    const b2 = getB2Provider();
-    if (b2) {
-      for (const dbFile of b2DbFiles) {
-        try {
-          const b2Size = await b2.size(dbFile.path);
-          if (b2Size !== dbFile.size) {
-            insertRows.push(['size-mismatch', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, dbFile.path, dbFile.size, b2Size]);
-          }
-        } catch {
-          insertRows.push(['missing-file', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, null, dbFile.size, null]);
+  if (cloudDbFiles.length > 0) {
+    for (const dbFile of cloudDbFiles) {
+      const provider = getCloudProvider(dbFile.storage_backend);
+      if (!provider) continue;
+      try {
+        const cloudSize = await provider.size(dbFile.path);
+        if (cloudSize !== dbFile.size) {
+          insertRows.push(['size-mismatch', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, dbFile.path, dbFile.size, cloudSize]);
         }
+      } catch {
+        insertRows.push(['missing-file', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, null, dbFile.size, null]);
       }
     }
   }
