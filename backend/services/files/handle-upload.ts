@@ -10,6 +10,7 @@ import { saveFile } from './save-file.js';
 export async function handleUpload(
   file: { filename: string; mimetype: string; file: NodeJS.ReadableStream },
   userId: number,
+  username: string,
   expiresInDays?: number
 ): Promise<{ url: string }> {
   const originalName = sanitizeFilename(file.filename);
@@ -29,6 +30,7 @@ export async function handleUpload(
     originalName,
     file.mimetype,
     userId,
+    username,
     expiresInDays
   );
 

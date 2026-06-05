@@ -16,10 +16,11 @@ import {
   findOrphanedIssue,
 } from '../../repositories/integrity-repository.js';
 import { insertFile, updateFilePathAndUser } from '../../repositories/file-repository.js';
+import { findByUsername, findById } from '../../repositories/user-repository.js';
 import {
   scanDirectory,
   toRelativePath,
-  extractUserIdFromPath,
+  extractUsernameFromPath,
   getMimeType,
   cleanEmptyDirs,
   statFile,
@@ -149,7 +150,12 @@ export async function importOrphanedFiles(
     const ext = path.extname(diskName);
     const base = path.basename(diskName, ext).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40);
     const filename = `${base}-${Date.now().toString(36)}${ext}`;
-    const resolvedUserId = userId ?? extractUserIdFromPath(issue.disk_path);
+    const resolvedUsername = extractUsernameFromPath(issue.disk_path);
+    let resolvedUserId = userId ?? null;
+    if (!resolvedUserId && resolvedUsername) {
+      const userRow = await findByUsername(resolvedUsername);
+      resolvedUserId = userRow?.id ?? null;
+    }
     const nameForDb = originalName || diskName;
 
     const fileId = await insertFile({
@@ -185,12 +191,17 @@ export async function migrateFile(
   const absSrc = path.join(DEFAULT_UPLOAD_DIR, relPath);
   if (!statFile(absSrc)) throw new Error('File not found');
 
-  const fromUserId = extractUserIdFromPath(relPath);
-  if (fromUserId === null) throw new Error('Could not determine source user');
-  if (fromUserId === toUserId) throw new Error('Already belongs to target user');
+  const fromUsername = extractUsernameFromPath(relPath);
+  if (!fromUsername) throw new Error('Could not determine source user');
+  const fromUserRow = await findByUsername(fromUsername);
+  if (!fromUserRow) throw new Error('Source user not found');
+  if (fromUserRow.id === toUserId) throw new Error('Already belongs to target user');
+
+  const toUserRow = await findById(toUserId);
+  if (!toUserRow) throw new Error('Target user not found');
 
   const parts = relPath.split(path.sep);
-  parts[0] = String(toUserId);
+  parts[0] = toUserRow.username;
   const destRel = parts.join(path.sep);
   const absDest = path.join(DEFAULT_UPLOAD_DIR, destRel);
 
@@ -199,7 +210,7 @@ export async function migrateFile(
 
   if (username) {
     await recordAction(username, 'migrate', `Migrated file: ${relPath} → user #${toUserId}`, {
-      fromPath: absSrc, toPath: absDest, fromUserId,
+      fromPath: absSrc, toPath: absDest, fromUser: fromUsername,
     });
   }
 

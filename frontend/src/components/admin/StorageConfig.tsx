@@ -69,6 +69,7 @@ export function StorageConfig({ apiFetch }: Props) {
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
   const [revealedSecrets, setRevealedSecrets] = useState<Record<string, boolean>>({});
 
   const toggleSecret = useCallback(async (key: string) => {
@@ -140,6 +141,26 @@ export function StorageConfig({ apiFetch }: Props) {
       toast((e as Error).message, 'err');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function cleanupMultipart() {
+    setCleaning(true);
+    try {
+      const r = await apiFetch('/admin/storage/cleanup-multipart', {
+        method: 'POST',
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      if (d.cleaned === 0) {
+        toast('No unfinished multipart uploads found.', 'ok');
+      } else {
+        toast(`Cleaned up ${d.cleaned} unfinished multipart upload(s).`, 'ok');
+      }
+    } catch (e) {
+      toast((e as Error).message, 'err');
+    } finally {
+      setCleaning(false);
     }
   }
 
@@ -306,6 +327,25 @@ export function StorageConfig({ apiFetch }: Props) {
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.s3_upload_enabled === 'true' ? 'translate-x-6' : 'translate-x-1'}`}
               />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
+            <div>
+              <span className="text-sm font-medium text-zinc-200">
+                Clear Unfinished Multipart Files
+              </span>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                Abort all in-progress multipart uploads and clean up local chunk directories
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={cleanupMultipart}
+              disabled={cleaning}
+              className="btn-red text-xs"
+            >
+              {cleaning ? 'Cleaning…' : 'Clean Up'}
             </button>
           </div>
 

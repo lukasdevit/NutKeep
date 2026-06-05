@@ -10,7 +10,8 @@ export async function saveFile(
   filename: string,
   originalName: string,
   mimeType: string,
-  userId?: number,
+  userId: number,
+  username: string,
   expiresInDays?: number
 ): Promise<string> {
   // Stream to temp file first, then delegate to shared saveFromPath
@@ -22,7 +23,8 @@ export async function saveFile(
       filename,
       originalName,
       mimeType,
-      userId!,
+      userId,
+      username,
       expiresInDays
     );
   } finally {

@@ -1,8 +1,12 @@
 import fs from 'fs';
+import fsp from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 import { DEFAULT_UPLOAD_DIR } from '../../config/index.js';
 import type { StorageProvider } from './types.js';
+
+const CHUNK_DIR = path.join(os.tmpdir(), 'linqoy-chunks');
 
 export class LocalStorage implements StorageProvider {
   private baseDir: string;
@@ -83,5 +87,18 @@ export class LocalStorage implements StorageProvider {
     }
     walk(dir);
     return results;
+  }
+
+  async cleanupUnfinishedMultipart(): Promise<number> {
+    if (!fs.existsSync(CHUNK_DIR)) return 0;
+    const entries = await fsp.readdir(CHUNK_DIR, { withFileTypes: true });
+    let count = 0;
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        await fsp.rm(path.join(CHUNK_DIR, entry.name), { recursive: true, force: true });
+        count++;
+      }
+    }
+    return count;
   }
 }

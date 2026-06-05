@@ -54,12 +54,8 @@ export async function getStorage(): Promise<StorageProvider> {
   return _storage;
 }
 
-export async function buildStorageKey(userId: number, filename: string): Promise<string> {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const base = `${userId}/${yyyy}/${mm}/${dd}/${filename}`;
+export async function buildStorageKey(username: string, filename: string): Promise<string> {
+  const base = `${username}/${filename}`;
 
   const backend = await getStorageBackend();
   if (backend === 'local') {

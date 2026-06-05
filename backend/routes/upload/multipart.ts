@@ -41,7 +41,8 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       try {
         const prep = await prepareUploadInit(
           { filename: body.filename, mimeType: body.mimeType },
-          request.user!.id
+          request.user!.id,
+          request.user!.username
         );
         filename = prep.filename;
         storageKey = prep.storageKey;

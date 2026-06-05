@@ -56,7 +56,8 @@ export async function localChunkedRoutes(app: FastifyInstance) {
       try {
         const prep = await prepareUploadInit(
           { filename: body.filename, mimeType: body.mimeType, totalSize: body.totalSize },
-          request.user!.id
+          request.user!.id,
+          request.user!.username
         );
         originalName = prep.originalName;
         filename = prep.filename;
@@ -220,6 +221,7 @@ export async function localChunkedRoutes(app: FastifyInstance) {
           meta.originalName,
           meta.mimeType,
           meta.userId,
+          request.user!.username,
           meta.expiresInDays ?? undefined,
           meta.totalSize
         );
