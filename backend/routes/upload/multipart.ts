@@ -1,7 +1,4 @@
-import path from 'path';
-
 import type { FastifyInstance } from 'fastify';
-import { nanoid } from 'nanoid';
 import {
   CreateMultipartUploadCommand,
   UploadPartCommand,
@@ -12,9 +9,10 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { requireAuth } from '../../middleware/index.js';
 import { BASE_URL } from '../../config/index.js';
-import { sanitizeFilename, validateFile, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
+import { sanitizeFilename, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
 import { buildStorageKey, getCurrentS3Client } from '../../services/storage/index.js';
 import { writeLog } from '../../services/log-service.js';
+import { prepareUploadInit } from './helpers.js';
 
 const PRESIGN_EXPIRY_SECONDS = 3600; // 1 hour per part URL
 
@@ -37,28 +35,24 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: 'filename and mimeType required' });
       }
 
-      const originalName = sanitizeFilename(body.filename);
-      const validationError = validateFile(body.mimeType, originalName);
-      if (validationError) {
-        return reply.code(415).send({ error: validationError });
-      }
-
+      let filename: string;
+      let storageKey: string;
       try {
-        await checkStorageQuota(1, request.user!.id);
+        const prep = await prepareUploadInit(
+          { filename: body.filename, mimeType: body.mimeType },
+          request.user!.id
+        );
+        filename = prep.filename;
+        storageKey = prep.storageKey;
       } catch (err) {
         const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 507).send({ error: e.message });
+        return reply.code(e.statusCode || 500).send({ error: e.message });
       }
-
-      const id = nanoid(10);
-      const ext = path.extname(originalName);
-      const filename = `${id}${ext}`;
-      const key = await buildStorageKey(request.user!.id, filename);
 
       const { client: s3, bucket } = await getCurrentS3Client();
       const createCmd = new CreateMultipartUploadCommand({
         Bucket: bucket,
-        Key: key,
+        Key: storageKey,
         ContentType: body.mimeType,
       });
 
@@ -79,8 +73,8 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       return reply.send({
         data: {
           uploadId: UploadId,
-          key,
-          filename: filename,
+          key: storageKey,
+          filename,
         },
       });
     }

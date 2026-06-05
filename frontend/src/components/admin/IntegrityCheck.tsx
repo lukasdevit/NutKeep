@@ -339,6 +339,9 @@ export function IntegrityCheck({ apiFetch }: Props) {
   const selectedOrphans = Array.from(selected).filter((id) =>
     issues.find((i) => i.id === id && i.type === 'orphaned-file' && !i.resolved)
   );
+  const selectedMissing = Array.from(selected).filter((id) =>
+    issues.find((i) => i.id === id && i.type === 'missing-file' && !i.resolved)
+  );
 
   return (
     <section className="card space-y-5">
@@ -486,14 +489,14 @@ export function IntegrityCheck({ apiFetch }: Props) {
             action="delete-db"
             confirm={confirmAction}
             onConfirm={handleBulkClick}
-            disabled={bulkRunning || selected.size === 0}
+            disabled={bulkRunning || selectedMissing.length === 0}
           />
           <BulkBtn
             label="Delete files"
             action="delete-file"
             confirm={confirmAction}
             onConfirm={handleBulkClick}
-            disabled={bulkRunning || selected.size === 0}
+            disabled={bulkRunning || selectedOrphans.length === 0}
           />
           <BulkBtn
             label="Import to DB"

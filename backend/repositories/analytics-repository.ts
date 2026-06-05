@@ -59,6 +59,7 @@ export async function getFileCategories(): Promise<Category[]> {
     `SELECT CASE
        WHEN mime_type LIKE 'image/%' THEN 'Images'
        WHEN mime_type LIKE 'video/%' THEN 'Videos'
+       WHEN mime_type LIKE 'audio/%' THEN 'Audio'
        WHEN mime_type LIKE 'text/%' OR mime_type IN ('application/json','application/xml','application/javascript') THEN 'Text / Code'
        ELSE 'Other'
      END AS category, COUNT(*) AS count, COALESCE(SUM(size), 0) AS bytes

@@ -3,6 +3,7 @@ export { validateFile } from '../../utils/validate-file.js';
 export { checkStorageQuota } from './quota.js';
 export { finalizeFile } from './finalize.js';
 export { saveFile } from './save-file.js';
+export { saveFromPath } from './save-from-path.js';
 export { handleUpload } from './handle-upload.js';
 export { resolveReadStream, resolveReadStreamRange } from './file-stream.js';
 export { scanDirectory, toRelativePath, extractUserIdFromPath, getMimeType, cleanEmptyDirs, statFile, moveFile } from './adapter.js';
