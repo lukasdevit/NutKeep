@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { VisibilityToggle } from '@/components/ui/VisibilityToggle';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
-import { B2CorsConfig } from '@/components/admin/B2CorsConfig';
+import { CorsConfig } from '@/components/admin/CorsConfig';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -16,6 +16,7 @@ interface StorageData {
   total_storage_limit: number;
   available_backends: Record<string, string>;
   setting_keys: string[];
+  cors_supported: boolean;
   disk_total?: number;
   disk_used?: number;
   disk_free?: number;
@@ -308,8 +309,8 @@ export function StorageConfig({ apiFetch }: Props) {
             </button>
           </div>
 
-          {form.backend === 'b2' && (
-            <B2CorsConfig apiFetch={apiFetch} />
+          {data.cors_supported && (
+            <CorsConfig apiFetch={apiFetch} />
           )}
         </div>
     </section>

@@ -18,14 +18,14 @@ interface CorsRule {
 const PLACEHOLDER_JSON = `[
   {
     "AllowedHeaders": ["*"],
-    "AllowedMethods": ["PUT", "GET", "HEAD", "DELETE", "OPTIONS"],
+    "AllowedMethods": ["PUT", "GET", "HEAD", "DELETE"],
     "AllowedOrigins": ["*"],
     "ExposeHeaders": ["ETag", "Content-Length", "Content-Type"],
     "MaxAgeSeconds": 3600
   }
 ]`;
 
-export function B2CorsConfig({ apiFetch }: Props) {
+export function CorsConfig({ apiFetch }: Props) {
   const { toast } = useToast();
   const [jsonText, setJsonText] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
@@ -47,11 +47,12 @@ export function B2CorsConfig({ apiFetch }: Props) {
     }
   }
 
-  /** Apply CORS config to backend */
-  async function applyConfig() {
+  /** Apply CORS config to backend. Pass optional rulesText to bypass editor state. */
+  async function applyConfig(rulesText?: string) {
+    const text = rulesText ?? jsonText;
     let parsed: CorsRule[];
     try {
-      parsed = JSON.parse(jsonText);
+      parsed = JSON.parse(text);
     } catch {
       toast('Invalid JSON. Please check the syntax.', 'err');
       return;
@@ -114,7 +115,7 @@ export function B2CorsConfig({ apiFetch }: Props) {
         </h3>
 
         <p className="text-xs text-zinc-500">
-          Configure Cross-Origin Resource Sharing for the B2 bucket. Changes apply to
+          Configure Cross-Origin Resource Sharing for the storage bucket. Changes apply to
           browser-based multipart uploads.
         </p>
 
@@ -141,11 +142,20 @@ export function B2CorsConfig({ apiFetch }: Props) {
 
           <button
             type="button"
-            onClick={applyConfig}
+            onClick={() => applyConfig()}
             disabled={isBusy || !jsonText.trim()}
             className="px-3 py-1.5 rounded-md bg-green-600 hover:bg-green-500 disabled:opacity-50 text-xs font-medium text-white transition-colors"
           >
             {loading === 'apply' ? 'Applying…' : 'Apply settings'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => applyConfig(PLACEHOLDER_JSON)}
+            disabled={isBusy}
+            className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-xs font-medium text-white transition-colors"
+          >
+            Apply Recommended
           </button>
 
           <button

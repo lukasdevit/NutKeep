@@ -50,6 +50,13 @@ export async function getS3Client(): Promise<S3Client> {
   return _s3Client;
 }
 
+/** Clear cached client + bucket — used when admin updates settings */
+export function clearB2Cache(): void {
+  _s3Client?.destroy();
+  _s3Client = null;
+  _cachedBucket = null;
+}
+
 /** Get the bucket name, respecting admin panel override */
 let _cachedBucket: string | null = null;
 export async function getBucket(): Promise<string> {

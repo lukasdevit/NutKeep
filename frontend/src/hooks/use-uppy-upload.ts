@@ -43,6 +43,7 @@ export function useUppyUpload(s3Enabled: boolean, token: string | null, onUpload
 
     uppy.use(AwsS3Multipart, {
       shouldUseMultipart: true,
+      limit: 1,
       createMultipartUpload: async (file: any) => {
         const res = await fetch(`${API_BASE}/upload/multipart/init`, {
           method: 'POST',

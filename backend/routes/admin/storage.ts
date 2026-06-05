@@ -11,6 +11,7 @@ import { recordAction } from '../../services/action-log-service.js';
 import { getAllSettings, upsertSetting } from '../../repositories/settings-repository.js';
 import { getStorageStats } from '../../repositories/storage-stats-repository.js';
 import { saveCustomCertificate, readSslStatus } from '../../services/storage/ssl-service.js';
+import { isCorsSupported } from './cors.js';
 
 const STORAGE_RATE_LIMIT = 60; // requests per window
 const STORAGE_RATE_WINDOW_MS = 60_000;
@@ -70,6 +71,7 @@ export async function adminStorageRoutes(app: FastifyInstance) {
         storage_path: overrides.storage_path || (await getStoragePath()),
         available_backends: availableBackends,
         setting_keys: [...STORAGE_SETTING_KEYS],
+        cors_supported: isCorsSupported(config.backend as string),
         users: row.users,
         total_bytes: row.total_bytes,
         total_files: row.total_files,
@@ -126,6 +128,15 @@ export async function adminStorageRoutes(app: FastifyInstance) {
       }
       clearConfigCache();
       clearStorageCache();
+      // Also clear S3 client caches so CORS/upload picks up new credentials
+      try {
+        const { clearB2Cache } = await import('../../services/storage/b2/client.js');
+        clearB2Cache();
+      } catch { /* B2 not configured — safe to ignore */ }
+      try {
+        const { clearR2Cache } = await import('../../services/storage/r2/client.js');
+        clearR2Cache();
+      } catch { /* R2 not configured — safe to ignore */ }
       if (request.user?.username) {
         await recordAction(
           request.user!.username,
