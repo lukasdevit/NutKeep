@@ -1,7 +1,7 @@
 import { GetBucketCorsCommand, PutBucketCorsCommand, type CORSRule } from '@aws-sdk/client-s3';
-import { getS3Client, getBucket } from './client.js';
+import type { S3Client } from '@aws-sdk/client-s3';
 
-/** Default safe CORS configuration for B2 browser uploads */
+/** Default safe CORS configuration for browser uploads */
 export const DEFAULT_CORS_RULES: CORSRule[] = [
   {
     AllowedHeaders: ['*'],
@@ -26,12 +26,9 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 /**
- * Fetch the live CORS configuration directly from the B2 bucket.
+ * Fetch the live CORS configuration directly from an S3-compatible bucket.
  */
-export async function getLiveCorsConfig(): Promise<CORSRule[] | null> {
-  const s3 = await getS3Client();
-  const bucket = await getBucket();
-
+export async function getLiveCorsConfig(s3: S3Client, bucket: string): Promise<CORSRule[] | null> {
   try {
     const result = await withTimeout(
       s3.send(new GetBucketCorsCommand({ Bucket: bucket })),
@@ -49,13 +46,10 @@ export async function getLiveCorsConfig(): Promise<CORSRule[] | null> {
 }
 
 /**
- * Apply CORS configuration to the B2 bucket via S3-compatible API.
- * Has a 15s timeout — if B2 doesn't respond, returns a clear error
- * instead of hanging until Cloudflare gives up.
+ * Apply CORS configuration to an S3-compatible bucket.
+ * Has a 15s timeout.
  */
-export async function applyLiveCorsConfig(rules: CORSRule[]): Promise<void> {
-  const [s3, bucket] = await Promise.all([getS3Client(), getBucket()]);
-
+export async function applyLiveCorsConfig(s3: S3Client, bucket: string, rules: CORSRule[]): Promise<void> {
   await withTimeout(
     s3.send(
       new PutBucketCorsCommand({

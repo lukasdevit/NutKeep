@@ -2,58 +2,49 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useFileUpload } from '@/hooks/use-file-upload';
 
-type EventMap = Record<string, (e: unknown) => void>;
-
 /**
- * Minimal XMLHttpRequest mock. Each instance stores its own event listeners
- * and fires the 'load' event asynchronously after send().
+ * Creates a fetch mock that simulates the local chunked upload flow:
+ *   1. POST /upload/local/init     → { data: { uploadId: "mock-id" } }
+ *   2. POST /upload/local/part?…   → 200 OK (per chunk)
+ *   3. POST /upload/local/complete → { data: { url: "/file/test.txt" } }
  */
-function createXHRMock() {
-  const listeners: EventMap = {};
-
-  return {
-    upload: {
-      addEventListener: vi.fn((event: string, cb: (e: unknown) => void) => {
-        listeners[`upload:${event}`] = cb;
-      }),
-    },
-    status: 200,
-    responseText: '{}',
-    open: vi.fn(),
-    setRequestHeader: vi.fn(),
-    send: vi.fn().mockImplementation(() => {
-      setTimeout(() => listeners['load']?.({ type: 'load' }));
-    }),
-    addEventListener: vi.fn((event: string, cb: (e: unknown) => void) => {
-      listeners[event] = cb;
-    }),
-    // Expose for test assertions
-    _fireUploadProgress(e: ProgressEvent) {
-      listeners['upload:progress']?.(e);
-    },
-  };
+function mockFetchForChunkedUpload(overrides?: {
+  initError?: string;
+  partError?: string;
+}) {
+  return vi.fn().mockImplementation(async (url: string, init?: RequestInit) => {
+    const urlStr = String(url);
+    if (urlStr.includes('/upload/local/init')) {
+      if (overrides?.initError) {
+        return new Response(JSON.stringify({ error: overrides.initError }), { status: 400 });
+      }
+      return new Response(JSON.stringify({ data: { uploadId: 'mock-upload-id' } }), { status: 200 });
+    }
+    if (urlStr.includes('/upload/local/part')) {
+      if (overrides?.partError) {
+        return new Response(JSON.stringify({ error: overrides.partError }), { status: 400 });
+      }
+      return new Response(null, { status: 200 });
+    }
+    if (urlStr.includes('/upload/local/complete')) {
+      return new Response(JSON.stringify({ data: { url: '/file/test.txt' } }), { status: 200 });
+    }
+    return new Response(null, { status: 404 });
+  });
 }
-
-type XHRMock = ReturnType<typeof createXHRMock>;
 
 describe('useFileUpload', () => {
   let api: ReturnType<typeof vi.fn>;
-  let xhrInstance: XHRMock | null = null;
+  let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     api = vi.fn();
-    xhrInstance = null;
-    // Replace global XMLHttpRequest with a constructor that returns our mock
-    globalThis.XMLHttpRequest = function (this: XHRMock | void) {
-      const mock = createXHRMock();
-      xhrInstance = mock;
-      return mock;
-    } as unknown as typeof XMLHttpRequest;
+    fetchMock = mockFetchForChunkedUpload();
+    globalThis.fetch = fetchMock;
   });
 
   afterEach(() => {
-    // Restore original — but only if we know it; jsdom provides a stubbed one
-    vi.unstubAllGlobals?.();
+    vi.restoreAllMocks();
   });
 
   it('uploads a file and calls onSuccess', async () => {
@@ -66,31 +57,29 @@ describe('useFileUpload', () => {
       await result.current.uploadFile(file, onSuccess);
     });
 
-    const xhr = xhrInstance!;
-    expect(xhr.open).toHaveBeenCalledWith('POST', expect.stringContaining('/upload'));
-    expect(xhr.setRequestHeader).toHaveBeenCalledWith('Authorization', 'Bearer test-token');
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/upload/local/init'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
+      })
+    );
     expect(onSuccess).toHaveBeenCalledOnce();
     expect(result.current.uploading).toBe(false);
   });
 
   it('tracks upload progress', async () => {
-    const file = new File(['x'.repeat(100)], 'big.bin');
+    const file = new File(['x'.repeat(100)], 'big.bin', { type: 'application/octet-stream' });
     const onSuccess = vi.fn().mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useFileUpload(api, 'test-token'));
 
     await act(async () => {
-      const uploadPromise = result.current.uploadFile(file, onSuccess);
-      // Fire progress event while upload is in flight
-      xhrInstance!._fireUploadProgress({
-        lengthComputable: true,
-        loaded: 50,
-        total: 100,
-      } as ProgressEvent);
-      await uploadPromise;
+      await result.current.uploadFile(file, onSuccess);
     });
 
-    expect(result.current.uploadProgress).toBe(50);
+    // After upload, progress should be 100%
+    expect(result.current.uploadProgress).toBe(100);
   });
 
   it('sets dragOver via setDragOver', () => {

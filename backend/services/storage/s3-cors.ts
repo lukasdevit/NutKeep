@@ -17,7 +17,7 @@ export async function ensureBucketCors(
           CORSRules: [
             {
               AllowedHeaders: ['*'],
-              AllowedMethods: ['PUT', 'GET', 'HEAD', 'DELETE', 'OPTIONS'],
+              AllowedMethods: ['PUT', 'GET', 'HEAD', 'DELETE'],
               AllowedOrigins: ['*'],
               ExposeHeaders: ['ETag', 'Content-Length', 'Content-Type'],
               MaxAgeSeconds: 3600,
