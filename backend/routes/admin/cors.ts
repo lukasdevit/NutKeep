@@ -96,14 +96,14 @@ export async function adminCorsRoutes(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const resolved = await resolveS3Backend();
-      if (!resolved.ok) {
-        return reply.code(resolved.status).send({ error: resolved.error });
-      }
-      const { s3, bucket, backend } = resolved;
-      const key = dbKey(backend);
-
       try {
+        const resolved = await resolveS3Backend();
+        if (!resolved.ok) {
+          return reply.code(resolved.status).send({ error: resolved.error });
+        }
+        const { s3, bucket, backend } = resolved;
+        const key = dbKey(backend);
+
         const liveRules = await getLiveCorsConfig(s3, bucket);
 
         if (liveRules) {
@@ -128,6 +128,9 @@ export async function adminCorsRoutes(app: FastifyInstance) {
         return reply.send({ rules: DEFAULT_CORS_RULES, source: 'default' });
       } catch (err) {
         request.log.error({ err }, 'CORS fetch failed');
+        // If resolveS3Backend threw before backend was assigned, try to get it
+        let backend = 'b2';
+        try { backend = await getStorageBackend(); } catch { /* keep default */ }
         const { status, message } = mapCorsError(err as Error, backend);
         return reply.code(status).send({ error: `Failed to fetch CORS config: ${message}` });
       }
@@ -147,25 +150,25 @@ export async function adminCorsRoutes(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const resolved = await resolveS3Backend();
-      if (!resolved.ok) {
-        return reply.code(resolved.status).send({ error: resolved.error });
-      }
-      const { s3, bucket, backend } = resolved;
-      const key = dbKey(backend);
-
-      const body = request.body as { rules?: unknown };
-
-      if (!body?.rules) {
-        return reply.code(400).send({ error: 'Missing "rules" field in request body' });
-      }
-
-      const validation = validateCorsRules(body.rules);
-      if (!validation.ok) {
-        return reply.code(400).send({ error: validation.error });
-      }
-
       try {
+        const resolved = await resolveS3Backend();
+        if (!resolved.ok) {
+          return reply.code(resolved.status).send({ error: resolved.error });
+        }
+        const { s3, bucket, backend } = resolved;
+        const key = dbKey(backend);
+
+        const body = request.body as { rules?: unknown };
+
+        if (!body?.rules) {
+          return reply.code(400).send({ error: 'Missing "rules" field in request body' });
+        }
+
+        const validation = validateCorsRules(body.rules);
+        if (!validation.ok) {
+          return reply.code(400).send({ error: validation.error });
+        }
+
         await applyLiveCorsConfig(s3, bucket, validation.rules);
 
         await upsertSetting(key, JSON.stringify(validation.rules));
@@ -181,6 +184,8 @@ export async function adminCorsRoutes(app: FastifyInstance) {
         return reply.send({ ok: true, rules: validation.rules });
       } catch (err) {
         request.log.error({ err }, 'CORS apply failed');
+        let backend = 'b2';
+        try { backend = await getStorageBackend(); } catch { /* keep default */ }
         const { status, message } = mapCorsError(err as Error, backend);
         return reply.code(status).send({ error: `Failed to apply CORS config: ${message}` });
       }
