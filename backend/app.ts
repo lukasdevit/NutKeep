@@ -60,7 +60,9 @@ export async function buildApp(opts: AppOptions = {}) {
   const app = Fastify({
     logger: opts.logger ? {} : false,
     bodyLimit: 6 * 1024 * 1024, // 6 MB — accommodate 5 MB chunks + overhead
-    maxParamLength: 500, // R2 multipart upload IDs can be ~350 chars
+    routerOptions: {
+      maxParamLength: 500, // R2 multipart upload IDs can be ~350 chars
+    },
   });
 
   if (opts.logger) {

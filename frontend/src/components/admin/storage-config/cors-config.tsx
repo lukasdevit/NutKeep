@@ -31,7 +31,6 @@ export function CorsConfig({ apiFetch }: Props) {
   const [loading, setLoading] = useState<string | null>(null);
   const [showResetModal, setShowResetModal] = useState(false);
 
-  /** Fetch current CORS config from backend and populate editor */
   async function fetchConfig() {
     setLoading('fetch');
     try {
@@ -47,7 +46,6 @@ export function CorsConfig({ apiFetch }: Props) {
     }
   }
 
-  /** Apply CORS config to backend. Pass optional rulesText to bypass editor state. */
   async function applyConfig(rulesText?: string) {
     const text = rulesText ?? jsonText;
     let parsed: CorsRule[];
@@ -67,8 +65,6 @@ export function CorsConfig({ apiFetch }: Props) {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
-
-      // Update editor with the server-validated config
       setJsonText(JSON.stringify(d.rules, null, 2));
       toast('CORS configuration applied successfully', 'ok');
     } catch (e) {
@@ -78,7 +74,6 @@ export function CorsConfig({ apiFetch }: Props) {
     }
   }
 
-  /** Reset to default CORS config */
   async function resetConfig() {
     setShowResetModal(false);
     setLoading('reset');
@@ -87,7 +82,6 @@ export function CorsConfig({ apiFetch }: Props) {
       const d = await r.json();
       if (!r.ok) throw new Error(d.error);
 
-      // Apply the default config to the backend
       const applyR = await apiFetch('/admin/storage/cors', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -169,7 +163,6 @@ export function CorsConfig({ apiFetch }: Props) {
         </div>
       </div>
 
-      {/* Reset confirmation modal */}
       {showResetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">

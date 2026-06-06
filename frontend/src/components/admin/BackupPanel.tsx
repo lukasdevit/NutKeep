@@ -200,7 +200,7 @@ function BackupOverview({
         <button
           onClick={runBackupNow}
           disabled={running}
-          className="btn-blue text-xs"
+          className="btn-violet text-xs"
         >
           {running ? 'Running…' : 'Backup Now'}
         </button>
@@ -298,7 +298,7 @@ function BackupOverview({
                 type="button"
                 onClick={runBackupNow}
                 disabled={running}
-                className="btn-blue text-xs"
+                className="btn-violet text-xs"
               >
                 Run First Backup
               </button>

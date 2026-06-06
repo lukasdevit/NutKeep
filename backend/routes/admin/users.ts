@@ -1,8 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { parsePagination } from '../../utils/index.js';
 import { recordAction } from '../../services/action-log-service.js';
-import { clearConfigCache } from '../../config/index.js';
+import { clearConfigCache, getStorageBackend } from '../../config/index.js';
 import { getSetting, upsertSetting } from '../../repositories/settings-repository.js';
+import { findById } from '../../repositories/user-repository.js';
+import { findFilesNotOnBackend, updateFileBackendAndPath } from '../../repositories/file-repository.js';
+import { resolveProvider, buildStorageKey } from '../../services/storage/index.js';
 import {
   createUser,
   listUsersPaginated,
@@ -159,4 +162,97 @@ export async function adminUserRoutes(app: FastifyInstance) {
       return reply.code(status).send({ error: e.message });
     }
   });
+
+  // ── File migration ──
+
+  app.get(
+    '/admin/users/:id/migrate-files-preview',
+    async (request, reply) => {
+      const userId = Number((request.params as { id: string }).id);
+      try {
+        const currentBackend = await getStorageBackend();
+        const files = await findFilesNotOnBackend(userId, currentBackend);
+        const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+        return reply.send({
+          count: files.length,
+          totalSize,
+          backend: currentBackend,
+          files: files.map((f) => ({
+            id: f.id,
+            filename: f.filename,
+            originalName: f.original_name,
+            fromBackend: f.storage_backend,
+            size: f.size,
+          })),
+        });
+      } catch (err) {
+        return reply.code(500).send({ error: (err as Error).message });
+      }
+    }
+  );
+
+  app.post(
+    '/admin/users/:id/migrate-files',
+    async (request, reply) => {
+      const userId = Number((request.params as { id: string }).id);
+      try {
+        const user = await findById(userId);
+        if (!user) return reply.code(404).send({ error: 'User not found' });
+
+        const currentBackend = await getStorageBackend();
+        const files = await findFilesNotOnBackend(userId, currentBackend);
+
+        if (files.length === 0) {
+          return reply.send({ ok: true, migrated: 0, message: 'No files to migrate' });
+        }
+
+        const newProvider = resolveProvider(currentBackend);
+        const migrated: number[] = [];
+        const errors: { id: number; filename: string; error: string }[] = [];
+
+        for (const file of files) {
+          try {
+            const oldProvider = resolveProvider(file.storage_backend);
+            const newKey = await buildStorageKey(user.username, file.filename);
+
+            // Read from old backend → write to new backend
+            const stream = await oldProvider.createReadStream(file.path);
+            await newProvider.save(newKey, stream);
+
+            // Delete from old backend
+            try { await oldProvider.delete(file.path); } catch { /* ok if gone */ }
+
+            // Update DB record
+            await updateFileBackendAndPath(file.id, newKey, currentBackend);
+
+            migrated.push(file.id);
+          } catch (err) {
+            errors.push({
+              id: file.id,
+              filename: file.filename,
+              error: (err as Error).message,
+            });
+          }
+        }
+
+        if (request.user?.username) {
+          await recordAction(
+            request.user!.username,
+            'file-migrate',
+            `Migrated ${migrated.length} files for user ${user.username} to ${currentBackend}`,
+            { userId, migrated, errors: errors.length }
+          );
+        }
+
+        return reply.send({
+          ok: errors.length === 0,
+          migrated: migrated.length,
+          errors,
+          backend: currentBackend,
+        });
+      } catch (err) {
+        return reply.code(500).send({ error: (err as Error).message });
+      }
+    }
+  );
 }
