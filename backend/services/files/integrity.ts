@@ -1,5 +1,5 @@
 import path from 'path';
-import { DEFAULT_UPLOAD_DIR } from '../../config/index.js';
+import { DEFAULT_UPLOAD_DIR, getStoragePath } from '../../config/index.js';
 import { LocalStorage } from '../storage/local.js';
 import { B2Storage } from '../storage/b2/index.js';
 import { R2Storage } from '../storage/r2/index.js';
@@ -27,7 +27,22 @@ import {
   moveFile,
 } from './adapter.js';
 
-const local: StorageProvider = new LocalStorage();
+// Local storage is lazily created with the correct configured path
+let _localInstance: StorageProvider | null = null;
+async function getLocal(): Promise<StorageProvider> {
+  if (!_localInstance) {
+    const storagePath = await getStoragePath();
+    _localInstance = new LocalStorage(storagePath || DEFAULT_UPLOAD_DIR);
+  }
+  return _localInstance;
+}
+
+/** Resolve the configured local storage base directory. */
+async function getLocalBaseDir(): Promise<string> {
+  const storagePath = await getStoragePath();
+  return storagePath || DEFAULT_UPLOAD_DIR;
+}
+
 // Cloud providers are lazily created only when needed
 
 function getCloudProvider(backend: string): StorageProvider | null {
@@ -43,6 +58,7 @@ function getCloudProvider(backend: string): StorageProvider | null {
 export async function runIntegrityCheck(
   userId?: number
 ): Promise<{ checkId: string; total: number; summary: { missingFiles: number; orphanedFiles: number; sizeMismatches: number } }> {
+  const baseDir = await getLocalBaseDir();
   const dbFiles = await getFilesForScan(userId);
 
   const localDbFiles = dbFiles.filter((f) => f.storage_backend === 'local' || !f.storage_backend);
@@ -53,14 +69,14 @@ export async function runIntegrityCheck(
 
   const diskFiles = new Map<string, string>();
   const scanDir = userId
-    ? path.join(DEFAULT_UPLOAD_DIR, 'share', String(userId))
-    : path.join(DEFAULT_UPLOAD_DIR, 'share');
-  scanDirectory(scanDir, DEFAULT_UPLOAD_DIR, diskFiles);
+    ? path.join(baseDir, 'share', String(userId))
+    : path.join(baseDir, 'share');
+  scanDirectory(scanDir, baseDir, diskFiles);
 
   const insertRows: (string | number | null)[][] = [];
 
   for (const [relPath, dbFile] of dbByPath) {
-    const absPath = path.join(DEFAULT_UPLOAD_DIR, relPath);
+    const absPath = path.join(baseDir, relPath);
     const stat = statFile(absPath);
     if (!stat) {
       insertRows.push(['missing-file', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, null, dbFile.size, null]);
@@ -118,8 +134,10 @@ export async function resolveSingleIssue(
       await recordAction(username, 'delete-db', `Deleted file row #${issue.file_id}`, row as Record<string, unknown>);
     }
   } else if (action === 'delete-file' && issue.disk_path) {
+    const baseDir = await getLocalBaseDir();
+    const local = await getLocal();
     await local.delete(issue.disk_path).catch(() => {});
-    const absPath = path.join(DEFAULT_UPLOAD_DIR, issue.disk_path);
+    const absPath = path.join(baseDir, issue.disk_path);
     cleanEmptyDirs(absPath);
     if (username) {
       await recordAction(username, 'delete-file', `Deleted file: ${issue.disk_path}`, { diskPath: issue.disk_path });
@@ -142,7 +160,8 @@ export async function importOrphanedFiles(
     const issue = await findOrphanedIssue(checkId, issueId);
     if (!issue || issue.resolved) continue;
 
-    const absPath = path.join(DEFAULT_UPLOAD_DIR, issue.disk_path);
+    const baseDir = await getLocalBaseDir();
+    const absPath = path.join(baseDir, issue.disk_path);
     const stat = statFile(absPath);
     if (!stat) continue;
 
@@ -188,7 +207,8 @@ export async function migrateFile(
   toUserId: number,
   username?: string
 ): Promise<string> {
-  const absSrc = path.join(DEFAULT_UPLOAD_DIR, relPath);
+  const baseDir = await getLocalBaseDir();
+  const absSrc = path.join(baseDir, relPath);
   if (!statFile(absSrc)) throw new Error('File not found');
 
   const fromUsername = extractUsernameFromPath(relPath);
@@ -203,7 +223,7 @@ export async function migrateFile(
   const parts = relPath.split(path.sep);
   parts[0] = toUserRow.username;
   const destRel = parts.join(path.sep);
-  const absDest = path.join(DEFAULT_UPLOAD_DIR, destRel);
+  const absDest = path.join(baseDir, destRel);
 
   moveFile(absSrc, absDest);
   await updateFilePathAndUser(absSrc, absDest, toUserId);

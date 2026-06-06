@@ -404,7 +404,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
           type="button"
           onClick={startCheck}
           disabled={running}
-          className="btn-blue text-xs"
+          className="btn-violet text-xs"
         >
           {running ? 'Scanning…' : 'Run New Integrity Check'}
         </button>

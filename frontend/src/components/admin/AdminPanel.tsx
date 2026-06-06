@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import { ToastProvider } from '@/components/ui/Toast';
-import { UserManager } from '@/components/admin/UserManager';
+import { UserManager } from '@/components/admin/user-manager';
 import { TableBrowser } from '@/components/admin/TableBrowser';
-import { StorageConfig } from '@/components/admin/StorageConfig';
+import { StorageConfig } from '@/components/admin/storage-config';
 import { SslConfig } from '@/components/admin/SslConfig';
 import { Analytics } from '@/components/admin/Analytics';
 import { BackupPanel } from '@/components/admin/BackupPanel';

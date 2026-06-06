@@ -218,3 +218,37 @@ export async function updateFilePathAndUser(
     [newPath, newUserId, oldPath]
   );
 }
+
+/** Find all files for a user NOT stored on the given backend. */
+export interface MigrationFileRow {
+  id: number;
+  filename: string;
+  original_name: string;
+  path: string;
+  size: number;
+  mime_type: string;
+  storage_backend: string;
+}
+
+export async function findFilesNotOnBackend(
+  userId: number,
+  backend: string
+): Promise<MigrationFileRow[]> {
+  return dbAll<MigrationFileRow>(
+    `SELECT id, filename, original_name, path, size, mime_type, storage_backend
+     FROM files WHERE user_id = ? AND storage_backend != ?`,
+    [userId, backend]
+  );
+}
+
+/** Update a single file's path and backend. */
+export async function updateFileBackendAndPath(
+  id: number,
+  newPath: string,
+  newBackend: string
+): Promise<void> {
+  await dbRun(
+    `UPDATE files SET path = ?, storage_backend = ? WHERE id = ?`,
+    [newPath, newBackend, id]
+  );
+}
