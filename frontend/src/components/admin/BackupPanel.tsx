@@ -8,6 +8,7 @@ import { CardSkeleton } from '@/components/ui/CardSkeleton';
 import { RowSkeleton } from '@/components/ui/RowSkeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { MetricCard, MetricGrid } from '@/components/ui/MetricCard';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 interface BackupLog {
   id: number;
@@ -148,7 +149,10 @@ function BackupOverview({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ backup_schedule_hours: parseInt(scheduleHours, 10) }),
       });
-      if (!r.ok) throw new Error((await r.json()).error);
+      if (!r.ok) {
+        const d = await r.json();
+        throw new Error(getApiErrorMessage(d, r.status));
+      }
       toast('Backup schedule updated', 'ok');
     } catch (e) {
       toast((e as Error).message, 'err');
@@ -164,7 +168,10 @@ function BackupOverview({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ backup_retention_days: String(retentionDays) }),
       });
-      if (!r.ok) throw new Error((await r.json()).error);
+      if (!r.ok) {
+        const d = await r.json();
+        throw new Error(getApiErrorMessage(d, r.status));
+      }
       toast('Retention policy updated', 'ok');
     } catch (e) {
       toast((e as Error).message, 'err');
@@ -388,7 +395,7 @@ function BackupManage({
         body: form,
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       toast(`Uploaded: ${d.backup.filename}`, 'ok');
       fetchBackups();
     } catch (err) {
@@ -408,7 +415,7 @@ function BackupManage({
         body: JSON.stringify({ filename }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       toast('Backup deleted', 'ok');
       fetchBackups();
     } catch (err) {
@@ -436,7 +443,7 @@ function BackupManage({
         }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setRestoreResult(d.message);
       toast('Database restored!', 'ok');
     } catch (err) {

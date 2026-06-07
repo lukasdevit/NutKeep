@@ -1,0 +1,7 @@
+{
+  "file.not_found": "File not found",
+  "file.not_yours": "This is not your file",
+  "file.private": "This file is private",
+  "file.missing_from_storage": "File missing from storage",
+  "file.invalid_name": "Invalid filename"
+}

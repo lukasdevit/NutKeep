@@ -9,6 +9,7 @@ import {
   deleteById,
 } from '../../repositories/file-repository.js';
 import { deleteFromStorage } from '../../utils/index.js';
+import { ERROR_CODES } from '../../errors/codes.js';
 
 function buildTypeClause(type?: string): string {
   switch (type) {
@@ -22,11 +23,11 @@ function buildTypeClause(type?: string): string {
 
 export async function getFileByFilename(filename: string) {
   if (filename.includes('..') || filename.includes('/')) {
-    throw Object.assign(new Error('Invalid filename'), { statusCode: 400 });
+    throw Object.assign(new Error('Invalid filename'), { code: ERROR_CODES.FILE_INVALID_NAME });
   }
   const file = await findByFilename(filename);
   if (!file) {
-    throw Object.assign(new Error('File not found'), { statusCode: 404 });
+    throw Object.assign(new Error('File not found'), { code: ERROR_CODES.FILE_NOT_FOUND });
   }
   return file;
 }
@@ -35,7 +36,7 @@ export async function getRandomFile(userId: number, type?: string) {
   const typeClause = buildTypeClause(type);
   const file = await findRandomByUser(userId, typeClause);
   if (!file) {
-    throw Object.assign(new Error('No files found'), { statusCode: 404 });
+    throw Object.assign(new Error('No files found'), { code: ERROR_CODES.FILE_NOT_FOUND });
   }
   return file;
 }
@@ -63,10 +64,10 @@ export async function listUserFiles(userId: number, opts: {
 export async function toggleFilePublic(fileId: number, userId: number, isPublic: boolean) {
   const file = await findOwnershipById(fileId);
   if (!file) {
-    throw Object.assign(new Error('File not found'), { statusCode: 404 });
+    throw Object.assign(new Error('File not found'), { code: ERROR_CODES.FILE_NOT_FOUND });
   }
-  if (file.user_id !== userId) {
-    throw Object.assign(new Error('Not your file'), { statusCode: 403 });
+  if (row.user_id !== userId) {
+    throw Object.assign(new Error('Not your file'), { code: ERROR_CODES.FILE_NOT_YOURS });
   }
   await togglePublic(fileId, isPublic);
   return { is_public: isPublic };

@@ -2,11 +2,12 @@ import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../../middleware/index.js';
 import { handleUpload } from '../../services/files/index.js';
 import { writeLog } from '../../services/log-service.js';
+import { sendError, mapUploadError, uploadNoFileError } from '../../errors/index.js';
 
 export async function uploadRoutes(app: FastifyInstance) {
   app.post('/upload', { preHandler: [requireAuth] }, async (request, reply) => {
     const file = await request.file();
-    if (!file) return reply.code(400).send({ error: 'No file was uploaded' });
+    if (!file) return sendError(reply, uploadNoFileError());
 
     const user = request.user!;
 
@@ -62,8 +63,7 @@ export async function uploadRoutes(app: FastifyInstance) {
       });
       return reply.send(result);
     } catch (err) {
-      const e = err as { statusCode?: number; message: string };
-      return reply.code(e.statusCode || 500).send({ error: e.message });
+      return sendError(reply, mapUploadError(err as Error));
     }
   });
 }

@@ -10,6 +10,7 @@ import { requireAuth } from '../../middleware/index.js';
 import { BASE_URL } from '../../config/index.js';
 import { saveFromPath } from '../../services/files/index.js';
 import { writeLog } from '../../services/log-service.js';
+import { sendError, mapUploadError, uploadMissingParamsError, uploadInvalidParamsError, uploadUnknownIdError, uploadNotYoursError, uploadCorruptMetadataError } from '../../errors/index.js';
 import { prepareUploadInit } from './helpers.js';
 
 const CHUNK_DIR = path.join(os.tmpdir(), 'linqoy-chunks');
@@ -46,9 +47,7 @@ export async function localChunkedRoutes(app: FastifyInstance) {
       };
 
       if (!body.filename || !body.mimeType || !body.totalParts || !body.totalSize) {
-        return reply.code(400).send({
-          error: 'filename, mimeType, totalParts, and totalSize required',
-        });
+        return sendError(reply, uploadMissingParamsError('filename, mimeType, totalParts, and totalSize required'));
       }
 
       let originalName: string;
@@ -62,8 +61,7 @@ export async function localChunkedRoutes(app: FastifyInstance) {
         originalName = prep.originalName;
         filename = prep.filename;
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapUploadError(err as Error));
       }
 
       const uploadId = nanoid(16);
@@ -116,19 +114,19 @@ export async function localChunkedRoutes(app: FastifyInstance) {
       };
 
       if (!uploadId || !partNumber) {
-        return reply.code(400).send({ error: 'uploadId and partNumber required' });
+        return sendError(reply, uploadMissingParamsError('uploadId and partNumber required'));
       }
 
       const partNum = parseInt(partNumber, 10);
       if (isNaN(partNum) || partNum < 1) {
-        return reply.code(400).send({ error: 'partNumber must be a positive integer' });
+        return sendError(reply, uploadInvalidParamsError('partNumber must be a positive integer'));
       }
 
       const dir = chunkDir(uploadId);
       try {
         await fsp.access(dir);
       } catch {
-        return reply.code(404).send({ error: 'Unknown uploadId — init first' });
+        return sendError(reply, uploadUnknownIdError());
       }
 
       // Verify user owns this upload
@@ -136,16 +134,16 @@ export async function localChunkedRoutes(app: FastifyInstance) {
         const metaRaw = await fsp.readFile(path.join(dir, 'meta.json'), 'utf-8');
         const meta = JSON.parse(metaRaw);
         if (meta.userId !== request.user!.id) {
-          return reply.code(403).send({ error: 'Not your upload' });
+          return sendError(reply, uploadNotYoursError());
         }
       } catch {
-        return reply.code(500).send({ error: 'Failed to read upload metadata' });
+        return sendError(reply, uploadCorruptMetadataError());
       }
 
       // Body is raw Buffer from the * content-type parser
       const chunk = request.body as Buffer;
       if (!Buffer.isBuffer(chunk) || chunk.length === 0) {
-        return reply.code(400).send({ error: 'Empty or invalid chunk body' });
+        return sendError(reply, uploadInvalidParamsError('Empty or invalid chunk body'));
       }
 
       await fsp.writeFile(partPath(uploadId, partNum), chunk);
@@ -165,7 +163,7 @@ export async function localChunkedRoutes(app: FastifyInstance) {
       const { uploadId } = request.body as { uploadId: string };
 
       if (!uploadId) {
-        return reply.code(400).send({ error: 'uploadId required' });
+        return sendError(reply, uploadMissingParamsError('uploadId required'));
       }
 
       const dir = chunkDir(uploadId);
@@ -183,11 +181,11 @@ export async function localChunkedRoutes(app: FastifyInstance) {
         const metaRaw = await fsp.readFile(path.join(dir, 'meta.json'), 'utf-8');
         meta = JSON.parse(metaRaw);
       } catch {
-        return reply.code(404).send({ error: 'Unknown uploadId — init first' });
+        return sendError(reply, uploadUnknownIdError());
       }
 
       if (meta.userId !== request.user!.id) {
-        return reply.code(403).send({ error: 'Not your upload' });
+        return sendError(reply, uploadNotYoursError());
       }
 
       // Verify all parts are present
@@ -195,9 +193,7 @@ export async function localChunkedRoutes(app: FastifyInstance) {
         try {
           await fsp.access(partPath(uploadId, i));
         } catch {
-          return reply.code(400).send({
-            error: `Missing part ${i} of ${meta.totalParts}`,
-          });
+          return sendError(reply, uploadInvalidParamsError(`Missing part ${i} of ${meta.totalParts}`));
         }
       }
 
@@ -242,9 +238,8 @@ export async function localChunkedRoutes(app: FastifyInstance) {
           data: { url: `${BASE_URL}/file/${meta.filename}` },
         });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
         if (!reply.sent) {
-          return reply.code(e.statusCode || 500).send({ error: e.message });
+          return sendError(reply, mapUploadError(err as Error));
         }
       } finally {
         // Cleanup: remove assembled temp file + all chunks

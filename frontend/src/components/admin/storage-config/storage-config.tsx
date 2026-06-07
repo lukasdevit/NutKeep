@@ -1,4 +1,5 @@
 'use client';
+import { getApiErrorMessage } from "@/lib/api-error";
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/Toast';
@@ -139,7 +140,7 @@ export function StorageConfig({ apiFetch }: Props) {
         body: JSON.stringify(payload),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       const backends = data?.available_backends ?? {};
       const backendLabel = backends[form.backend] || form.backend;
       const msg = formatSavedMessage(d.updated, form)
@@ -162,7 +163,7 @@ export function StorageConfig({ apiFetch }: Props) {
         method: 'POST',
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       if (d.cleaned === 0) {
         toast('No unfinished multipart uploads found.', 'ok');
       } else {

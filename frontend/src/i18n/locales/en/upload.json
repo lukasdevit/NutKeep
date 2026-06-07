@@ -1,0 +1,13 @@
+{
+  "upload.no_file": "No file was uploaded",
+  "upload.missing_params": "Missing required parameters",
+  "upload.invalid_params": "Invalid parameters",
+  "upload.unsupported_type": "Unsupported file type",
+  "upload.quota_server": "Server storage limit reached. Contact the administrator.",
+  "upload.quota_user": "Storage quota exceeded. Free up space and try again.",
+  "upload.malware_detected": "File could not be uploaded — potential threat detected.",
+  "upload.size_mismatch": "File size mismatch",
+  "upload.unknown_id": "Unknown upload ID — run init first",
+  "upload.not_yours": "This is not your upload",
+  "upload.corrupt_metadata": "Failed to read upload metadata"
+}

@@ -1,0 +1,5 @@
+{
+  "integrity.check_not_found": "Check not found",
+  "integrity.missing_param": "Missing required parameter",
+  "integrity.forbidden": "Access denied"
+}

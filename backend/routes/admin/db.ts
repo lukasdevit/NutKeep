@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { recordAction } from '../../services/action-log-service.js';
+import { sendError, dbInvalidTableError, dbLastAdminError } from '../../errors/index.js';
 import {
   isValidTable,
   listTables,
@@ -19,7 +20,7 @@ export async function adminDbRoutes(app: FastifyInstance) {
   app.get('/admin/db/tables/:name/rows', async (request, reply) => {
     const { name } = request.params as { name: string };
     if (!isValidTable(name)) {
-      return reply.code(400).send({ error: 'Invalid table name' });
+      return sendError(reply, dbInvalidTableError());
     }
     const data = await browseTable(name);
     return reply.send(data);
@@ -39,7 +40,7 @@ export async function adminDbRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const { name } = request.params as { name: string };
       if (!isValidTable(name)) {
-        return reply.code(400).send({ error: 'Invalid table name' });
+        return sendError(reply, dbInvalidTableError());
       }
 
       const { pkColumn, pkValue } = request.body as {
@@ -51,7 +52,7 @@ export async function adminDbRoutes(app: FastifyInstance) {
       if (name === 'users') {
         const isAdmin = await isAdminUser(pkColumn, pkValue);
         if (isAdmin && (await countAdmins()) <= 1) {
-          return reply.code(403).send({ error: 'Cannot delete the last admin user' });
+          return sendError(reply, dbLastAdminError());
         }
       }
 

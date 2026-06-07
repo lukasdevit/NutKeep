@@ -36,7 +36,7 @@ describe('POST /auth/register', () => {
       .send({ username: 'ab', password: 'testpass123' })
       .expect(400);
 
-    expect(res.body.message).toMatch(/username.*3|fewer.*3/);
+    expect(res.body.details).toMatch(/username.*3|fewer.*3/);
   });
 
   it('rejects short passwords', async () => {
@@ -45,7 +45,7 @@ describe('POST /auth/register', () => {
       .send({ username: 'validuser', password: '12345' })
       .expect(400);
 
-    expect(res.body.message).toMatch(/password.*6|fewer.*6/);
+    expect(res.body.details).toMatch(/password.*6|fewer.*6/);
   });
 
   it('rejects missing fields', async () => {
@@ -54,7 +54,7 @@ describe('POST /auth/register', () => {
       .send({ username: 'someone' })
       .expect(400);
 
-    expect(res.body.message).toContain('required');
+    expect(res.body.details).toContain('required');
   });
 
   it('rejects duplicate usernames', async () => {
@@ -68,7 +68,7 @@ describe('POST /auth/register', () => {
       .send({ username: 'dupe', password: 'testpass123' })
       .expect(409);
 
-    expect(res.body.error).toContain('already taken');
+    expect(res.body.message).toContain('already taken');
   });
 });
 
@@ -95,7 +95,7 @@ describe('POST /auth/login', () => {
       .send({ username: 'loginuser', password: 'wrongpass' })
       .expect(401);
 
-    expect(res.body.error).toContain('Invalid credentials');
+    expect(res.body.message).toContain('Invalid credentials');
   });
 
   it('rejects non-existent user', async () => {
@@ -104,13 +104,13 @@ describe('POST /auth/login', () => {
       .send({ username: 'nobody', password: 'whatever123' })
       .expect(401);
 
-    expect(res.body.error).toContain('Invalid credentials');
+    expect(res.body.message).toContain('Invalid credentials');
   });
 
   it('rejects missing fields', async () => {
     const res = await request.post('/auth/login').send({}).expect(400);
 
-    expect(res.body.message).toContain('required');
+    expect(res.body.details).toContain('required');
   });
 });
 
@@ -136,7 +136,7 @@ describe('GET /auth/me', () => {
   it('rejects missing token', async () => {
     const res = await request.get('/auth/me').expect(401);
 
-    expect(res.body.error).toContain('Missing token');
+    expect(res.body.message).toContain('Missing token');
   });
 
   it('rejects invalid token', async () => {
@@ -145,7 +145,7 @@ describe('GET /auth/me', () => {
       .set('Authorization', 'Bearer garbage-token')
       .expect(401);
 
-    expect(res.body.error).toContain('Invalid');
+    expect(res.body.message).toContain('Invalid');
   });
 });
 
@@ -192,7 +192,7 @@ describe('POST /auth/change-password', () => {
       .set('Authorization', `Bearer ${tok}`)
       .send({ currentPassword: 'wrongpass', newPassword: 'newpass456' })
       .expect(401);
-    expect(res.body.error).toContain('incorrect');
+    expect(res.body.message).toContain('incorrect');
   });
 
   it('rejects short new password', async () => {
@@ -201,7 +201,7 @@ describe('POST /auth/change-password', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({ currentPassword: 'newpass456', newPassword: '12345' })
       .expect(400);
-    expect(res.body.message).toMatch(/password.*6|fewer.*6/);
+    expect(res.body.details).toMatch(/password.*6|fewer.*6/);
   });
 });
 
@@ -317,9 +317,9 @@ describe('Login lockout', () => {
         .send({ username: 'lockouttest', password: 'wrongpass' });
       if (i < 4) {
         expect(res.status).toBe(401);
-        expect(res.body.error).toContain('attempt');
+        expect(res.body.message).toContain('attempt');
       } else {
-        expect(res.body.error).toContain('locked');
+        expect(res.body.message).toContain('locked');
       }
     }
   });

@@ -5,6 +5,8 @@ import { formatSize } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { useSettings } from '@/hooks/use-settings';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useTranslation } from '@/i18n';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -12,6 +14,7 @@ interface Props {
 
 export function SettingsPage({ apiFetch }: Props) {
   const { toast } = useToast();
+  const { t, locale } = useTranslation();
   const {
     currentPassword, setCurrentPassword,
     newPassword, setNewPassword,
@@ -130,6 +133,19 @@ export function SettingsPage({ apiFetch }: Props) {
         >
           Download ShareX Config
         </button>
+      </section>
+
+      {/* Language */}
+      <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
+        <h2 className="text-base font-semibold text-zinc-200">
+          {t('settings.language', 'Language')}
+        </h2>
+        <p className="text-sm text-zinc-400">
+          {locale === 'pl'
+            ? 'Wybierz język interfejsu.'
+            : 'Choose your interface language.'}
+        </p>
+        <LanguageSwitcher />
       </section>
 
       {/* Change Password */}

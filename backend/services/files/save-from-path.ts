@@ -4,6 +4,7 @@ import { checkStorageQuota } from './quota.js';
 import { finalizeFile } from './finalize.js';
 import { scanFile } from '../../utils/scan.js';
 import { getStorage, buildStorageKey } from '../storage/index.js';
+import { ERROR_CODES } from '../../errors/codes.js';
 
 /**
  * Core file finalization: virus scan → storage save → DB record.
@@ -27,7 +28,7 @@ export async function saveFromPath(
   if (expectedSize !== undefined && size !== expectedSize) {
     throw Object.assign(
       new Error(`Size mismatch: expected ${expectedSize}, got ${size}`),
-      { statusCode: 400 }
+      { code: ERROR_CODES.UPLOAD_SIZE_MISMATCH }
     );
   }
 
@@ -37,7 +38,7 @@ export async function saveFromPath(
   if (!scanResult.clean) {
     throw Object.assign(
       new Error('This file could not be uploaded because it may contain malware.'),
-      { statusCode: 422 }
+      { code: ERROR_CODES.UPLOAD_MALWARE_DETECTED }
     );
   }
 

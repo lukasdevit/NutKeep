@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { DEFAULT_UPLOAD_DIR } from '../../config/index.js';
 import { findIdByUsername } from '../../repositories/user-repository.js';
+import { sendError, integrityCheckNotFoundError, integrityMissingParamError, integrityForbiddenError, fileNotFoundError } from '../../errors/index.js';
 import {
   listChecks,
   findCheck,
@@ -62,7 +63,7 @@ export async function adminIntegrityRoutes(app: FastifyInstance) {
     };
 
     const check = await findCheck(checkId);
-    if (!check) return reply.code(404).send({ error: 'Check not found' });
+    if (!check) return sendError(reply, integrityCheckNotFoundError());
 
     const start = parseInt(offset || '0', 10) || 0;
     const count = Math.min(parseInt(limit || '50', 10) || 50, 200);
@@ -187,11 +188,11 @@ export async function adminIntegrityRoutes(app: FastifyInstance) {
 
   app.get('/admin/file-preview', async (request, reply) => {
     const { path: filePath } = request.query as { path?: string };
-    if (!filePath) return reply.code(400).send({ error: 'Missing path parameter' });
+    if (!filePath) return sendError(reply, integrityMissingParamError('path'));
 
     const absPath = path.join(DEFAULT_UPLOAD_DIR, filePath);
-    if (!absPath.startsWith(DEFAULT_UPLOAD_DIR)) return reply.code(403).send({ error: 'Forbidden' });
-    if (!fs.existsSync(absPath)) return reply.code(404).send({ error: 'File not found' });
+    if (!absPath.startsWith(DEFAULT_UPLOAD_DIR)) return sendError(reply, integrityForbiddenError());
+    if (!fs.existsSync(absPath)) return sendError(reply, fileNotFoundError(filePath));
 
     const mime = getMimeType(filePath);
     const stat = fs.statSync(absPath);

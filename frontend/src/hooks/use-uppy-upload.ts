@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { API_BASE } from '@/lib/api-client';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { Uppy } from '@uppy/core';
 import AwsS3Multipart from '@uppy/aws-s3';
 
@@ -51,7 +52,7 @@ export function useUppyUpload(s3Enabled: boolean, token: string | null, onUpload
           body: JSON.stringify({ filename: file.name, mimeType: file.type || 'application/octet-stream' }),
         });
         const json: any = await res.json();
-        if (!res.ok) throw new Error(json.error);
+        if (!res.ok) throw new Error(getApiErrorMessage(json, res.status));
         return { uploadId: json.data.uploadId, key: json.data.key };
       },
       signPart: async (_file: any, opts: any) => {
@@ -62,7 +63,7 @@ export function useUppyUpload(s3Enabled: boolean, token: string | null, onUpload
           body: JSON.stringify({ key, uploadId, partNumber }),
         });
         const json: any = await res.json();
-        if (!res.ok) throw new Error(json.error);
+        if (!res.ok) throw new Error(getApiErrorMessage(json, res.status));
         return { url: json.data.url };
       },
       listParts: async () => [],
@@ -84,7 +85,7 @@ export function useUppyUpload(s3Enabled: boolean, token: string | null, onUpload
           }
         );
         const json: any = await res.json();
-        if (!res.ok) throw new Error(json.error);
+        if (!res.ok) throw new Error(getApiErrorMessage(json, res.status));
         return { location: json.data.url };
       },
       abortMultipartUpload: async (_file: any, opts: any) => {

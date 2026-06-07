@@ -13,6 +13,7 @@ import {
   unlockUserAccount,
   removeUser,
 } from '../../services/admin-user-service.js';
+import { sendError, mapAuthError, validationError, authUserNotFoundError } from '../../errors/index.js';
 
 export async function adminUserRoutes(app: FastifyInstance) {
   app.get('/admin/users/demo-config', async (_request, reply) => {
@@ -26,9 +27,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
       demo_registrations_open?: boolean;
     };
     if (typeof demo_registrations_open !== 'boolean') {
-      return reply
-        .code(400)
-        .send({ error: 'demo_registrations_open must be a boolean' });
+      return sendError(reply, validationError('demo_registrations_open must be a boolean'));
     }
     await upsertSetting('demo_registrations_open', String(demo_registrations_open));
     clearConfigCache();
@@ -91,8 +90,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
         );
         return reply.send(result);
       } catch (err) {
-        const e = err as { code?: string; message: string };
-        return reply.code(e.code === 'DUPLICATE_USERNAME' ? 409 : 500).send({ error: e.message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -105,7 +103,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
       const result = await listUsersPaginated({ page, limit, search });
       return reply.send(result);
     } catch (err) {
-      return reply.code(500).send({ error: (err as Error).message });
+      return sendError(reply, mapAuthError(err as Error));
     }
   });
 
@@ -132,8 +130,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
         );
         return reply.send({ ok: true });
       } catch (err) {
-        const e = err as { code?: string; message: string };
-        return reply.code(e.code === 'USER_NOT_FOUND' ? 404 : 500).send({ error: e.message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -144,8 +141,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
       await unlockUserAccount(userId);
       return reply.send({ ok: true });
     } catch (err) {
-      const e = err as { code?: string; message: string };
-      return reply.code(e.code === 'USER_NOT_FOUND' ? 404 : 500).send({ error: e.message });
+      return sendError(reply, mapAuthError(err as Error));
     }
   });
 
@@ -155,11 +151,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
       const result = await removeUser(userId, request.user!.id, request.user?.username);
       return reply.send({ ok: true, ...result });
     } catch (err) {
-      const e = err as { code?: string; message: string };
-      const status = e.code === 'SELF_DELETE' ? 400
-        : e.code === 'USER_NOT_FOUND' ? 404
-        : 500;
-      return reply.code(status).send({ error: e.message });
+      return sendError(reply, mapAuthError(err as Error));
     }
   });
 
@@ -186,7 +178,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
           })),
         });
       } catch (err) {
-        return reply.code(500).send({ error: (err as Error).message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -197,7 +189,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
       const userId = Number((request.params as { id: string }).id);
       try {
         const user = await findById(userId);
-        if (!user) return reply.code(404).send({ error: 'User not found' });
+        if (!user) return sendError(reply, mapAuthError(new Error('User not found')));
 
         const currentBackend = await getStorageBackend();
         const files = await findFilesNotOnBackend(userId, currentBackend);
@@ -251,7 +243,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
           backend: currentBackend,
         });
       } catch (err) {
-        return reply.code(500).send({ error: (err as Error).message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );

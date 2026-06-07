@@ -2,6 +2,7 @@ import { getTotalUsed, getUsedByUser } from '../../repositories/file-repository.
 import { getStorageLimit } from '../../repositories/user-repository.js';
 import { getTotalStorageLimit } from '../../config/index.js';
 import { formatBytes } from '../../utils/index.js';
+import { ERROR_CODES } from '../../errors/codes.js';
 
 /**
  * Check both global and per-user storage quota before uploading.
@@ -17,7 +18,7 @@ export async function checkStorageQuota(
     if (total + size > totalLimit) {
       throw Object.assign(
         new Error('Server storage limit reached. Contact the administrator.'),
-        { statusCode: 507 }
+        { code: ERROR_CODES.UPLOAD_QUOTA_SERVER }
       );
     }
   }
@@ -29,7 +30,7 @@ export async function checkStorageQuota(
         new Error(
           `Storage quota exceeded. You've used ${formatBytes(quota.used)} of ${formatBytes(quota.limit)}.`
         ),
-        { statusCode: 413 }
+        { code: ERROR_CODES.UPLOAD_QUOTA_USER }
       );
     }
   }

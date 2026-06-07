@@ -1,0 +1,5 @@
+{
+  "backup.not_found": "No backups found",
+  "backup.no_file": "No file uploaded",
+  "backup.invalid_file": "Invalid backup file format"
+}

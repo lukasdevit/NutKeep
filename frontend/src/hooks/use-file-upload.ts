@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { API_BASE } from '@/lib/api-client';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB per chunk
 
@@ -38,7 +39,7 @@ async function uploadFileChunked(
   });
   if (!initRes.ok) {
     const d = await initRes.json().catch(() => ({ error: 'Init failed' }));
-    throw new Error(d.error || 'Init failed');
+    throw new Error(getApiErrorMessage(d, initRes.status));
   }
   const { data } = await initRes.json();
   const uploadId: string = data.uploadId;
@@ -62,7 +63,7 @@ async function uploadFileChunked(
     );
     if (!partRes.ok) {
       const d = await partRes.json().catch(() => ({ error: 'Part upload failed' }));
-      throw new Error(d.error || `Part ${part} failed`);
+      throw new Error(getApiErrorMessage(d, partRes.status));
     }
 
     onProgress(Math.round((part / totalParts) * 100));
@@ -79,7 +80,7 @@ async function uploadFileChunked(
   });
   if (!completeRes.ok) {
     const d = await completeRes.json().catch(() => ({ error: 'Complete failed' }));
-    throw new Error(d.error || 'Complete failed');
+    throw new Error(getApiErrorMessage(d, completeRes.status));
   }
   const result = await completeRes.json();
   return result.data.url as string;

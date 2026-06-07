@@ -6,6 +6,7 @@ import {
   DEFAULT_STORAGE_LIMIT,
 } from '../../config/index.js';
 import { getStorageBackend, getStorageSetting, getStoragePath, clearConfigCache } from '../../config/index.js';
+import { sendError, mapStorageError, storageNoValidFieldsError, validationError } from '../../errors/index.js';
 import { STORAGE_SETTING_KEYS, allProviders, clearStorageCache } from '../../services/storage/index.js';
 import { recordAction } from '../../services/action-log-service.js';
 import { getAllSettings, upsertSetting } from '../../repositories/settings-repository.js';
@@ -122,7 +123,7 @@ export async function adminStorageRoutes(app: FastifyInstance) {
           updates.push([k, v.trim()]);
       }
       if (updates.length === 0)
-        return reply.code(400).send({ error: 'No valid fields to update' });
+        return sendError(reply, storageNoValidFieldsError());
 
       for (const [k, v] of updates) {
         await upsertSetting(k, v);
@@ -170,8 +171,7 @@ export async function adminSslRoutes(app: FastifyInstance) {
     try {
       await saveCustomCertificate(cert || '', key || '');
     } catch (err) {
-      const e = err as { statusCode?: number; message: string };
-      return reply.code(e.statusCode || 400).send({ error: e.message });
+      return sendError(reply, mapStorageError(err as Error, 'storage'));
     }
 
     // Reload Caddy config via admin API
@@ -214,9 +214,7 @@ export async function adminSslRoutes(app: FastifyInstance) {
         const storage = resolveProvider(backend);
 
         if (!storage.cleanupUnfinishedMultipart) {
-          return reply.code(400).send({
-            error: `Cleanup not supported for backend: ${backend}`,
-          });
+          return sendError(reply, validationError(`Cleanup not supported for backend: ${backend}`));
         }
 
         const count = await storage.cleanupUnfinishedMultipart();
@@ -232,8 +230,7 @@ export async function adminSslRoutes(app: FastifyInstance) {
 
         return reply.send({ ok: true, cleaned: count, backend });
       } catch (err) {
-        const e = err as Error;
-        return reply.code(500).send({ error: `Cleanup failed: ${e.message}` });
+        return sendError(reply, mapStorageError(err as Error, 'storage'));
       }
     }
   );
@@ -250,7 +247,7 @@ export async function adminSslRoutes(app: FastifyInstance) {
         fs.unlinkSync(path.join(certsDir, 'key.pem'));
       if (fs.existsSync(snippetPath)) fs.unlinkSync(snippetPath);
     } catch {
-      return reply.code(500).send({ error: 'Failed to remove cert files' });
+      return sendError(reply, mapStorageError(new Error('Failed to remove cert files'), 'ssl'));
     }
 
     if (hadCert) {

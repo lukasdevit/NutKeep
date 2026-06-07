@@ -1,5 +1,6 @@
 'use client';
 
+import { I18nProvider } from '@/i18n';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { DashboardProvider } from '@/features/dashboard/DashboardProvider';
 import { NavHeader } from '@/components/layout/NavHeader';
@@ -10,12 +11,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <ErrorReporter />
-      <AuthProvider>
-        <DashboardProvider>
-          <NavHeader />
-          {children}
-        </DashboardProvider>
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <DashboardProvider>
+            <NavHeader />
+            {children}
+          </DashboardProvider>
+        </AuthProvider>
+      </I18nProvider>
     </ErrorBoundary>
   );
 }

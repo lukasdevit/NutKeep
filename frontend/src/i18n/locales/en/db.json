@@ -1,0 +1,4 @@
+{
+  "db.invalid_table": "Invalid table name",
+  "db.last_admin": "Cannot delete the last admin user"
+}

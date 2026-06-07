@@ -1,0 +1,13 @@
+{
+  "upload.no_file": "Nie przesłano pliku",
+  "upload.missing_params": "Brak wymaganych parametrów",
+  "upload.invalid_params": "Nieprawidłowe parametry",
+  "upload.unsupported_type": "Nieobsługiwany typ pliku",
+  "upload.quota_server": "Osiągnięto limit storage serwera. Skontaktuj się z administratorem.",
+  "upload.quota_user": "Przekroczono limit storage. Zwolnij miejsce i spróbuj ponownie.",
+  "upload.malware_detected": "Plik nie mógł zostać przesłany - wykryto potencjalne zagrożenie.",
+  "upload.size_mismatch": "Niezgodność rozmiaru pliku",
+  "upload.unknown_id": "Nieznane ID uploadu — najpierw wykonaj init",
+  "upload.not_yours": "To nie jest Twój upload",
+  "upload.corrupt_metadata": "Nie udało się odczytać metadanych uploadu"
+}

@@ -1,3 +1,4 @@
+import { ERROR_CODES } from '../../errors/codes.js';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
@@ -56,7 +57,7 @@ export async function uploadBackupFile(
 ): Promise<BackupFileInfo> {
   const ext = path.extname(originalFilename).toLowerCase();
   if (ext !== '.db') {
-    throw Object.assign(new Error('Only .db files are accepted'), { statusCode: 400 });
+    throw Object.assign(new Error('Only .db files are accepted'), { code: ERROR_CODES.BACKUP_INVALID_FILE });
   }
 
   ensureBackupsDir();
@@ -95,11 +96,11 @@ export async function uploadBackupFile(
 export function deleteBackupFile(filename: string): void {
   const safe = path.basename(filename);
   if (safe !== filename || !safe.startsWith('database-') || !safe.endsWith('.db')) {
-    throw Object.assign(new Error('Invalid backup filename'), { statusCode: 400 });
+    throw Object.assign(new Error('Invalid backup filename'), { code: ERROR_CODES.BACKUP_INVALID_FILE });
   }
   const filepath = path.join(BACKUPS_DIR, safe);
   if (!fs.existsSync(filepath)) {
-    throw Object.assign(new Error('Backup not found'), { statusCode: 404 });
+    throw Object.assign(new Error('Backup not found'), { code: ERROR_CODES.BACKUP_NOT_FOUND });
   }
   fs.unlinkSync(filepath);
 }
@@ -118,12 +119,12 @@ export async function restoreBackupFile(
 
   const safe = path.basename(filename);
   if (safe !== filename || !safe.startsWith('database-') || !safe.endsWith('.db')) {
-    throw Object.assign(new Error('Invalid backup filename'), { statusCode: 400 });
+    throw Object.assign(new Error('Invalid backup filename'), { code: ERROR_CODES.BACKUP_INVALID_FILE });
   }
 
   const srcPath = path.join(BACKUPS_DIR, safe);
   if (!fs.existsSync(srcPath)) {
-    throw Object.assign(new Error('Backup file not found'), { statusCode: 404 });
+    throw Object.assign(new Error('Backup file not found'), { code: ERROR_CODES.BACKUP_NOT_FOUND });
   }
 
   // Validate the backup is a good SQLite database

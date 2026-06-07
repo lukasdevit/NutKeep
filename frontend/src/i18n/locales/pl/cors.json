@@ -1,0 +1,9 @@
+{
+  "cors.bucket_not_found": "Nie znaleziono bucketu",
+  "cors.access_denied": "Brak dostępu do konfiguracji CORS",
+  "cors.invalid_credentials": "Nieprawidłowe dane logowania do storage",
+  "cors.endpoint_unreachable": "Nie można połączyć się z endpointem storage",
+  "cors.unsupported_backend": "Zarządzanie CORS nie jest dostępne dla tego backendu",
+  "cors.unsupported_method": "Reguły CORS zawierają nieobsługiwaną metodę HTTP",
+  "cors.unknown_error": "Nieznany błąd CORS"
+}

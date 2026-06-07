@@ -24,7 +24,7 @@ describe('POST /upload', () => {
   it('rejects unauthenticated uploads', async () => {
     const res = await request.post('/upload').expect(401);
 
-    expect(res.body.error).toContain('Missing token');
+    expect(res.body.message).toContain('Missing token');
   });
 });
 
@@ -87,7 +87,7 @@ describe('Global storage limit (507)', () => {
       .attach('file', tmpFile)
       .expect(507);
 
-    expect(res.body.error).toContain('Server storage limit');
+    expect(res.body.message).toContain('Server storage limit');
     fs.unlinkSync(tmpFile);
   });
 });

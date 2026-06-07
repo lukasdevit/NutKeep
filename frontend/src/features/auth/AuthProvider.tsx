@@ -11,6 +11,7 @@ import {
 } from 'react';
 import type { UserInfo } from '@/types';
 import { apiFetch } from '@/lib/api-client';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 export interface AuthState {
   token: string | null;
@@ -85,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ username, password }),
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
+    if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
     setToken(d.token);
     setUser(d.user);
     localStorage.setItem('linqoy_token', d.token);
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function demoLogin() {
     const r = await apiFetch(null, '/auth/demo', { method: 'POST' });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
+    if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
     setToken(d.token);
     setUser(d.user);
     localStorage.setItem('linqoy_token', d.token);
@@ -116,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ username, password }),
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
+    if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
     setToken(d.token);
     setUser(d.user);
     localStorage.setItem('linqoy_token', d.token);

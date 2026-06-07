@@ -13,6 +13,7 @@ import { BASE_URL } from '../../config/index.js';
 import { sanitizeFilename, checkStorageQuota, finalizeFile } from '../../services/files/index.js';
 import { buildStorageKey, getCurrentS3Client } from '../../services/storage/index.js';
 import { writeLog } from '../../services/log-service.js';
+import { sendError, mapUploadError, uploadMissingParamsError } from '../../errors/index.js';
 import { prepareUploadInit } from './helpers.js';
 
 const PRESIGN_EXPIRY_SECONDS = 3600; // 1 hour per part URL
@@ -33,7 +34,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       };
 
       if (!body.filename || !body.mimeType) {
-        return reply.code(400).send({ error: 'filename and mimeType required' });
+        return sendError(reply, uploadMissingParamsError('filename and mimeType required'));
       }
 
       let filename: string;
@@ -47,8 +48,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
         filename = prep.filename;
         storageKey = prep.storageKey;
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapUploadError(err as Error));
       }
 
       const { client: s3, bucket } = await getCurrentS3Client();
@@ -99,7 +99,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
         };
 
         if (!key || !uploadId || !partNumber) {
-          return reply.code(400).send({ error: 'key, uploadId, and partNumber required' });
+          return sendError(reply, uploadMissingParamsError('key, uploadId, and partNumber required'));
         }
 
         const { client: s3, bucket } = await getCurrentS3Client();
@@ -120,9 +120,8 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
           data: { url },
         });
       } catch (err) {
-        const e = err as Error;
-        app.log.error({ err: e }, 'sign-part failed');
-        return reply.code(500).send({ error: `sign-part failed: ${e.message}` });
+        app.log.error({ err }, 'sign-part failed');
+        return sendError(reply, mapUploadError(err as Error));
       }
     }
   );
@@ -148,7 +147,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       };
 
       if (!body.key || !body.parts || !Array.isArray(body.parts)) {
-        return reply.code(400).send({ error: 'key and parts array required' });
+        return sendError(reply, uploadMissingParamsError('key and parts array required'));
       }
 
       const { client: s3, bucket } = await getCurrentS3Client();
@@ -167,9 +166,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       try {
         await s3.send(cmd);
       } catch (err) {
-        return reply.code(500).send({
-          error: `Failed to complete upload: ${(err as Error).message}`,
-        });
+        return sendError(reply, mapUploadError(err as Error));
       }
 
       const filename = path.basename(body.key);
@@ -177,9 +174,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       try {
         await checkStorageQuota(size, request.user!.id);
       } catch (err) {
-        return reply
-          .code((err as { statusCode?: number }).statusCode || 500)
-          .send({ error: (err as Error).message });
+        return sendError(reply, mapUploadError(err as Error));
       }
 
       const fileParams: {
@@ -202,9 +197,7 @@ export async function multipartUploadRoutes(app: FastifyInstance) {
       try {
         await finalizeFile(fileParams);
       } catch (err) {
-        return reply
-          .code((err as { statusCode?: number }).statusCode || 500)
-          .send({ error: (err as Error).message });
+        return sendError(reply, mapUploadError(err as Error));
       }
 
       writeLog({

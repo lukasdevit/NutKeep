@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import fs from 'fs';
 import path from 'path';
+import { sendError, actionNotFoundError, mapFileError } from '../../errors/index.js';
 import {
   listRecentActions,
   findActionById,
@@ -23,9 +24,7 @@ export async function adminActionsRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const action = await findActionById(parseInt(id, 10));
     if (!action)
-      return reply
-        .code(404)
-        .send({ error: 'Action not found or already undone' });
+      return sendError(reply, actionNotFoundError());
 
     const data = action.undo_data ? JSON.parse(action.undo_data) : null;
 
@@ -34,9 +33,7 @@ export async function adminActionsRoutes(app: FastifyInstance) {
       await markActionUndone(action.id);
       return reply.send({ ok: true, undone: action.action });
     } catch (err) {
-      return reply
-        .code(500)
-        .send({ error: `Undo failed: ${(err as Error).message}` });
+      return sendError(reply, mapFileError(err as Error));
     }
   });
 

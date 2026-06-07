@@ -5,6 +5,7 @@ import { History } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { RowSkeleton } from '@/components/ui/RowSkeleton';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -76,7 +77,7 @@ export function AdminActions({ apiFetch }: Props) {
     try {
       const r = await apiFetch(`/admin/actions/${id}/undo`, { method: 'POST' });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       toast(`Undone: ${d.undone}`, 'ok');
       fetchActions();
     } catch (e) {
