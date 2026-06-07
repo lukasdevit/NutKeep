@@ -101,7 +101,8 @@ export class B2Storage implements StorageProvider {
     try {
       await this.size(key);
       return true;
-    } catch {
+    } catch (err) {
+      console.error(`[b2] exists check failed: key=${key} error=${(err as Error).message}`);
       return false;
     }
   }
