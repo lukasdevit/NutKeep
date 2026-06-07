@@ -34,7 +34,7 @@ export function UserManager({ apiFetch }: Props) {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newIsAdmin, setNewIsAdmin] = useState(false);
-  const [newStorageLimit, setNewStorageLimit] = useState(0);
+  const [newStorageLimit, setNewStorageLimit] = useState(10);
 
   // Registration toggles
   const [registrationsOpen, setRegistrationsOpen] = useState(true);
@@ -230,7 +230,7 @@ export function UserManager({ apiFetch }: Props) {
       setNewUsername('');
       setNewPassword('');
       setNewIsAdmin(false);
-      setNewStorageLimit(0);
+      setNewStorageLimit(10);
       await fetchUsers(page, search);
     } catch (err) {
       toast((err as Error).message, 'err');
