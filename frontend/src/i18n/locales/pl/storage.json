@@ -1,0 +1,8 @@
+{
+  "storage.bucket_not_found": "Nie znaleziono bucketu storage",
+  "storage.access_denied": "Brak dostępu do storage",
+  "storage.invalid_credentials": "Nieprawidłowe dane logowania do storage",
+  "storage.endpoint_unreachable": "Nie można połączyć się z endpointem storage",
+  "storage.no_valid_fields": "Brak prawidłowych pól do aktualizacji",
+  "storage.unknown_error": "Nieznany błąd storage"
+}

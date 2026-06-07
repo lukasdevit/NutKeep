@@ -1,4 +1,5 @@
 'use client';
+import { getApiErrorMessage } from "@/lib/api-error";
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/ui/Toast';
@@ -54,7 +55,7 @@ export function SslConfig({ apiFetch }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cert: certPem, key: keyPem }),
       });
-      if (!r.ok) throw new Error((await r.json()).error);
+      if (!r.ok) throw new Error(getApiErrorMessage(await r.json(), r.status));
       toast('Certificate uploaded and applied', 'ok');
       setCertPem('');
       setKeyPem('');
@@ -71,7 +72,7 @@ export function SslConfig({ apiFetch }: Props) {
     setDeleting(true);
     try {
       const r = await apiFetch('/admin/ssl/cert', { method: 'DELETE' });
-      if (!r.ok) throw new Error((await r.json()).error);
+      if (!r.ok) throw new Error(getApiErrorMessage(await r.json(), r.status));
       toast('Custom certificate removed — using auto TLS', 'ok');
       setCustomCert({ has_custom_cert: false, cert_expiry: null });
     } catch (e) {

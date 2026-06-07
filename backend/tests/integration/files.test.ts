@@ -37,7 +37,7 @@ describe('POST /upload', () => {
   it('rejects unauthenticated requests', async () => {
     const res = await request.post('/upload').expect(401);
 
-    expect(res.body.error).toContain('Missing token');
+    expect(res.body.message).toContain('Missing token');
   });
 
   it('rejects request with no file', async () => {
@@ -84,7 +84,7 @@ describe('POST /upload', () => {
       .attach('file', badFile, { contentType: 'application/x-shockwave-flash' })
       .expect(415);
 
-    expect(res.body.error).toContain('not allowed');
+    expect(res.body.message).toContain('not allowed');
 
     // Cleanup
     fs.unlinkSync(badFile);
@@ -144,7 +144,7 @@ describe('GET /file/:filename', () => {
   it('returns 404 for non-existent file', async () => {
     const res = await request.get('/file/nonexistent123').expect(404);
 
-    expect(res.body.error).toContain('not found');
+    expect(res.body.message).toContain('not found');
   });
 
   it('blocks path traversal attempts', async () => {
@@ -169,7 +169,7 @@ describe('DELETE /file/:id', () => {
       .set('Authorization', `Bearer ${userToken}`)
       .expect(404);
 
-    expect(res.body.error).toContain('not found');
+    expect(res.body.message).toContain('not found');
   });
 
   it("prevents deleting another user's file", async () => {
@@ -204,7 +204,7 @@ describe('DELETE /file/:id', () => {
       .set('Authorization', `Bearer ${otherToken}`)
       .expect(403);
 
-    expect(res.body.error).toContain('Not your file');
+    expect(res.body.message).toContain('Not your file');
   });
 });
 

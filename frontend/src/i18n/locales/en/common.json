@@ -1,0 +1,5 @@
+{
+  "common.internal_error": "An internal server error occurred",
+  "common.validation_error": "Invalid input data",
+  "settings.language": "Language"
+}

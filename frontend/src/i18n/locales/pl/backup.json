@@ -1,0 +1,5 @@
+{
+  "backup.not_found": "Nie znaleziono kopii zapasowych",
+  "backup.no_file": "Nie przesłano pliku",
+  "backup.invalid_file": "Nieprawidłowy format pliku backupu"
+}

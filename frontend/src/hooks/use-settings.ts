@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { StorageInfo } from '@/types';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 export function useSettings(apiFetch: (path: string, options?: RequestInit) => Promise<Response>) {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -26,7 +27,7 @@ export function useSettings(apiFetch: (path: string, options?: RequestInit) => P
       body: JSON.stringify({ currentPassword, newPassword }),
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
+    if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
     setCurrentPassword('');
     setNewPassword('');
     return 'Password changed successfully';

@@ -1,5 +1,6 @@
 'use client';
 
+import { getApiErrorMessage } from "@/lib/api-error";
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useToast } from '@/components/ui/Toast';
@@ -220,7 +221,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
         body: JSON.stringify(body),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       toast(
         `${action === 'import' ? `Imported ${d.imported.length} files` : `Resolved ${d.resolved} issues`}`,
         'ok'
@@ -276,7 +277,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
           body: JSON.stringify({ issueId, action }),
         }
       );
-      if (!r.ok) throw new Error((await r.json()).error);
+      if (!r.ok) throw new Error(getApiErrorMessage(await r.json(), r.status));
       setIssues((prev) =>
         prev.map((i) => (i.id === issueId ? { ...i, resolved: true } : i))
       );
@@ -300,7 +301,7 @@ export function IntegrityCheck({ apiFetch }: Props) {
         }
       );
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setIssues((prev) =>
         prev.map((i) => (i.id === issueId ? { ...i, resolved: true } : i))
       );

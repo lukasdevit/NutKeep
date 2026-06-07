@@ -2,6 +2,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/index.js';
 import { writeLog } from '../services/log-service.js';
+import { sendError, authMissingTokenError, authInvalidTokenError, authForbiddenError } from '../errors/index.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -57,7 +58,7 @@ export async function requireAuth(
       url: request.url,
       reqId: request.id,
     });
-    return reply.code(401).send({ error: 'Missing token' });
+    return sendError(reply, authMissingTokenError());
   }
   const payload = verifyToken(token);
   if (!payload) {
@@ -71,7 +72,7 @@ export async function requireAuth(
       url: request.url,
       reqId: request.id,
     });
-    return reply.code(401).send({ error: 'Invalid or expired token' });
+    return sendError(reply, authInvalidTokenError());
   }
   request.user = payload;
 }
@@ -94,6 +95,6 @@ export async function requireAdmin(
       url: request.url,
       reqId: request.id,
     });
-    return reply.code(403).send({ error: 'Admin only' });
+    return sendError(reply, authForbiddenError());
   }
 }

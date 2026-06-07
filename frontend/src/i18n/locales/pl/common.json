@@ -1,0 +1,5 @@
+{
+  "common.internal_error": "Wystąpił wewnętrzny błąd serwera",
+  "common.validation_error": "Nieprawidłowe dane wejściowe",
+  "settings.language": "Język"
+}

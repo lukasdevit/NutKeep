@@ -5,6 +5,7 @@ import { B2Storage } from '../storage/b2/index.js';
 import { R2Storage } from '../storage/r2/index.js';
 import type { StorageProvider } from '../storage/types.js';
 import { recordAction } from '../action-log-service.js';
+import { ERROR_CODES } from '../../errors/codes.js';
 import {
   insertCheck,
   insertIssues,
@@ -124,8 +125,8 @@ export async function resolveSingleIssue(
   username?: string
 ): Promise<void> {
   const issue = await findIssue(checkId, issueId);
-  if (!issue) throw Object.assign(new Error('Issue not found'), { statusCode: 404 });
-  if (issue.resolved) throw Object.assign(new Error('Already resolved'), { statusCode: 409 });
+  if (!issue) throw Object.assign(new Error('Issue not found'), { code: ERROR_CODES.INTEGRITY_CHECK_NOT_FOUND });
+  if (issue.resolved) throw Object.assign(new Error('Already resolved'), { code: ERROR_CODES.VALIDATION_ERROR });
 
   if (action === 'delete-db' && issue.file_id) {
     const row = await getFileRow(issue.file_id);

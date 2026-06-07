@@ -1,7 +1,14 @@
-import type { FastifyInstance } from 'fastify';
-
-import { requireAuth, signToken } from '../middleware/index.js';
-import { DB_PATH, AUTH_LOGIN_LIMIT, AUTH_REGISTER_LIMIT, AUTH_RATE_WINDOW_MS } from '../config/index.js';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import {
+  requireAuth,
+  signToken,
+} from '../middleware/index.js';
+import {
+  DB_PATH,
+  AUTH_LOGIN_LIMIT,
+  AUTH_REGISTER_LIMIT,
+  AUTH_RATE_WINDOW_MS,
+} from '../config/index.js';
 import {
   registerUser,
   loginUser,
@@ -12,6 +19,7 @@ import {
 } from '../services/auth-service.js';
 import { DEMO_IP_RATE_LIMIT, DEMO_RATE_WINDOW_MS } from '../config/index.js';
 import { writeLog } from '../services/log-service.js';
+import { sendError, mapAuthError, authNotDemoSessionError } from '../errors/index.js';
 
 export async function authRoutes(app: FastifyInstance) {
   const isTest = DB_PATH.includes('test');
@@ -72,8 +80,7 @@ export async function authRoutes(app: FastifyInstance) {
         const token = signToken(user.id, user.username, user.isAdmin);
         return reply.send({ token, user });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -112,19 +119,18 @@ export async function authRoutes(app: FastifyInstance) {
         });
         return reply.send({ token, user });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
         writeLog({
           time: new Date().toISOString(),
           level: 40,
           levelName: 'warn',
           category: 'security',
-          msg: `Login failure: ${username} — ${e.message}`,
+          msg: `Login failure: ${username} — ${(err as Error).message}`,
           user: username,
           method: 'POST',
           url: '/auth/login',
           reqId: request.id,
         });
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -176,8 +182,7 @@ export async function authRoutes(app: FastifyInstance) {
         });
         return reply.send({ ok: true });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -214,8 +219,7 @@ export async function authRoutes(app: FastifyInstance) {
         const token = signToken(user.id, user.username, false, true);
         return reply.send({ token, user });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );
@@ -226,14 +230,14 @@ export async function authRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const user = request.user!;
       if (!user.isDemo) {
-        return reply.code(403).send({ error: 'Not a demo session' });
+        return sendError(reply, authNotDemoSessionError());
       }
 
       try {
         await cleanupDemoSession(user.id);
         return reply.send({ ok: true });
       } catch (err) {
-        return reply.code(500).send({ error: (err as Error).message });
+        return sendError(reply, mapAuthError(err as Error));
       }
     }
   );

@@ -1,4 +1,5 @@
 'use client';
+import { getApiErrorMessage } from "@/lib/api-error";
 
 import { useState, useEffect } from 'react';
 import { formatSize } from '@/lib/utils';
@@ -137,7 +138,7 @@ export function UserManager({ apiFetch }: Props) {
         body: JSON.stringify(body),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       toast('User updated', 'ok');
       setEditPassword('');
       await fetchUsers(page, search);
@@ -150,7 +151,7 @@ export function UserManager({ apiFetch }: Props) {
     try {
       const r = await apiFetch(`/admin/users/${id}`, { method: 'DELETE' });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setDeleteConfirm(null);
       setEditId(null);
       await fetchUsers(page, search);
@@ -163,7 +164,7 @@ export function UserManager({ apiFetch }: Props) {
     try {
       const r = await apiFetch(`/admin/users/${userId}/migrate-files-preview`);
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setMigratePreview(d);
     } catch (err) {
       toast((err as Error).message, 'err');
@@ -177,7 +178,7 @@ export function UserManager({ apiFetch }: Props) {
         method: 'POST',
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       if (d.errors?.length) {
         toast(
           `Migrated ${d.migrated} files, ${d.errors.length} errors to ${d.backend}`,
@@ -223,7 +224,7 @@ export function UserManager({ apiFetch }: Props) {
         body: JSON.stringify(body),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       toast(`User "${d.username}" created`, 'ok');
       setShowCreate(false);
       setNewUsername('');
@@ -247,7 +248,7 @@ export function UserManager({ apiFetch }: Props) {
         }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setRegistrationsOpen(!registrationsOpen);
       toast(
         `Registrations ${!registrationsOpen ? 'opened' : 'closed'}`,
@@ -269,7 +270,7 @@ export function UserManager({ apiFetch }: Props) {
         body: JSON.stringify({ demo_registrations_open: !demoRegOpen }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setDemoRegOpen(!demoRegOpen);
       toast(`Demo accounts ${!demoRegOpen ? 'enabled' : 'disabled'}`, 'ok');
     } catch (err) {

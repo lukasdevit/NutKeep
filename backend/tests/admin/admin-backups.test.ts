@@ -65,7 +65,7 @@ describe('POST /admin/backup/upload', () => {
       .attach('file', tmpFile)
       .expect(400);
 
-    expect(res.body.error).toMatch(/Only .db files/);
+    expect(res.body.message).toMatch(/Only .db files/);
     fs.unlinkSync(tmpFile);
   });
 });

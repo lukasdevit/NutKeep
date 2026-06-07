@@ -1,0 +1,7 @@
+{
+  "file.not_found": "Nie znaleziono pliku",
+  "file.not_yours": "To nie jest Twój plik",
+  "file.private": "Ten plik jest prywatny",
+  "file.missing_from_storage": "Plik nie istnieje w storage",
+  "file.invalid_name": "Nieprawidłowa nazwa pliku"
+}

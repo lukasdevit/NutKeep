@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/components/ui/Toast';
+import { getApiErrorMessage } from '@/lib/api-error';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -36,7 +37,7 @@ export function CorsConfig({ apiFetch }: Props) {
     try {
       const r = await apiFetch('/admin/storage/cors');
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || d.message || `Server error (${r.status})`);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setJsonText(JSON.stringify(d.rules, null, 2));
       toast(`CORS config loaded (source: ${d.source})`, 'ok');
     } catch (e) {
@@ -64,7 +65,7 @@ export function CorsConfig({ apiFetch }: Props) {
         body: JSON.stringify({ rules: parsed }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || d.message || `Server error (${r.status})`);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
       setJsonText(JSON.stringify(d.rules, null, 2));
       toast('CORS configuration applied successfully', 'ok');
     } catch (e) {
@@ -80,7 +81,7 @@ export function CorsConfig({ apiFetch }: Props) {
     try {
       const r = await apiFetch('/admin/storage/cors/default');
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || d.message || `Server error (${r.status})`);
+      if (!r.ok) throw new Error(getApiErrorMessage(d, r.status));
 
       const applyR = await apiFetch('/admin/storage/cors', {
         method: 'PUT',
@@ -88,7 +89,7 @@ export function CorsConfig({ apiFetch }: Props) {
         body: JSON.stringify({ rules: d.rules }),
       });
       const applyD = await applyR.json();
-      if (!applyR.ok) throw new Error(applyD.error || applyD.message || `Server error (${applyR.status})`);
+      if (!applyR.ok) throw new Error(getApiErrorMessage(applyD, applyR.status));
 
       setJsonText(JSON.stringify(applyD.rules, null, 2));
       toast('CORS configuration reset to default', 'ok');

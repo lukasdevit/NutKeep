@@ -1,0 +1,5 @@
+{
+  "integrity.check_not_found": "Nie znaleziono sprawdzenia",
+  "integrity.missing_param": "Brak wymaganego parametru",
+  "integrity.forbidden": "Brak dostępu"
+}

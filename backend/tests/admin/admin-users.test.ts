@@ -99,7 +99,7 @@ describe('PATCH /admin/users/:id', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ storage_limit: -1 })
       .expect(400);
-    expect(res.body.message).toMatch(/0|negative/);
+    expect(res.body.details).toMatch(/0|negative/);
   });
 });
 
@@ -114,7 +114,7 @@ describe('DELETE /admin/users/:id', () => {
       .delete(`/admin/users/${myId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(400);
-    expect(res.body.error).toContain('delete yourself');
+    expect(res.body.message).toContain('delete yourself');
   });
 
   it('deletes a user', async () => {

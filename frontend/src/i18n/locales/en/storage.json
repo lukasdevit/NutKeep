@@ -1,0 +1,8 @@
+{
+  "storage.bucket_not_found": "Storage bucket not found",
+  "storage.access_denied": "Storage access denied",
+  "storage.invalid_credentials": "Invalid storage credentials",
+  "storage.endpoint_unreachable": "Storage endpoint unreachable",
+  "storage.no_valid_fields": "No valid fields to update",
+  "storage.unknown_error": "Unknown storage error"
+}

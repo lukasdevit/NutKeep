@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { recordAction } from '../../services/action-log-service.js';
+import { sendError, backupNoFileError, mapUploadError } from '../../errors/index.js';
 import {
   listBackupFiles,
   uploadBackupFile,
@@ -19,13 +20,12 @@ export async function adminBackupManageRoutes(app: FastifyInstance) {
 
   app.post('/admin/backup/upload', async (request, reply) => {
     const file = await request.file();
-    if (!file) return reply.code(400).send({ error: 'No file uploaded' });
+    if (!file) return sendError(reply, backupNoFileError());
     try {
       const backup = await uploadBackupFile(file.file, file.filename, request.user?.username);
       return reply.send({ ok: true, backup });
     } catch (err) {
-      const e = err as { statusCode?: number; message: string };
-      return reply.code(e.statusCode || 500).send({ error: e.message });
+      return sendError(reply, mapUploadError(err as Error));
     }
   });
 
@@ -40,8 +40,7 @@ export async function adminBackupManageRoutes(app: FastifyInstance) {
       }
       return reply.send({ ok: true });
     } catch (err) {
-      const e = err as { statusCode?: number; message: string };
-      return reply.code(e.statusCode || 500).send({ error: e.message });
+      return sendError(reply, mapUploadError(err as Error));
     }
   });
 
@@ -53,8 +52,7 @@ export async function adminBackupManageRoutes(app: FastifyInstance) {
       await restoreBackupFile(filename, confirm, request.user?.username);
       return reply.send({ ok: true, restored: filename, message: 'Database restored successfully. The server may need a restart for in-memory caches to refresh.' });
     } catch (err) {
-      const e = err as { statusCode?: number; message: string };
-      return reply.code(e.statusCode || 500).send({ error: e.message });
+      return sendError(reply, mapUploadError(err as Error));
     }
   });
 }

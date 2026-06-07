@@ -4,6 +4,7 @@ import { getLiveCorsConfig, applyLiveCorsConfig, DEFAULT_CORS_RULES } from '../.
 import { getSetting, upsertSetting } from '../../repositories/settings-repository.js';
 import { recordAction } from '../../services/action-log-service.js';
 import { getStorageBackend } from '../../config/index.js';
+import { sendError, mapCorsError, createError, validationError } from '../../errors/index.js';
 
 const CORS_RATE_LIMIT = 30;
 const CORS_RATE_WINDOW_MS = 60_000;
@@ -20,13 +21,17 @@ function dbKey(backend: string): string {
 }
 
 /** Resolve S3 client + bucket for the active backend */
-async function resolveS3Backend(): Promise<{ ok: true; s3: S3Client; bucket: string; backend: string } | { ok: false; status: number; error: string }> {
+async function resolveS3Backend(): Promise<{ ok: true; s3: S3Client; bucket: string; backend: string } | { ok: false; error: ReturnType<typeof createError> }> {
   const backend = await getStorageBackend();
   if (!S3_BACKENDS.has(backend)) {
     return {
       ok: false,
-      status: 400,
-      error: `CORS management is only available for S3-compatible storage (b2, r2). Current backend: ${backend}`,
+      error: createError(
+        'CORS_UNSUPPORTED_BACKEND',
+        'cors.unsupported_backend',
+        400,
+        `CORS management is only available for S3-compatible storage (b2, r2). Current backend: ${backend}`,
+      ),
     };
   }
   const { getS3Client, getBucket } = await import(`../../services/storage/${backend}/client.js`);
@@ -35,54 +40,7 @@ async function resolveS3Backend(): Promise<{ ok: true; s3: S3Client; bucket: str
 }
 
 /** Map known errors to appropriate HTTP status codes */
-function mapCorsError(err: Error, backend: string): { status: number; message: string } {
-  const msg = err.message ?? '';
-  // AWS SDK errors carry the code in .name (e.g. "InvalidAccessKeyId", "AccessDenied")
-  const code = (err as unknown as Record<string, unknown>).name as string
-    || (err as unknown as Record<string, unknown>).Code as string
-    || '';
-  const label = backend.toUpperCase();
-  const lower = msg.toLowerCase();
-  const lowerCode = code.toLowerCase();
-
-  // Missing or empty credentials
-  if (lowerCode === 'credentialsisnotvalid' || lower.includes('credentials not configured') || lower.includes('key_id') || lower.includes('access_key')) {
-    return { status: 400, message: `${label} credentials not configured. Check Storage Configuration.` };
-  }
-  // Wrong access key or secret
-  if (lowerCode === 'invalidaccesskeyid' || lowerCode === 'signaturedoesnotmatch'
-    || lower.includes('invalidaccesskeyid') || lower.includes('signaturedoesnotmatch')
-    || lower.includes('access key id') || lower.includes('secret access key')
-    || lower.includes('security token')) {
-    return { status: 400, message: `${label} authentication failed. Check your credentials (access key / secret key).` };
-  }
-  // Bucket not found
-  if (lowerCode === 'nosuchbucket' || lowerCode === 'notfound'
-    || lower.includes('nosuchbucket') || lower.includes('bucket') && lower.includes('not found')) {
-    return { status: 400, message: `${label} bucket not found. Check the bucket name in Storage Configuration.` };
-  }
-  // Permission denied
-  if (lowerCode === 'accessdenied' || lowerCode === 'forbidden'
-    || lower.includes('accessdenied') || lower.includes('forbidden')
-    || lower.includes('access denied')) {
-    return { status: 403, message: `${label} access denied. The configured key may not have permission to manage CORS.` };
-  }
-  // Endpoint / network errors
-  if (lower.includes('enotfound') || lower.includes('econnrefused') || lower.includes('etimedout')
-    || lower.includes('dns') || lowerCode === 'networkingerror' || lower.includes('resolve')) {
-    return { status: 400, message: `${label} endpoint unreachable. Check the endpoint URL in Storage Configuration.` };
-  }
-  // B2 Native CORS (S3-incompatible mode)
-  if (lower.includes('b2 native cors') || lower.includes('b2 native api')) {
-    return { status: 400, message: 'B2 bucket uses Native CORS rules. In the B2 console, go to bucket settings → CORS Rules → switch to "S3 Compatible API" or "Both".' };
-  }
-  // Unsupported HTTP method in CORS rules
-  if (lower.includes('unsupported http method') || lower.includes('unsupported method')) {
-    return { status: 400, message: 'CORS rules contain an unsupported HTTP method (e.g. OPTIONS). Remove it — OPTIONS is handled automatically by CORS.' };
-  }
-  // Fallback: include both code and message so the user can diagnose
-  return { status: 502, message: `${label} error: ${code ? code + ' — ' : ''}${msg || 'Unknown error'}` };
-}
+// (moved to ../../errors/cors.errors.ts — re-exported via mapCorsError import)
 
 /** Validate that the input is a valid CORSRule array */
 function validateCorsRules(input: unknown): { ok: true; rules: CORSRule[] } | { ok: false; error: string } {
@@ -124,7 +82,7 @@ export async function adminCorsRoutes(app: FastifyInstance) {
       try {
         const resolved = await resolveS3Backend();
         if (!resolved.ok) {
-          return reply.code(resolved.status).send({ error: resolved.error });
+          return sendError(reply, resolved.error);
         }
         const { s3, bucket, backend } = resolved;
         const key = dbKey(backend);
@@ -153,11 +111,10 @@ export async function adminCorsRoutes(app: FastifyInstance) {
         return reply.send({ rules: DEFAULT_CORS_RULES, source: 'default' });
       } catch (err) {
         request.log.error({ err }, 'CORS fetch failed');
-        // If resolveS3Backend threw before backend was assigned, try to get it
         let backend = 'b2';
         try { backend = await getStorageBackend(); } catch { /* keep default */ }
-        const { status, message } = mapCorsError(err as Error, backend);
-        return reply.code(status).send({ error: `Failed to fetch CORS config: ${message}` });
+        const apiError = mapCorsError(err as Error, backend);
+        return sendError(reply, apiError);
       }
     }
   );
@@ -178,7 +135,7 @@ export async function adminCorsRoutes(app: FastifyInstance) {
       try {
         const resolved = await resolveS3Backend();
         if (!resolved.ok) {
-          return reply.code(resolved.status).send({ error: resolved.error });
+          return sendError(reply, resolved.error);
         }
         const { s3, bucket, backend } = resolved;
         const key = dbKey(backend);
@@ -186,12 +143,12 @@ export async function adminCorsRoutes(app: FastifyInstance) {
         const body = request.body as { rules?: unknown };
 
         if (!body?.rules) {
-          return reply.code(400).send({ error: 'Missing "rules" field in request body' });
+          return sendError(reply, validationError('Missing "rules" field in request body'));
         }
 
         const validation = validateCorsRules(body.rules);
         if (!validation.ok) {
-          return reply.code(400).send({ error: validation.error });
+          return sendError(reply, validationError(validation.error));
         }
 
         await applyLiveCorsConfig(s3, bucket, validation.rules);
@@ -211,8 +168,8 @@ export async function adminCorsRoutes(app: FastifyInstance) {
         request.log.error({ err }, 'CORS apply failed');
         let backend = 'b2';
         try { backend = await getStorageBackend(); } catch { /* keep default */ }
-        const { status, message } = mapCorsError(err as Error, backend);
-        return reply.code(status).send({ error: `Failed to apply CORS config: ${message}` });
+        const apiError = mapCorsError(err as Error, backend);
+        return sendError(reply, apiError);
       }
     }
   );

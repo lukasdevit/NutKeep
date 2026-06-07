@@ -27,6 +27,7 @@ import {
   DEMO_GLOBAL_RATE_LIMIT,
   DEMO_RATE_WINDOW_MS,
 } from '../config/index.js';
+import { ERROR_CODES } from '../errors/codes.js';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -58,7 +59,7 @@ export async function registerUser(
   if (!isTest) {
     const regOpen = await getSetting('registrations_open');
     if (regOpen === 'false') {
-      throw Object.assign(new Error('Registrations are currently disabled'), { statusCode: 403 });
+      throw Object.assign(new Error('Registrations are currently disabled'), { code: ERROR_CODES.AUTH_REGISTRATIONS_DISABLED });
     }
   }
 
@@ -73,7 +74,7 @@ export async function registerUser(
     return { id, username, isAdmin: false, isDemo: false };
   } catch (err) {
     if ((err as Error).message.includes('UNIQUE')) {
-      throw Object.assign(new Error('Username already taken'), { statusCode: 409 });
+      throw Object.assign(new Error('Username already taken'), { code: ERROR_CODES.AUTH_USERNAME_TAKEN });
     }
     throw err;
   }
@@ -92,7 +93,7 @@ export async function loginUser(
 ): Promise<LoginResult> {
   const row = await findByUsername(username);
   if (!row) {
-    throw Object.assign(new Error('Invalid credentials'), { statusCode: 401 });
+    throw Object.assign(new Error('Invalid credentials'), { code: ERROR_CODES.AUTH_INVALID_CREDENTIALS });
   }
 
   // Check lockout
@@ -102,7 +103,7 @@ export async function loginUser(
     );
     throw Object.assign(
       new Error(`Account locked. Try again in ${remaining} minute${remaining !== 1 ? 's' : ''}.`),
-      { statusCode: 429 }
+        { code: ERROR_CODES.AUTH_ACCOUNT_LOCKED }
     );
   }
 
@@ -120,7 +121,7 @@ export async function loginUser(
       attemptsLeft > 0
         ? `Invalid credentials. ${attemptsLeft} attempt${attemptsLeft !== 1 ? 's' : ''} remaining.`
         : `Account locked for ${LOCKOUT_MINUTES} minutes.`;
-    throw Object.assign(new Error(msg), { statusCode: 401 });
+    throw Object.assign(new Error(msg), { code: ERROR_CODES.AUTH_INVALID_CREDENTIALS });
   }
 
   await resetFailedLogins(row.id);
@@ -135,12 +136,12 @@ export async function changeUserPassword(
 ): Promise<void> {
   const user = await findById(userId);
   if (!user) {
-    throw Object.assign(new Error('User not found'), { statusCode: 404 });
+    throw Object.assign(new Error('User not found'), { code: ERROR_CODES.AUTH_USER_NOT_FOUND });
   }
 
   const match = await bcrypt.compare(currentPassword, user.password_hash);
   if (!match) {
-    throw Object.assign(new Error('Current password is incorrect'), { statusCode: 401 });
+    throw Object.assign(new Error('Current password is incorrect'), { code: ERROR_CODES.AUTH_WRONG_PASSWORD });
   }
 
   const hash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
@@ -176,7 +177,7 @@ export async function createDemoAccount(isTest = false): Promise<DemoResult> {
   if (!isTest) {
     const demoOpen = await getSetting('demo_registrations_open');
     if (demoOpen === 'false') {
-      throw Object.assign(new Error('Demo accounts are currently disabled'), { statusCode: 403 });
+      throw Object.assign(new Error('Demo accounts are currently disabled'), { code: ERROR_CODES.AUTH_REGISTRATIONS_DISABLED });
     }
 
     const cutoff = new Date(Date.now() - DEMO_RATE_WINDOW_MS).toISOString();
@@ -184,7 +185,7 @@ export async function createDemoAccount(isTest = false): Promise<DemoResult> {
     if (globalCount >= DEMO_GLOBAL_RATE_LIMIT) {
       throw Object.assign(
         new Error('Too many demo accounts created. Try again shortly.'),
-        { statusCode: 429 }
+        { code: ERROR_CODES.AUTH_DEMO_LIMIT_REACHED }
       );
     }
   }
@@ -204,7 +205,7 @@ export async function createDemoAccount(isTest = false): Promise<DemoResult> {
     });
     return { id, username, isAdmin: false, isDemo: true, password };
   } catch {
-    throw Object.assign(new Error('Failed to create demo account'), { statusCode: 500 });
+    throw Object.assign(new Error('Failed to create demo account'), { code: ERROR_CODES.INTERNAL_ERROR });
   }
 }
 

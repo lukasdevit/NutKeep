@@ -20,6 +20,7 @@ import { sharexRoutes } from './routes/sharex.js';
 import { authRoutes } from './routes/auth.js';
 import { adminRoutes } from './routes/admin.js';
 import { writeLog } from './services/log-service.js';
+import { sendError, createError } from './errors/index.js';
 
 const startTime = Date.now();
 
@@ -131,10 +132,7 @@ export async function buildApp(opts: AppOptions = {}) {
       message?: string;
     };
     if (error.validation) {
-      return reply.code(400).send({
-        error: 'Bad Request',
-        message: error.message,
-      });
+      return sendError(reply, createError('VALIDATION_ERROR', 'common.validation_error', 400, 'Bad Request', error.message));
     }
     const statusCode = error.statusCode || 500;
     if (statusCode >= 500) {
@@ -147,9 +145,10 @@ export async function buildApp(opts: AppOptions = {}) {
         err: error,
       });
     }
-    return reply
-      .code(statusCode)
-      .send({ error: error.message ?? 'Internal server error' });
+    return sendError(
+      reply,
+      createError('INTERNAL_ERROR', 'common.internal_error', statusCode, error.message ?? 'Internal server error'),
+    );
   });
 
   // Capture request/response logs for admin log viewer

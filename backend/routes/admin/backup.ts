@@ -8,6 +8,7 @@ import type { StorageProvider } from '../../services/storage/types.js';
 import { getStorageBackend, clearConfigCache, getBackupRetentionDays } from '../../config/index.js';
 import { recordAction } from '../../services/action-log-service.js';
 import { getSetting, upsertSetting } from '../../repositories/settings-repository.js';
+import { sendError, backupNotFoundError } from '../../errors/index.js';
 import { listBackupHistory } from '../../repositories/backup-repository.js';
 
 export async function adminBackupRoutes(app: FastifyInstance) {
@@ -44,7 +45,7 @@ export async function adminBackupRoutes(app: FastifyInstance) {
         .reverse();
 
       if (files.length === 0) {
-        return reply.code(404).send({ error: 'No backups found' });
+        return sendError(reply, backupNotFoundError());
       }
 
       const latest = files[0]!;
@@ -54,7 +55,7 @@ export async function adminBackupRoutes(app: FastifyInstance) {
       reply.header('Content-Disposition', `attachment; filename="${latest}"`);
       return reply.send(fs.createReadStream(filepath));
     } catch {
-      return reply.code(404).send({ error: 'No backups available' });
+      return sendError(reply, backupNotFoundError());
     }
   });
 

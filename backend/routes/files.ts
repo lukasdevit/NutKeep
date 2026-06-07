@@ -17,6 +17,7 @@ import {
   toggleFilePublic,
   deleteUserFile,
 } from '../services/files/file-listing-service.js';
+import { sendError, mapFileError, filePrivateError } from '../errors/index.js';
 
 const FILE_SERVE_RATE = 300;
 const FILE_LIST_RATE = 120;
@@ -41,7 +42,7 @@ export async function filesRoutes(app: FastifyInstance) {
           const token = getTokenFromHeader(request as FastifyRequest);
           const payload = token ? verifyToken(token) : null;
           if (!payload || payload.id !== file.user_id) {
-            return reply.code(403).send({ error: 'This file is private' });
+            return sendError(reply, filePrivateError());
           }
         }
 
@@ -99,9 +100,8 @@ export async function filesRoutes(app: FastifyInstance) {
         reply.header('Content-Length', file.size);
         return reply.send(stream);
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
         if (!reply.sent) {
-          return reply.code(e.statusCode || 404).send({ error: e.message || 'File missing from storage' });
+          return sendError(reply, mapFileError(err as Error));
         }
       }
     }
@@ -116,8 +116,7 @@ export async function filesRoutes(app: FastifyInstance) {
         const file = await getRandomFile(request.user!.id, type);
         return reply.send({ data: file });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapFileError(err as Error));
       }
     }
   );
@@ -152,7 +151,7 @@ export async function filesRoutes(app: FastifyInstance) {
         });
         return reply.send(result);
       } catch (err) {
-        return reply.code(500).send({ error: (err as Error).message });
+        return sendError(reply, mapFileError(err as Error));
       }
     }
   );
@@ -177,8 +176,7 @@ export async function filesRoutes(app: FastifyInstance) {
         const result = await toggleFilePublic(parseInt(id, 10), request.user!.id, is_public);
         return reply.send({ ok: true, ...result });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapFileError(err as Error));
       }
     }
   );
@@ -193,8 +191,7 @@ export async function filesRoutes(app: FastifyInstance) {
         await deleteUserFile(parseInt(id, 10), request.user!.id);
         return reply.send({ ok: true });
       } catch (err) {
-        const e = err as { statusCode?: number; message: string };
-        return reply.code(e.statusCode || 500).send({ error: e.message });
+        return sendError(reply, mapFileError(err as Error));
       }
     }
   );

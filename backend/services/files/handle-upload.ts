@@ -5,6 +5,7 @@ import { BASE_URL } from '../../config/index.js';
 import { sanitizeFilename } from '../../utils/sanitize-filename.js';
 import { validateFile } from '../../utils/validate-file.js';
 import { saveFile } from './save-file.js';
+import { ERROR_CODES } from '../../errors/codes.js';
 
 /** Shared upload handler (used by /upload and /sharex/upload). */
 export async function handleUpload(
@@ -17,7 +18,7 @@ export async function handleUpload(
 
   const validationError = validateFile(file.mimetype, originalName);
   if (validationError) {
-    throw Object.assign(new Error(validationError), { statusCode: 415 });
+    throw Object.assign(new Error(validationError), { code: ERROR_CODES.UPLOAD_UNSUPPORTED_TYPE });
   }
 
   const id = nanoid(10);
