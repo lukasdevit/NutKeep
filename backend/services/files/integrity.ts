@@ -95,7 +95,12 @@ export async function runIntegrityCheck(
         if (cloudSize !== dbFile.size) {
           insertRows.push(['size-mismatch', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, dbFile.path, dbFile.size, cloudSize]);
         }
-      } catch {
+      } catch (err) {
+        console.error(
+          `[integrity] cloud file unreachable: backend=${dbFile.storage_backend} ` +
+          `key=${dbFile.path} fileId=${dbFile.id} filename=${dbFile.filename} ` +
+          `error=${(err as Error).message}`
+        );
         insertRows.push(['missing-file', dbFile.id, dbFile.filename, dbFile.original_name, dbFile.user_id, null, dbFile.size, null]);
       }
     }
