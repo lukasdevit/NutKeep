@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { RowSkeleton } from '@/components/ui/RowSkeleton';
 import { getApiErrorMessage } from '@/lib/api-error';
+import { useTranslation, translate } from '@/i18n';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -20,23 +21,26 @@ interface AdminAction {
   undone: boolean;
 }
 
-const ACTION_LABELS: Record<string, string> = {
-  'delete-db': 'Deleted DB entry',
-  'delete-file': 'Deleted file',
-  import: 'Imported file',
-  migrate: 'Migrated file',
-  skip: 'Skipped issue',
-  'storage-config': 'Storage config',
-  'backup-run': 'Backup run',
-  'backup-upload': 'Backup upload',
-  'backup-delete': 'Backup delete',
-  'backup-restore': 'DB restore',
-  'logs-clear': 'Logs cleared',
-  'db-delete': 'DB row delete',
-  'user-create': 'User created',
-  'user-edit': 'User edited',
-  'user-delete': 'User deleted',
-};
+function getActionLabel(action: string): string {
+  const map: Record<string, string> = {
+    'delete-db': translate('ui.admin.action_deleted_db_entry', 'Deleted DB entry'),
+    'delete-file': translate('ui.admin.action_deleted_file', 'Deleted file'),
+    import: translate('ui.admin.action_imported_file', 'Imported file'),
+    migrate: translate('ui.admin.action_migrated_file', 'Migrated file'),
+    skip: translate('ui.admin.action_skipped_issue', 'Skipped issue'),
+    'storage-config': translate('ui.admin.action_storage_config', 'Storage config'),
+    'backup-run': translate('ui.admin.action_backup_run', 'Backup run'),
+    'backup-upload': translate('ui.admin.action_backup_upload', 'Backup upload'),
+    'backup-delete': translate('ui.admin.action_backup_delete', 'Backup delete'),
+    'backup-restore': translate('ui.admin.action_db_restore', 'DB restore'),
+    'logs-clear': translate('ui.admin.action_logs_cleared', 'Logs cleared'),
+    'db-delete': translate('ui.admin.action_db_row_delete', 'DB row delete'),
+    'user-create': translate('ui.admin.action_user_created', 'User created'),
+    'user-edit': translate('ui.admin.action_user_edited', 'User edited'),
+    'user-delete': translate('ui.admin.action_user_deleted', 'User deleted'),
+  };
+  return map[action] ?? action;
+}
 
 export function AdminActions({ apiFetch }: Props) {
   const { toast } = useToast();
@@ -44,6 +48,7 @@ export function AdminActions({ apiFetch }: Props) {
   const [loading, setLoading] = useState(true);
   const [undoing, setUndoing] = useState<number | null>(null);
   const [clearing, setClearing] = useState(false);
+  const { t } = useTranslation();
 
   const fetchActions = useCallback(() => {
     setLoading(true);
@@ -70,7 +75,7 @@ export function AdminActions({ apiFetch }: Props) {
       'user-delete',
     ];
     if (unUndoable.includes(action)) {
-      toast('This action cannot be undone', 'err');
+      toast(t('ui.admin.cannot_undo', 'This action cannot be undone'), 'err');
       return;
     }
     setUndoing(id);
@@ -172,7 +177,7 @@ export function AdminActions({ apiFetch }: Props) {
                                 : 'text-zinc-400'
                       }
                     >
-                      {ACTION_LABELS[a.action] || a.action}
+                      {getActionLabel(a.action)}
                     </span>
                   </td>
                   <td className="py-1.5 pr-3 text-zinc-500 max-w-75 truncate">

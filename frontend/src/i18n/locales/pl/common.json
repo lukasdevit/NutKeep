@@ -1,5 +1,10 @@
 {
   "common.internal_error": "Wystąpił wewnętrzny błąd serwera",
   "common.validation_error": "Nieprawidłowe dane wejściowe",
+  "common.close": "Zamknij",
+  "common.loading": "Ładowanie…",
+  "common.running": "Uruchamianie…",
+  "common.error": "Błąd",
+  "common.no_data": "Brak danych.",
   "settings.language": "Język"
 }

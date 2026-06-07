@@ -1,17 +1,20 @@
 'use client';
 
+import { useTranslation } from '@/i18n';
+
 interface Props {
   isPublic: boolean;
   onClick: (e: React.MouseEvent) => void;
 }
 
 export function VisibilityToggle({ isPublic, onClick }: Props) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
       onClick={onClick}
       className="pressable p-1.5 rounded-md text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200"
-      title={isPublic ? 'Make private' : 'Make public'}
+      title={isPublic ? t('ui.buttons.make_private', 'Make private') : t('ui.buttons.make_public', 'Make public')}
     >
       {isPublic ? (
         <svg

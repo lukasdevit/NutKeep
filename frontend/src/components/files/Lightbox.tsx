@@ -6,6 +6,7 @@ import { DeleteButton } from '@/components/ui/DeleteButton';
 import { VisibilityToggle } from '@/components/ui/VisibilityToggle';
 import { OpenInNewTab } from '@/components/ui/OpenInNewTab';
 import { CopyButton } from '@/components/ui/CopyButton';
+import { useTranslation } from '@/i18n';
 
 interface Props {
   image: FileInfo;
@@ -38,6 +39,7 @@ export function Lightbox({
   onDelete,
   onTogglePublic,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
@@ -47,7 +49,7 @@ export function Lightbox({
     >
       <button
         type="button"
-        aria-label="Close"
+        aria-label={t('ui.common.close', 'Close')}
         className="absolute top-4 right-4 z-10 p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
         onClick={onClose}
       >
@@ -68,7 +70,7 @@ export function Lightbox({
       {hasPrev && (
         <button
           type="button"
-          aria-label="Previous image"
+          aria-label={t('ui.files.previous_image', 'Previous image')}
           className="absolute left-4 z-10 p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
           onClick={(e) => {
             e.stopPropagation();
@@ -93,7 +95,7 @@ export function Lightbox({
       {hasNext && (
         <button
           type="button"
-          aria-label="Next image"
+          aria-label={t('ui.files.next_image', 'Next image')}
           className="absolute right-4 z-10 p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
           onClick={(e) => {
             e.stopPropagation();

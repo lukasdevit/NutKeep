@@ -54,33 +54,33 @@ export function SettingsPage({ apiFetch }: Props) {
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{t('ui.settings.title', 'Settings')}</h1>
         <p className="text-sm text-zinc-500 mt-1">
-          Manage your account, storage, and integrations.
+          {t('ui.settings.subtitle', 'Manage your account, storage, and integrations.')}
         </p>
       </div>
 
       {/* Metric cards */}
       <div className="grid grid-cols-3 gap-3">
         <MetricCard
-          label="Storage Used"
+          label={t('ui.settings.storage_used', 'Storage Used')}
           value={storage ? formatSize(storage.used) : '—'}
           loading={storageLoading}
         />
         <MetricCard
-          label="Storage Limit"
+          label={t('ui.settings.storage_limit', 'Storage Limit')}
           value={storage ? formatSize(storage.limit) : '—'}
           loading={storageLoading}
         />
         <MetricCard
-          label="Usage"
+          label={t('ui.settings.usage', 'Usage')}
           value={storage ? `${usagePercent.toFixed(0)}%` : '—'}
           loading={storageLoading}
           sub={
             usagePercent > 90
-              ? 'Almost full'
+              ? t('ui.settings.almost_full', 'Almost full')
               : usagePercent > 70
-                ? 'Running low'
+                ? t('ui.settings.running_low', 'Running low')
                 : undefined
           }
         />
@@ -88,7 +88,7 @@ export function SettingsPage({ apiFetch }: Props) {
 
       {/* Storage bar */}
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
-        <h2 className="text-base font-semibold text-zinc-200">Storage Usage</h2>
+        <h2 className="text-base font-semibold text-zinc-200">{t('ui.settings.storage_usage', 'Storage Usage')}</h2>
         {storageLoading ? (
           <div className="h-3 bg-zinc-800 rounded-full animate-pulse-subtle" />
         ) : storage ? (
@@ -108,30 +108,29 @@ export function SettingsPage({ apiFetch }: Props) {
               />
             </div>
             <div className="flex justify-between text-xs text-zinc-500">
-              <span>{formatSize(storage.used)} used</span>
-              <span>{formatSize(storage.limit)} total</span>
+              <span>{t('ui.settings.used', '{used} used').replace('{used}', formatSize(storage.used))}</span>
+              <span>{t('ui.settings.total', '{total} total').replace('{total}', formatSize(storage.limit))}</span>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-zinc-500">Failed to load storage info</p>
+          <p className="text-sm text-zinc-500">{t('ui.settings.storage_load_error', 'Failed to load storage info')}</p>
         )}
       </section>
 
       {/* ShareX */}
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
         <h2 className="text-base font-semibold text-zinc-200">
-          ShareX Integration
+          {t('ui.settings.sharex_integration', 'ShareX Integration')}
         </h2>
         <p className="text-sm text-zinc-400">
-          Download your personalized ShareX config file. Import it into ShareX
-          under Destinations → Custom uploader settings.
+          {t('ui.settings.sharex_desc', 'Download your personalized ShareX config file. Import it into ShareX under Destinations → Custom uploader settings.')}
         </p>
         <button
           type="button"
           onClick={downloadShareXConfig}
           className="px-4 py-2 rounded-md text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white transition-colors"
         >
-          Download ShareX Config
+          {t('ui.settings.download_sharex_config', 'Download ShareX Config')}
         </button>
       </section>
 
@@ -151,7 +150,7 @@ export function SettingsPage({ apiFetch }: Props) {
       {/* Change Password */}
       <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
         <h2 className="text-base font-semibold text-zinc-200">
-          Change Password
+          {t('ui.settings.change_password', 'Change Password')}
         </h2>
         <form onSubmit={handleChangePassword} className="space-y-4">
           <div>
@@ -159,7 +158,7 @@ export function SettingsPage({ apiFetch }: Props) {
               htmlFor="current-password"
               className="block text-sm text-zinc-400 mb-1"
             >
-              Current Password
+              {t('ui.settings.current_password', 'Current Password')}
             </label>
             <input
               id="current-password"
@@ -175,7 +174,7 @@ export function SettingsPage({ apiFetch }: Props) {
               htmlFor="new-password"
               className="block text-sm text-zinc-400 mb-1"
             >
-              New Password
+              {t('ui.settings.new_password', 'New Password')}
             </label>
             <input
               id="new-password"
@@ -191,7 +190,7 @@ export function SettingsPage({ apiFetch }: Props) {
             type="submit"
             className="px-4 py-2 rounded-md text-sm font-medium bg-zinc-700 hover:bg-zinc-600 text-zinc-200 transition-colors"
           >
-            Update Password
+            {t('ui.settings.update_password', 'Update Password')}
           </button>
         </form>
       </section>

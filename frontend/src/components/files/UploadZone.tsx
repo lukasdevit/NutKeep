@@ -5,6 +5,7 @@ import { useUppyUpload } from '@/hooks/use-uppy-upload';
 import { useFileUpload } from '@/hooks/use-file-upload';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useGlowEffect } from '@/hooks/use-glow-effect';
+import { useTranslation } from '@/i18n';
 
 interface Props {
   s3Enabled: boolean;
@@ -20,6 +21,7 @@ export function UploadZone({ s3Enabled, token, onUploadComplete }: Props) {
   const { api } = useAuth();
   const uppy = useUppyUpload(s3Enabled, token, onUploadComplete);
   const legacy = useFileUpload(api, token);
+  const { t } = useTranslation();
 
   const uploading = s3Enabled ? uppy.uploading : legacy.uploading;
   const uploadProgress = s3Enabled ? uppy.uploadProgress : legacy.uploadProgress;
@@ -79,7 +81,9 @@ export function UploadZone({ s3Enabled, token, onUploadComplete }: Props) {
               />
             </div>
             <span className="text-xs text-zinc-400">
-              {uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Processing...'}
+              {uploadProgress < 100
+                ? `${t('ui.files.uploading', 'Uploading…')} ${uploadProgress}%`
+                : t('ui.files.processing', 'Processing…')}
             </span>
           </div>
         ) : (
@@ -91,19 +95,19 @@ export function UploadZone({ s3Enabled, token, onUploadComplete }: Props) {
               </svg>
             </div>
             <span className={`text-sm font-medium transition-colors ${dragOver ? 'text-blue-300' : 'text-zinc-400'}`}>
-              {dragOver ? 'Drop to upload' : 'Drop a file here or click to browse'}
+              {dragOver ? t('ui.files.drop_to_upload', 'Drop to upload') : t('ui.files.drop_here', 'Drop a file here or click to browse')}
             </span>
           </>
         )}
-        <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple aria-label="Choose files to upload" />
+        <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple aria-label={t('ui.files.choose_files', 'Choose files to upload')} />
         <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 px-3 py-2 bg-zinc-800/40 border-t border-zinc-700/40" onClick={(e) => e.stopPropagation()}>
-          <span className="text-[11px] text-zinc-500 whitespace-nowrap">Auto-delete:</span>
+          <span className="text-[11px] text-zinc-500 whitespace-nowrap">{t('ui.files.auto_delete', 'Auto-delete:')}</span>
           <select value={expireDays} onChange={(e) => setExpireDays(e.target.value)} className="bg-transparent text-zinc-400 text-[11px] focus:outline-none cursor-pointer">
-            <option value="">Never</option>
-            <option value="1">After 1 day</option>
-            <option value="7">After 7 days</option>
-            <option value="30">After 30 days</option>
-            <option value="90">After 90 days</option>
+            <option value="">{t('ui.files.never', 'Never')}</option>
+            <option value="1">{t('ui.files.after_1_day', 'After 1 day')}</option>
+            <option value="7">{t('ui.files.after_7_days', 'After 7 days')}</option>
+            <option value="30">{t('ui.files.after_30_days', 'After 30 days')}</option>
+            <option value="90">{t('ui.files.after_90_days', 'After 90 days')}</option>
           </select>
         </div>
       </div>

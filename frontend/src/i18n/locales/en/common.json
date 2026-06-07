@@ -1,5 +1,10 @@
 {
   "common.internal_error": "An internal server error occurred",
   "common.validation_error": "Invalid input data",
+  "common.close": "Close",
+  "common.loading": "Loading…",
+  "common.running": "Running…",
+  "common.error": "Error",
+  "common.no_data": "No data yet.",
   "settings.language": "Language"
 }

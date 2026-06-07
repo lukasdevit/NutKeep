@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Users, FileText, HardDrive, UploadCloud } from 'lucide-react';
 import { formatSize } from '@/lib/utils';
+import { useTranslation } from '@/i18n';
 
 interface DailyPoint {
   day: string;
@@ -36,6 +37,7 @@ interface Props {
 export function Analytics({ apiFetch }: Props) {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     apiFetch('/admin/analytics')
@@ -50,13 +52,13 @@ export function Analytics({ apiFetch }: Props) {
   if (loading)
     return (
       <section className="card">
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="text-sm text-zinc-500">{t('ui.common.loading', 'Loading…')}</p>
       </section>
     );
   if (!data)
     return (
       <section className="card">
-        <p className="text-sm text-red-400">Failed to load analytics.</p>
+        <p className="text-sm text-red-400">{t('ui.common.error', 'Error')}</p>
       </section>
     );
 
@@ -66,22 +68,22 @@ export function Analytics({ apiFetch }: Props) {
 
   return (
     <div className="space-y-6">
-      <OverviewCards data={data} />
-      <UploadsChart daily={data.daily} maxCount={maxDayCount} />
+      <OverviewCards data={data} t={t} />
+      <UploadsChart daily={data.daily} maxCount={maxDayCount} t={t} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <TopUsers users={data.top_users} maxBytes={maxTopBytes} />
+        <TopUsers users={data.top_users} maxBytes={maxTopBytes} t={t} />
         <FileTypes categories={data.categories} maxBytes={maxCatBytes} />
       </div>
     </div>
   );
 }
 
-function OverviewCards({ data }: { data: AnalyticsData }) {
+function OverviewCards({ data, t }: { data: AnalyticsData; t: (key: string, fallback?: string) => string }) {
   const cards = [
-    { label: 'Users', value: data.users, Icon: Users },
-    { label: 'Total Files', value: data.total_files, Icon: FileText },
-    { label: 'Storage Used', value: formatSize(data.total_bytes), Icon: HardDrive },
-    { label: 'Uploads Today', value: data.uploads_today, Icon: UploadCloud },
+    { label: t('ui.admin.users', 'Users'), value: data.users, Icon: Users },
+    { label: t('ui.admin.total_files', 'Total Files'), value: data.total_files, Icon: FileText },
+    { label: t('ui.admin.storage_used', 'Storage Used'), value: formatSize(data.total_bytes), Icon: HardDrive },
+    { label: t('ui.admin.uploads_today', 'Uploads Today'), value: data.uploads_today, Icon: UploadCloud },
   ];
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -103,17 +105,19 @@ function OverviewCards({ data }: { data: AnalyticsData }) {
 function UploadsChart({
   daily,
   maxCount,
+  t,
 }: {
   daily: DailyPoint[];
   maxCount: number;
+  t: (key: string, fallback?: string) => string;
 }) {
   return (
     <section className="card">
       <h3 className="text-sm font-medium text-zinc-300 mb-3">
-        Uploads — Last 30 Days
+        {t('ui.admin.uploads_30_days', 'Uploads — Last 30 Days')}
       </h3>
       {daily.length === 0 ? (
-        <p className="text-xs text-zinc-500">No data yet.</p>
+        <p className="text-xs text-zinc-500">{t('ui.common.no_data', 'No data yet.')}</p>
       ) : (
         <div className="flex items-end gap-0.5 h-32">
           {daily.map((d) => (
@@ -140,13 +144,13 @@ function UploadsChart({
   );
 }
 
-function TopUsers({ users, maxBytes }: { users: TopUser[]; maxBytes: number }) {
+function TopUsers({ users, maxBytes, t }: { users: TopUser[]; maxBytes: number; t: (key: string, fallback?: string) => string }) {
   const active = users.filter((u) => u.bytes > 0);
   return (
     <section className="card">
-      <h3 className="text-sm font-medium text-zinc-300 mb-3">Top Users</h3>
+      <h3 className="text-sm font-medium text-zinc-300 mb-3">{t('ui.admin.top_users', 'Top Users')}</h3>
       {active.length === 0 ? (
-        <p className="text-xs text-zinc-500">No files uploaded yet.</p>
+        <p className="text-xs text-zinc-500">{t('ui.admin.no_files_uploaded', 'No files uploaded yet.')}</p>
       ) : (
         <div className="space-y-2">
           {active.map((u, i) => (

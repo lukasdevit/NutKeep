@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from '@/i18n';
+
 interface Props {
   page: number;
   totalPages: number;
@@ -10,10 +12,13 @@ interface Props {
 }
 
 export function Pagination({ page, totalPages, total, onPrev, onNext, label }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between pt-2">
       <span className="text-xs text-zinc-600">
-        {label}: <span className="text-zinc-500 font-medium">{total}</span> total
+        {t('ui.pagination.total', '{label}: {total} total')
+          .replace('{label}', label)
+          .replace('{total}', String(total))}
       </span>
       <div className="flex items-center gap-1.5">
         <button
@@ -22,7 +27,7 @@ export function Pagination({ page, totalPages, total, onPrev, onNext, label }: P
           disabled={page <= 1}
           className="pressable px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-800/60 hover:bg-zinc-700/80 text-zinc-400 hover:text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          ← Prev
+          {t('ui.pagination.prev', '← Prev')}
         </button>
         <span className="text-xs text-zinc-600 tabular-nums px-1">
           {page}/{totalPages}
@@ -33,7 +38,7 @@ export function Pagination({ page, totalPages, total, onPrev, onNext, label }: P
           disabled={page >= totalPages}
           className="pressable px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-800/60 hover:bg-zinc-700/80 text-zinc-400 hover:text-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          Next →
+          {t('ui.pagination.next', 'Next →')}
         </button>
       </div>
     </div>

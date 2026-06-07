@@ -4,43 +4,9 @@ import { useDemoLogin } from '@/hooks/use-demo-login';
 import { useGlowEffect } from '@/hooks/use-glow-effect';
 import { UploadCloud, Link, Image, LayoutDashboard } from 'lucide-react';
 import { BrandLogo } from '@/components/BrandLogo';
+import { useTranslation } from '@/i18n';
 import type { ReactNode } from 'react';
 import type { ComponentType } from 'react';
-
-const features = [
-  {
-    icon: UploadCloud,
-    title: 'Drag, drop, done',
-    desc: 'Drag, drop, done. Images, docs, archives — share anything with a link in seconds.',
-    gradient: 'from-violet-500/20 to-fuchsia-500/10',
-    iconBg: 'bg-violet-500/15 text-violet-400',
-    glow: 'glow-violet',
-  },
-  {
-    icon: Link,
-    title: 'ShareX ready',
-    desc: 'One-click config. Screenshot → upload → link. The fastest way to share from your desktop.',
-    gradient: 'from-violet-500/20 to-purple-500/10',
-    iconBg: 'bg-violet-500/15 text-violet-400',
-    glow: 'glow-violet',
-  },
-  {
-    icon: Image,
-    title: 'Gallery with lightbox',
-    desc: 'Browse images in a clean gallery with fullscreen view, keyboard navigation, and instant previews.',
-    gradient: 'from-amber-500/20 to-orange-500/10',
-    iconBg: 'bg-amber-500/15 text-amber-400',
-    glow: 'glow-amber',
-  },
-  {
-    icon: LayoutDashboard,
-    title: 'Admin dashboard',
-    desc: 'Manage users, check analytics, run backups. Full control, no fluff.',
-    gradient: 'from-emerald-500/20 to-green-500/10',
-    iconBg: 'bg-emerald-500/15 text-emerald-400',
-    glow: 'glow-emerald',
-  },
-];
 
 function GlowCard({ glow, gradient, children }: { glow: string; gradient: string; children: ReactNode }) {
   const { ref, onMouseMove, onMouseLeave } = useGlowEffect<HTMLDivElement>();
@@ -59,6 +25,42 @@ function GlowCard({ glow, gradient, children }: { glow: string; gradient: string
 
 export function LandingPage({ onLogin }: { onLogin: () => void }) {
   const { loading: demoLoading, error: demoError, handleTryDemo } = useDemoLogin();
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: UploadCloud,
+      title: t('ui.landing.feature_drag_drop_title', 'Drag, drop, done'),
+      desc: t('ui.landing.feature_drag_drop_desc', 'Images, docs, archives — share anything with a link in seconds.'),
+      gradient: 'from-violet-500/20 to-fuchsia-500/10',
+      iconBg: 'bg-violet-500/15 text-violet-400',
+      glow: 'glow-violet',
+    },
+    {
+      icon: Link,
+      title: t('ui.landing.feature_sharex_title', 'ShareX ready'),
+      desc: t('ui.landing.feature_sharex_desc', 'One-click config. Screenshot → upload → link. The fastest way to share from your desktop.'),
+      gradient: 'from-violet-500/20 to-purple-500/10',
+      iconBg: 'bg-violet-500/15 text-violet-400',
+      glow: 'glow-violet',
+    },
+    {
+      icon: Image,
+      title: t('ui.landing.feature_gallery_title', 'Gallery with lightbox'),
+      desc: t('ui.landing.feature_gallery_desc', 'Browse images in a clean gallery with fullscreen view, keyboard navigation, and instant previews.'),
+      gradient: 'from-amber-500/20 to-orange-500/10',
+      iconBg: 'bg-amber-500/15 text-amber-400',
+      glow: 'glow-amber',
+    },
+    {
+      icon: LayoutDashboard,
+      title: t('ui.landing.feature_admin_title', 'Admin dashboard'),
+      desc: t('ui.landing.feature_admin_desc', 'Manage users, check analytics, run backups. Full control, no fluff.'),
+      gradient: 'from-emerald-500/20 to-green-500/10',
+      iconBg: 'bg-emerald-500/15 text-emerald-400',
+      glow: 'glow-emerald',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -75,8 +77,7 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <p className="relative text-base sm:text-lg text-zinc-400 max-w-xl mb-8 leading-relaxed">
-          Drop files. Share links. That's it.{' '}
-          A clean, fast file sharing app — no clutter, no noise, no surprises.
+          {t('ui.landing.hero_subtitle', "Drop files. Share links. That's it. A clean, fast file sharing app — no clutter, no noise, no surprises.")}
         </p>
 
         <div className="flex gap-3 mb-6">
@@ -86,14 +87,14 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
             disabled={demoLoading}
             className="pressable px-6 py-2.5 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white hover:shadow-lg hover:shadow-violet-500/20 disabled:opacity-50"
           >
-            {demoLoading ? 'Signing in…' : 'Try Demo'}
+            {demoLoading ? t('ui.landing.signing_in', 'Signing in…') : t('ui.landing.try_demo', 'Try Demo')}
           </button>
           <button
             type="button"
             onClick={onLogin}
             className="pressable px-6 py-2.5 rounded-lg text-sm font-medium border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-zinc-100"
           >
-            Sign In →
+            {t('ui.landing.sign_in', 'Sign In →')}
           </button>
         </div>
 
@@ -103,7 +104,7 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
       {/* ── Features ── */}
       <section className="max-w-4xl mx-auto px-4 pt-16 pb-24">
         <h2 className="text-center text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-10">
-          Everything you need, nothing you don&apos;t
+          {t('ui.landing.section_heading', "Everything you need, nothing you don't")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {features.map((f) => (
@@ -126,14 +127,14 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
           href="https://github.com/lukasdevit/linqoy"
           className="hover:text-zinc-400 transition-colors"
         >
-          GitHub
+          {t('ui.landing.github', 'GitHub')}
         </a>
         <span className="mx-2">·</span>
         <a
           href="https://github.com/lukasdevit/linqoy#readme"
           className="hover:text-zinc-400 transition-colors"
         >
-          Readme
+          {t('ui.landing.readme', 'Readme')}
         </a>
       </footer>
     </div>
