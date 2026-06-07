@@ -1,11 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import { parsePagination } from '../../utils/index.js';
 import { recordAction } from '../../services/action-log-service.js';
-import { clearConfigCache, getStorageBackend } from '../../config/index.js';
+import { clearConfigCache, getStorageBackend, DEFAULT_UPLOAD_DIR } from '../../config/index.js';
 import { getSetting, upsertSetting } from '../../repositories/settings-repository.js';
 import { findById } from '../../repositories/user-repository.js';
 import { findFilesNotOnBackend, updateFileBackendAndPath } from '../../repositories/file-repository.js';
 import { resolveProvider, buildStorageKey } from '../../services/storage/index.js';
+import { LocalStorage } from '../../services/storage/local.js';
 import {
   createUser,
   listUsersPaginated,
@@ -204,7 +205,12 @@ export async function adminUserRoutes(app: FastifyInstance) {
 
         for (const file of files) {
           try {
-            const oldProvider = resolveProvider(file.storage_backend);
+            // resolveProvider('local') uses _cachedLocalPath which is polluted
+            // with the cloud prefix when the current backend is R2/B2.
+            // Always use DEFAULT_UPLOAD_DIR for local source files.
+            const oldProvider = file.storage_backend === 'local'
+              ? new LocalStorage(DEFAULT_UPLOAD_DIR)
+              : resolveProvider(file.storage_backend);
             const newKey = await buildStorageKey(user.username, file.filename);
 
             // Read from old backend → write to new backend
