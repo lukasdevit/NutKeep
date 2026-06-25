@@ -90,7 +90,7 @@ export function CreateUserForm({
             htmlFor="new-max-file-size"
             className="block text-xs text-zinc-500 mb-1"
           >
-            Max File Size (MB, optional)
+            Max File Size (GB, optional)
           </label>
           <input
             id="new-max-file-size"
@@ -102,6 +102,7 @@ export function CreateUserForm({
             className="input-sm"
             placeholder="0 = unlimited"
             min="0"
+            step="0.1"
           />
         </div>
         <div>

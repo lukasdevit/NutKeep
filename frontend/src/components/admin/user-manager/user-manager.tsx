@@ -112,7 +112,7 @@ export function UserManager({ apiFetch }: Props) {
       u.storage_limit > 0 ? u.storage_limit / 1024 / 1024 / 1024 : 0
     );
     setEditMaxFileSize(
-      u.max_file_size ? u.max_file_size / 1024 / 1024 : 0
+      u.max_file_size ? u.max_file_size / 1024 / 1024 / 1024 : 0
     );
     setEditAdmin(u.is_admin === 1);
     setEditPassword('');
@@ -129,7 +129,7 @@ export function UserManager({ apiFetch }: Props) {
     }
     if (editMaxFileSize >= 0) {
       body.max_file_size =
-        editMaxFileSize > 0 ? Math.round(editMaxFileSize * 1024 * 1024) : 0;
+        editMaxFileSize > 0 ? Math.round(editMaxFileSize * 1024 * 1024 * 1024) : 0;
     }
     if (editAdmin !== (users.find((u) => u.id === editId)?.is_admin === 1))
       body.is_admin = editAdmin;
@@ -227,7 +227,7 @@ export function UserManager({ apiFetch }: Props) {
           newStorageLimit > 0 ? Math.round(limitNum * 1024 * 1024 * 1024) : 0;
       }
       if (newMaxFileSize > 0) {
-        body.max_file_size = Math.round(newMaxFileSize * 1024 * 1024);
+        body.max_file_size = Math.round(newMaxFileSize * 1024 * 1024 * 1024);
       }
 
       const r = await apiFetch('/admin/users', {

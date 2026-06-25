@@ -86,7 +86,7 @@ export function UserEditForm({
             min="0"
           />
           <span className="text-xs text-zinc-600">
-            {formatSize(Number(editStorage) || 0)}
+            {editStorage > 0 ? `${editStorage} GB` : 'unlimited'}
           </span>
         </div>
         <div>
@@ -94,7 +94,7 @@ export function UserEditForm({
             htmlFor={`edit-max-file-size-${user.id}`}
             className="block text-xs text-zinc-500 mb-1"
           >
-            Max File Size (MB)
+            Max File Size (GB)
           </label>
           <input
             id={`edit-max-file-size-${user.id}`}
@@ -103,10 +103,11 @@ export function UserEditForm({
             onChange={(e) => onMaxFileSizeChange(Number(e.target.value) || 0)}
             className="input-sm"
             min="0"
+            step="0.1"
             placeholder="0 = unlimited"
           />
           <span className="text-xs text-zinc-600">
-            {editMaxFileSize > 0 ? formatSize(editMaxFileSize * 1024 * 1024) : 'unlimited'}
+            {editMaxFileSize > 0 ? `${editMaxFileSize} GB` : 'unlimited'}
           </span>
         </div>
         <div>

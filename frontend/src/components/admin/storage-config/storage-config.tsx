@@ -106,8 +106,8 @@ export function StorageConfig({ apiFetch }: Props) {
         const initForm: Record<string, string> = {
           backend: d.backend || 'local',
           storage_path: String(d.storage_path ?? ''),
-          total_storage_limit: String(d.total_storage_limit ?? 0),
-          max_file_size: String(d.max_file_size ?? 0),
+          total_storage_limit: String(d.total_storage_limit > 0 ? (d.total_storage_limit / 1073741824).toFixed(1) : 0),
+          max_file_size: String(d.max_file_size > 0 ? (d.max_file_size / 1073741824).toFixed(1) : 0),
           s3_upload_enabled: String(d.s3_upload_enabled === true),
         };
         for (const key of d.setting_keys || []) {
@@ -135,7 +135,15 @@ export function StorageConfig({ apiFetch }: Props) {
     setSaving(true);
     try {
       const payload: Record<string, string> = {};
-      for (const k of keys) payload[k] = form[k] ?? '';
+      for (const k of keys) {
+        let val = form[k] ?? '';
+        // Convert GB → bytes for size fields
+        if (k === 'total_storage_limit' || k === 'max_file_size') {
+          const gb = parseFloat(val) || 0;
+          val = gb > 0 ? String(Math.round(gb * 1073741824)) : '0';
+        }
+        payload[k] = val;
+      }
       const r = await apiFetch('/admin/storage', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -325,15 +333,16 @@ export function StorageConfig({ apiFetch }: Props) {
 
         <div className="mt-3">
           <label htmlFor="total-storage-limit" className="block text-xs text-zinc-500 mb-1">
-            Total App Storage Limit (bytes, 0 = unlimited)
+            Total App Storage Limit (GB, 0 = unlimited)
           </label>
           <input
             id="total-storage-limit"
             type="number"
             min="0"
+            step="0.1"
             value={form.total_storage_limit || '0'}
             onChange={(e) => setForm({ ...form, total_storage_limit: e.target.value })}
-            className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500 font-mono"
+            className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
           />
           <p className="text-xs text-zinc-600 mt-1">
             0 = unlimited. Current usage shown in the metrics above.
@@ -342,18 +351,19 @@ export function StorageConfig({ apiFetch }: Props) {
 
         <div className="mt-3">
           <label htmlFor="max-file-size" className="block text-xs text-zinc-500 mb-1">
-            Global Max File Size (bytes, 0 = unlimited)
+            Global Max File Size (GB, 0 = unlimited)
           </label>
           <input
             id="max-file-size"
             type="number"
             min="0"
+            step="0.1"
             value={form.max_file_size || '0'}
             onChange={(e) => setForm({ ...form, max_file_size: e.target.value })}
-            className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500 font-mono"
+            className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500"
           />
           <p className="text-xs text-zinc-600 mt-1">
-            0 = unlimited. Per-user overrides take precedence. Set to e.g. 104857600 for 100 MB.
+            0 = unlimited. Per-user overrides take precedence.
           </p>
         </div>
 
