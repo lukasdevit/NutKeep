@@ -203,3 +203,78 @@ describe('PATCH /admin/users/demo-config', () => {
       .expect(403);
   });
 });
+
+describe('max_file_size (per-user)', () => {
+  it('creates a user with max_file_size', async () => {
+    const res = await request
+      .post('/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ username: 'sizelimited', password: 'testpass123', max_file_size: 1048576 })
+      .expect(200);
+
+    expect(res.body).toHaveProperty('id');
+
+    const list = await request
+      .get('/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    const u = list.body.users.find((u: any) => u.username === 'sizelimited');
+    expect(u).toBeDefined();
+    expect(u.max_file_size).toBe(1048576);
+  });
+
+  it('creates a user without max_file_size (defaults to null)', async () => {
+    const res = await request
+      .post('/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ username: 'nosizelimit', password: 'testpass123' })
+      .expect(200);
+
+    const list = await request
+      .get('/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    const u = list.body.users.find((u: any) => u.username === 'nosizelimit');
+    expect(u).toBeDefined();
+    expect(u.max_file_size).toBeNull();
+  });
+
+  it('updates max_file_size via PATCH', async () => {
+    await request
+      .patch(`/admin/users/${userId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ max_file_size: 5242880 })
+      .expect(200);
+
+    const list = await request
+      .get('/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    const u = list.body.users.find((u: any) => u.id === userId);
+    expect(u.max_file_size).toBe(5242880);
+  });
+
+  it('clears max_file_size by setting to 0', async () => {
+    await request
+      .patch(`/admin/users/${userId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ max_file_size: 0 })
+      .expect(200);
+
+    const list = await request
+      .get('/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    const u = list.body.users.find((u: any) => u.id === userId);
+    expect(u.max_file_size).toBeNull();
+  });
+
+  it('rejects negative max_file_size', async () => {
+    const res = await request
+      .patch(`/admin/users/${userId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ max_file_size: -1 })
+      .expect(400);
+    expect(res.body.details).toMatch(/0|negative/);
+  });
+});

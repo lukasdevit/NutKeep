@@ -49,9 +49,18 @@ export const MAX_FAILED_LOGINS = 5;
 export const LOCKOUT_MINUTES = 1;
 
 export const DEFAULT_STORAGE_LIMIT = 10 * 1024 * 1024 * 1024; // 10 GB per user
+export const DEFAULT_MAX_FILE_SIZE = 0; // 0 = unlimited (no global max file size by default)
 export async function getTotalStorageLimit(): Promise<number> {
   const db = await loadDbSettings();
   const raw = db['total_storage_limit'] || '0';
+  const parsed = parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0; // 0 = unlimited
+}
+
+/** Get the global max file size in bytes from DB settings. 0 = unlimited. */
+export async function getMaxFileSize(): Promise<number> {
+  const db = await loadDbSettings();
+  const raw = db['max_file_size'] || String(DEFAULT_MAX_FILE_SIZE);
   const parsed = parseInt(raw, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 0; // 0 = unlimited
 }

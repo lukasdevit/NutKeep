@@ -5,6 +5,8 @@ interface Props {
   user: User;
   editStorage: number;
   onStorageChange: (v: number) => void;
+  editMaxFileSize: number;
+  onMaxFileSizeChange: (v: number) => void;
   editAdmin: boolean;
   onAdminChange: (v: boolean) => void;
   editPassword: string;
@@ -26,6 +28,8 @@ export function UserEditForm({
   user,
   editStorage,
   onStorageChange,
+  editMaxFileSize,
+  onMaxFileSizeChange,
   editAdmin,
   onAdminChange,
   editPassword,
@@ -83,6 +87,26 @@ export function UserEditForm({
           />
           <span className="text-xs text-zinc-600">
             {formatSize(Number(editStorage) || 0)}
+          </span>
+        </div>
+        <div>
+          <label
+            htmlFor={`edit-max-file-size-${user.id}`}
+            className="block text-xs text-zinc-500 mb-1"
+          >
+            Max File Size (MB)
+          </label>
+          <input
+            id={`edit-max-file-size-${user.id}`}
+            type="number"
+            value={editMaxFileSize}
+            onChange={(e) => onMaxFileSizeChange(Number(e.target.value) || 0)}
+            className="input-sm"
+            min="0"
+            placeholder="0 = unlimited"
+          />
+          <span className="text-xs text-zinc-600">
+            {editMaxFileSize > 0 ? formatSize(editMaxFileSize * 1024 * 1024) : 'unlimited'}
           </span>
         </div>
         <div>

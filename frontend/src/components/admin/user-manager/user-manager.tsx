@@ -25,6 +25,7 @@ export function UserManager({ apiFetch }: Props) {
   // Edit state
   const [editId, setEditId] = useState<number | null>(null);
   const [editStorage, setEditStorage] = useState(0);
+  const [editMaxFileSize, setEditMaxFileSize] = useState(0);
   const [editAdmin, setEditAdmin] = useState(false);
   const [editPassword, setEditPassword] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -35,6 +36,7 @@ export function UserManager({ apiFetch }: Props) {
   const [newPassword, setNewPassword] = useState('');
   const [newIsAdmin, setNewIsAdmin] = useState(false);
   const [newStorageLimit, setNewStorageLimit] = useState(10);
+  const [newMaxFileSize, setNewMaxFileSize] = useState(0);
 
   // Registration toggles
   const [registrationsOpen, setRegistrationsOpen] = useState(true);
@@ -109,6 +111,9 @@ export function UserManager({ apiFetch }: Props) {
     setEditStorage(
       u.storage_limit > 0 ? u.storage_limit / 1024 / 1024 / 1024 : 0
     );
+    setEditMaxFileSize(
+      u.max_file_size ? u.max_file_size / 1024 / 1024 : 0
+    );
     setEditAdmin(u.is_admin === 1);
     setEditPassword('');
   }
@@ -121,6 +126,10 @@ export function UserManager({ apiFetch }: Props) {
     if (editStorage >= 0) {
       body.storage_limit =
         editStorage > 0 ? Math.round(limitNum * 1024 * 1024 * 1024) : 0;
+    }
+    if (editMaxFileSize >= 0) {
+      body.max_file_size =
+        editMaxFileSize > 0 ? Math.round(editMaxFileSize * 1024 * 1024) : 0;
     }
     if (editAdmin !== (users.find((u) => u.id === editId)?.is_admin === 1))
       body.is_admin = editAdmin;
@@ -217,6 +226,9 @@ export function UserManager({ apiFetch }: Props) {
         body.storage_limit =
           newStorageLimit > 0 ? Math.round(limitNum * 1024 * 1024 * 1024) : 0;
       }
+      if (newMaxFileSize > 0) {
+        body.max_file_size = Math.round(newMaxFileSize * 1024 * 1024);
+      }
 
       const r = await apiFetch('/admin/users', {
         method: 'POST',
@@ -231,6 +243,7 @@ export function UserManager({ apiFetch }: Props) {
       setNewPassword('');
       setNewIsAdmin(false);
       setNewStorageLimit(10);
+      setNewMaxFileSize(0);
       await fetchUsers(page, search);
     } catch (err) {
       toast((err as Error).message, 'err');
@@ -337,6 +350,8 @@ export function UserManager({ apiFetch }: Props) {
           onAdminChange={setNewIsAdmin}
           newStorageLimit={newStorageLimit}
           onStorageLimitChange={setNewStorageLimit}
+          newMaxFileSize={newMaxFileSize}
+          onMaxFileSizeChange={setNewMaxFileSize}
           onSubmit={handleCreate}
         />
       )}
@@ -399,6 +414,8 @@ export function UserManager({ apiFetch }: Props) {
                     user={editingUser}
                     editStorage={editStorage}
                     onStorageChange={setEditStorage}
+                    editMaxFileSize={editMaxFileSize}
+                    onMaxFileSizeChange={setEditMaxFileSize}
                     editAdmin={editAdmin}
                     onAdminChange={setEditAdmin}
                     editPassword={editPassword}

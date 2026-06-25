@@ -7,6 +7,8 @@ interface Props {
   onAdminChange: (v: boolean) => void;
   newStorageLimit: number;
   onStorageLimitChange: (v: number) => void;
+  newMaxFileSize: number;
+  onMaxFileSizeChange: (v: number) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -19,6 +21,8 @@ export function CreateUserForm({
   onAdminChange,
   newStorageLimit,
   onStorageLimitChange,
+  newMaxFileSize,
+  onMaxFileSizeChange,
   onSubmit,
 }: Props) {
   return (
@@ -78,6 +82,25 @@ export function CreateUserForm({
             }
             className="input-sm"
             placeholder="Default: 10 GB"
+            min="0"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="new-max-file-size"
+            className="block text-xs text-zinc-500 mb-1"
+          >
+            Max File Size (MB, optional)
+          </label>
+          <input
+            id="new-max-file-size"
+            type="number"
+            value={newMaxFileSize}
+            onChange={(e) =>
+              onMaxFileSizeChange(Number(e.target.value) || 0)
+            }
+            className="input-sm"
+            placeholder="0 = unlimited"
             min="0"
           />
         </div>

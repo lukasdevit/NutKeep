@@ -16,6 +16,7 @@ interface StorageData {
   backend: string;
   default_storage_limit: number;
   total_storage_limit: number;
+  max_file_size: number;
   available_backends: Record<string, string>;
   setting_keys: string[];
   cors_supported: boolean;
@@ -106,6 +107,7 @@ export function StorageConfig({ apiFetch }: Props) {
           backend: d.backend || 'local',
           storage_path: String(d.storage_path ?? ''),
           total_storage_limit: String(d.total_storage_limit ?? 0),
+          max_file_size: String(d.max_file_size ?? 0),
           s3_upload_enabled: String(d.s3_upload_enabled === true),
         };
         for (const key of d.setting_keys || []) {
@@ -338,10 +340,27 @@ export function StorageConfig({ apiFetch }: Props) {
           </p>
         </div>
 
+        <div className="mt-3">
+          <label htmlFor="max-file-size" className="block text-xs text-zinc-500 mb-1">
+            Global Max File Size (bytes, 0 = unlimited)
+          </label>
+          <input
+            id="max-file-size"
+            type="number"
+            min="0"
+            value={form.max_file_size || '0'}
+            onChange={(e) => setForm({ ...form, max_file_size: e.target.value })}
+            className="w-full sm:w-64 px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-violet-500 font-mono"
+          />
+          <p className="text-xs text-zinc-600 mt-1">
+            0 = unlimited. Per-user overrides take precedence. Set to e.g. 104857600 for 100 MB.
+          </p>
+        </div>
+
         <div className="flex justify-end pt-2">
           <button
             type="button"
-            onClick={() => saveSection(['storage_path', 'total_storage_limit'])}
+            onClick={() => saveSection(['storage_path', 'total_storage_limit', 'max_file_size'])}
             disabled={saving}
             className="btn-green text-xs"
           >

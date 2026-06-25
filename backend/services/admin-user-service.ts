@@ -22,6 +22,7 @@ export async function createUser(params: {
   password: string;
   isAdmin?: boolean;
   storageLimit?: number;
+  maxFileSize?: number | null;
 }, adminUsername?: string) {
   const hash = await bcrypt.hash(params.password, BCRYPT_ROUNDS);
   const limit = params.storageLimit && params.storageLimit > 0
@@ -33,6 +34,7 @@ export async function createUser(params: {
       username: params.username,
       passwordHash: hash,
       storageLimit: limit,
+      ...(params.maxFileSize !== undefined ? { maxFileSize: params.maxFileSize } : {}),
       isAdmin: !!params.isAdmin,
     });
     if (adminUsername) {
@@ -75,6 +77,7 @@ export async function listUsersPaginated(opts: {
 
 export async function editUser(userId: number, changes: {
   storageLimit?: number;
+  maxFileSize?: number | null;
   isAdmin?: boolean;
   newPassword?: string;
 }, adminUsername?: string) {
@@ -84,6 +87,7 @@ export async function editUser(userId: number, changes: {
 
   const result = await updateUser(userId, {
     ...(changes.storageLimit !== undefined ? { storageLimit: changes.storageLimit } : {}),
+    ...(changes.maxFileSize !== undefined ? { maxFileSize: changes.maxFileSize } : {}),
     ...(changes.isAdmin !== undefined ? { isAdmin: changes.isAdmin } : {}),
     ...(passwordHash !== undefined ? { passwordHash } : {}),
   });

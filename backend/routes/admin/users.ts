@@ -52,6 +52,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
         password: { type: 'string', minLength: 6 },
         is_admin: { type: 'boolean' },
         storage_limit: { type: 'number', minimum: 1 },
+        max_file_size: { type: 'number', minimum: 0 },
       },
     },
   };
@@ -62,6 +63,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
       minProperties: 1,
       properties: {
         storage_limit: { type: 'number', minimum: 0 },
+        max_file_size: { type: 'number', minimum: 0 },
         is_admin: { type: 'boolean' },
         new_password: { type: 'string', minLength: 6 },
       },
@@ -72,11 +74,12 @@ export async function adminUserRoutes(app: FastifyInstance) {
     '/admin/users',
     { schema: createUserSchema },
     async (request, reply) => {
-      const { username, password, is_admin, storage_limit } = request.body as {
+      const { username, password, is_admin, storage_limit, max_file_size } = request.body as {
         username: string;
         password: string;
         is_admin?: boolean;
         storage_limit?: number;
+        max_file_size?: number;
       };
 
       try {
@@ -86,6 +89,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
             password,
             ...(is_admin !== undefined ? { isAdmin: is_admin } : {}),
             ...(storage_limit !== undefined ? { storageLimit: storage_limit } : {}),
+            ...(max_file_size !== undefined ? { maxFileSize: max_file_size > 0 ? max_file_size : null } : {}),
           },
           request.user?.username
         );
@@ -113,8 +117,9 @@ export async function adminUserRoutes(app: FastifyInstance) {
     { schema: patchUserSchema },
     async (request, reply) => {
       const { id } = request.params as { id: string };
-      const { storage_limit, is_admin, new_password } = request.body as {
+      const { storage_limit, max_file_size, is_admin, new_password } = request.body as {
         storage_limit?: number;
+        max_file_size?: number;
         is_admin?: boolean;
         new_password?: string;
       };
@@ -124,6 +129,7 @@ export async function adminUserRoutes(app: FastifyInstance) {
           parseInt(id, 10),
           {
             ...(storage_limit !== undefined ? { storageLimit: storage_limit } : {}),
+            ...(max_file_size !== undefined ? { maxFileSize: max_file_size > 0 ? max_file_size : null } : {}),
             ...(is_admin !== undefined ? { isAdmin: is_admin } : {}),
             ...(new_password !== undefined ? { newPassword: new_password } : {}),
           },

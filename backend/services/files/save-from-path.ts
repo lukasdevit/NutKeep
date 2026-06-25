@@ -4,7 +4,10 @@ import { checkStorageQuota } from './quota.js';
 import { finalizeFile } from './finalize.js';
 import { scanFile } from '../../utils/scan.js';
 import { getStorage, buildStorageKey } from '../storage/index.js';
+import { getMaxFileSize } from '../../config/index.js';
+import { getMaxFileSize as getUserMaxFileSize } from '../../repositories/user-repository.js';
 import { ERROR_CODES } from '../../errors/codes.js';
+import { formatBytes } from '../../utils/index.js';
 
 /**
  * Core file finalization: virus scan → storage save → DB record.
@@ -29,6 +32,19 @@ export async function saveFromPath(
     throw Object.assign(
       new Error(`Size mismatch: expected ${expectedSize}, got ${size}`),
       { code: ERROR_CODES.UPLOAD_SIZE_MISMATCH }
+    );
+  }
+
+  // Check per-user max file size first, then fall back to global max file size
+  const userMaxFileSize = await getUserMaxFileSize(userId);
+  const effectiveMaxFileSize = userMaxFileSize !== null
+    ? userMaxFileSize
+    : await getMaxFileSize();
+
+  if (effectiveMaxFileSize > 0 && size > effectiveMaxFileSize) {
+    throw Object.assign(
+      new Error(`File too large. Max allowed size is ${formatBytes(effectiveMaxFileSize)}.`),
+      { code: ERROR_CODES.UPLOAD_FILE_TOO_LARGE }
     );
   }
 
