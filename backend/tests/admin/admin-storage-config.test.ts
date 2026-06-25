@@ -35,6 +35,27 @@ describe('PATCH /admin/storage', () => {
       .send({})
       .expect(400);
   });
+
+  it('updates global max_file_size', async () => {
+    const res = await request
+      .patch('/admin/storage')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ max_file_size: '104857600' })
+      .expect(200);
+
+    expect(res.body.ok).toBe(true);
+    expect(res.body.updated).toContain('max_file_size');
+  });
+
+  it('returns max_file_size in GET response', async () => {
+    const res = await request
+      .get('/admin/storage')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+
+    expect(res.body).toHaveProperty('max_file_size');
+    expect(res.body.max_file_size).toBe(104857600);
+  });
 });
 
 describe('GET /admin/analytics', () => {

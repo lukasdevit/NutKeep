@@ -13,6 +13,7 @@ export function mapUploadError(err: Error) {
     // Storage errors
     if (code === 'UPLOAD_QUOTA_SERVER') return createError('UPLOAD_QUOTA_SERVER', 'upload.quota_server', 507, msg);
     if (code === 'UPLOAD_QUOTA_USER') return createError('UPLOAD_QUOTA_USER', 'upload.quota_user', 413, msg);
+    if (code === 'UPLOAD_FILE_TOO_LARGE') return createError('UPLOAD_FILE_TOO_LARGE', 'upload.file_too_large', 413, msg);
     if (code === 'UPLOAD_UNSUPPORTED_TYPE') return createError('UPLOAD_UNSUPPORTED_TYPE', 'upload.unsupported_type', 415, msg);
     if (code === 'UPLOAD_SIZE_MISMATCH') return createError('UPLOAD_SIZE_MISMATCH', 'upload.size_mismatch', 400, msg);
     if (code === 'UPLOAD_MALWARE_DETECTED') return createError('UPLOAD_MALWARE_DETECTED', 'upload.malware_detected', 422, msg);
@@ -32,6 +33,10 @@ export function mapUploadError(err: Error) {
 
   if (msg.includes('quota exceeded') || msg.includes('Storage quota')) {
     return createError('UPLOAD_QUOTA_USER', 'upload.quota_user', 413, msg);
+  }
+
+  if (msg.includes('File too large') || msg.includes('exceeds max file size') || msg.includes('file size limit')) {
+    return createError('UPLOAD_FILE_TOO_LARGE', 'upload.file_too_large', 413, msg);
   }
 
   if (msg.includes('malware') || msg.includes('could not be uploaded')) {

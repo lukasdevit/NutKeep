@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { MetricCard, MetricGrid } from '@/components/ui/MetricCard';
 import { DeleteButton } from '@/components/ui/DeleteButton';
 import { CardSkeleton } from '@/components/ui/CardSkeleton';
+import { useTranslation, translate } from '@/i18n';
 
 interface Props {
   apiFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -59,11 +60,15 @@ const TYPE_ICONS: Record<string, string> = {
   'orphaned-file': '👻',
   'size-mismatch': '⚠️',
 };
-const TYPE_DESC: Record<string, string> = {
-  'missing-file': 'DB entry exists but file missing from disk',
-  'orphaned-file': 'File on disk has no DB entry',
-  'size-mismatch': 'DB size ≠ disk size',
-};
+
+function getTypeDesc(type: string): string {
+  const map: Record<string, string> = {
+    'missing-file': translate('ui.admin.missing_file', 'DB entry exists but file missing from disk'),
+    'orphaned-file': translate('ui.admin.orphaned_file', 'File on disk has no DB entry'),
+    'size-mismatch': translate('ui.admin.size_mismatch', 'DB size ≠ disk size'),
+  };
+  return map[type] ?? type;
+}
 
 export function IntegrityCheck({ apiFetch }: Props) {
   const { toast } = useToast();
@@ -722,7 +727,7 @@ function IssueRow({
               <span className="text-zinc-600">User #{issue.userId}</span>
             )}
           </div>
-          <p className="text-zinc-500">{TYPE_DESC[issue.type]}</p>
+          <p className="text-zinc-500">{getTypeDesc(issue.type)}</p>
           {issue.originalName && (
             <p className="text-zinc-400 truncate">
               {issue.originalName} ({issue.filename})

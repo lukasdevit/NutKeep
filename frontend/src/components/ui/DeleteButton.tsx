@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from '@/i18n';
+
 interface Props {
   id: number;
   confirming: boolean;
@@ -7,6 +9,7 @@ interface Props {
 }
 
 export function DeleteButton({ id, confirming, onClick }: Props) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -17,7 +20,7 @@ export function DeleteButton({ id, confirming, onClick }: Props) {
           : 'bg-zinc-800 hover:bg-red-800 text-zinc-400 hover:text-red-400'
       }`}
     >
-      {confirming ? 'Confirm?' : 'Delete'}
+      {confirming ? t('ui.buttons.confirm', 'Confirm?') : t('ui.buttons.delete', 'Delete')}
     </button>
   );
 }

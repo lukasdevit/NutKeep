@@ -9,6 +9,31 @@ import {
   type ReactNode,
 } from 'react';
 
+// ── Static imports — guaranteed to be bundled correctly ──
+import enCommon from '@/i18n/locales/en/common.json';
+import enUi from '@/i18n/locales/en/ui.json';
+import enCors from '@/i18n/locales/en/cors.json';
+import enAuth from '@/i18n/locales/en/auth.json';
+import enFile from '@/i18n/locales/en/file.json';
+import enUpload from '@/i18n/locales/en/upload.json';
+import enStorage from '@/i18n/locales/en/storage.json';
+import enDb from '@/i18n/locales/en/db.json';
+import enIntegrity from '@/i18n/locales/en/integrity.json';
+import enBackup from '@/i18n/locales/en/backup.json';
+import enAction from '@/i18n/locales/en/action.json';
+
+import plCommon from '@/i18n/locales/pl/common.json';
+import plUi from '@/i18n/locales/pl/ui.json';
+import plCors from '@/i18n/locales/pl/cors.json';
+import plAuth from '@/i18n/locales/pl/auth.json';
+import plFile from '@/i18n/locales/pl/file.json';
+import plUpload from '@/i18n/locales/pl/upload.json';
+import plStorage from '@/i18n/locales/pl/storage.json';
+import plDb from '@/i18n/locales/pl/db.json';
+import plIntegrity from '@/i18n/locales/pl/integrity.json';
+import plBackup from '@/i18n/locales/pl/backup.json';
+import plAction from '@/i18n/locales/pl/action.json';
+
 type Locale = 'en' | 'pl';
 type Translations = Record<string, string>;
 
@@ -24,34 +49,24 @@ const I18nContext = createContext<{
 
 const LOCALE_STORAGE_KEY = 'linqoy-locale';
 
-const DOMAINS = ['cors', 'auth', 'file', 'upload', 'storage', 'db', 'integrity', 'backup', 'action', 'common'] as const;
-
-function loadTranslations(locale: Locale): Translations {
+function mergeChunks(chunks: Translations[]): Translations {
   const merged: Translations = {};
-  for (const domain of DOMAINS) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const chunk = require(`@/i18n/locales/${locale}/${domain}.json`);
-      Object.assign(merged, chunk);
-    } catch {
-      // domain file missing — skip
-    }
+  for (const chunk of chunks) {
+    Object.assign(merged, chunk);
   }
   return merged;
 }
 
-// Preload both to avoid flicker
+// Preload both locales from static imports — guaranteed to work
 const translationsCache: Record<Locale, Translations> = {
-  en: loadTranslations('en'),
-  pl: loadTranslations('pl'),
+  en: mergeChunks([enCommon, enUi, enCors, enAuth, enFile, enUpload, enStorage, enDb, enIntegrity, enBackup, enAction]),
+  pl: mergeChunks([plCommon, plUi, plCors, plAuth, plFile, plUpload, plStorage, plDb, plIntegrity, plBackup, plAction]),
 };
 
 function detectLocale(): Locale {
   if (typeof window === 'undefined') return 'en';
   const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
   if (stored === 'pl' || stored === 'en') return stored;
-  const navLang = navigator.language.toLowerCase();
-  if (navLang.startsWith('pl')) return 'pl';
   return 'en';
 }
 
@@ -90,8 +105,6 @@ export function getLocale(): Locale {
   if (typeof window === 'undefined') return 'en';
   const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
   if (stored === 'pl' || stored === 'en') return stored as Locale;
-  const navLang = navigator.language.toLowerCase();
-  if (navLang.startsWith('pl')) return 'pl';
   return 'en';
 }
 

@@ -21,19 +21,20 @@ import { StorageBar } from '@/components/files/StorageBar';
 import { LayoutGrid, Image, Music, Film, File, Search, CloudUpload, Eye } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useDashboard } from '@/features/dashboard/DashboardProvider';
+import { useTranslation } from '@/i18n';
 import type { FilesViewMode } from '@/features/dashboard/DashboardProvider';
 
 const PAGE_SIZE = 9;
 
-const TABS = [
-  { key: 'all' as const, Icon: LayoutGrid, label: 'All' },
-  { key: 'images' as const, Icon: Image, label: 'Images' },
-  { key: 'audio' as const, Icon: Music, label: 'Audio' },
-  { key: 'video' as const, Icon: Film, label: 'Video' },
-  { key: 'file' as const, Icon: File, label: 'Files' },
-] as const;
+type TabKey = 'all' | 'images' | 'audio' | 'video' | 'file';
 
-function TabBar({ filesViewMode, setFilesViewMode }: { filesViewMode: FilesViewMode; setFilesViewMode: (m: FilesViewMode) => void }) {
+interface TabDef {
+  key: TabKey;
+  Icon: typeof LayoutGrid;
+  label: string;
+}
+
+function TabBar({ filesViewMode, setFilesViewMode, tabs }: { filesViewMode: FilesViewMode; setFilesViewMode: (m: FilesViewMode) => void; tabs: TabDef[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const [pill, setPill] = useState({ left: 0, width: 0 });
@@ -55,7 +56,7 @@ function TabBar({ filesViewMode, setFilesViewMode }: { filesViewMode: FilesViewM
         className="tab-pill absolute top-1 bottom-1 rounded-lg bg-zinc-700/80 shadow-sm"
         style={{ left: pill.left, width: pill.width }}
       />
-      {TABS.map(m => (
+      {tabs.map(m => (
         <button
           type="button"
           key={m.key}
@@ -78,6 +79,15 @@ function TabBar({ filesViewMode, setFilesViewMode }: { filesViewMode: FilesViewM
 export function FilesPanel() {
   const { user, api, token } = useAuth();
   const { filesViewMode, setFilesViewMode } = useDashboard();
+  const { t } = useTranslation();
+
+  const tabs: TabDef[] = [
+    { key: 'all', Icon: LayoutGrid, label: t('ui.files.tab_all', 'All') },
+    { key: 'images', Icon: Image, label: t('ui.files.tab_images', 'Images') },
+    { key: 'audio', Icon: Music, label: t('ui.files.tab_audio', 'Audio') },
+    { key: 'video', Icon: Film, label: t('ui.files.tab_video', 'Video') },
+    { key: 'file', Icon: File, label: t('ui.files.tab_files', 'Files') },
+  ];
 
   const {
     files, page: filePage, totalPages: fileTotalPages, total: fileTotal,
@@ -148,7 +158,7 @@ export function FilesPanel() {
         <div className="w-full bg-amber-500/8 border-b border-amber-500/15">
           <div className="max-w-4xl xl:max-w-6xl mx-auto px-4 py-2 flex items-center justify-center gap-2">
             <span className="text-xs text-amber-400/90">
-              Demo session — files are deleted when you close this tab. Storage limit: 100 MB.
+              {t('ui.files.demo_notice', 'Demo session — files are deleted when you close this tab. Storage limit: 100 MB.')}
             </span>
           </div>
         </div>
@@ -165,7 +175,7 @@ export function FilesPanel() {
       <div className={`w-full max-w-4xl xl:max-w-6xl mx-auto px-4 space-y-5 ${currentAudio ? 'pb-24' : 'pb-16'}`}>
         {/* Tabs + Search */}
         <div className="flex items-center gap-3">
-          <TabBar filesViewMode={filesViewMode} setFilesViewMode={setFilesViewMode} />
+          <TabBar filesViewMode={filesViewMode} setFilesViewMode={setFilesViewMode} tabs={tabs} />
           <div className="flex-1 relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" />
@@ -175,7 +185,7 @@ export function FilesPanel() {
               type="text" value={search}
               onChange={e => setSearch(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') fetchFiles(filesViewMode, 1, search); }}
-              placeholder="Search files..." aria-label="Search files"
+              placeholder={t('ui.files.search_files', 'Search files…')} aria-label={t('ui.files.search_label', 'Search files')}
               className="w-full pl-9 pr-8 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800/60 text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/50 focus:bg-zinc-900 transition-all"
             />
             {search && (
@@ -197,8 +207,8 @@ export function FilesPanel() {
         {isEmpty && (
           <EmptyState
             icon={<CloudUpload className="w-8 h-8 text-zinc-600" />}
-            title="No files yet"
-            description="Drop a file above or click the upload zone to get started."
+            title={t('ui.files.no_files_title', 'No files yet')}
+            description={t('ui.files.no_files_desc', 'Drop a file above or click the upload zone to get started.')}
           />
         )}
 
@@ -207,7 +217,7 @@ export function FilesPanel() {
           <>
             {filesViewMode === 'all' && (
               <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-1">
-                Images
+                {t('ui.files.section_images', 'Images')}
                 <span className="ml-1.5 text-zinc-600 font-normal">({imageTotal})</span>
               </h2>
             )}
@@ -224,7 +234,7 @@ export function FilesPanel() {
                 page={imagePage} totalPages={imageTotalPages} total={imageTotal}
                 onPrev={() => goToPage(filesViewMode, imagePage - 1)}
                 onNext={() => goToPage(filesViewMode, imagePage + 1)}
-                label="Images"
+                label={t('ui.files.section_images', 'Images')}
               />
             )}
           </>
@@ -233,7 +243,7 @@ export function FilesPanel() {
         {/* Audio / Video / Files — reusable FileSection */}
         <FileSection
           {...sectionProps}
-          label="Audio" files={audioFiles} total={audioTotal}
+          label={t('ui.files.section_audio', 'Audio')} files={audioFiles} total={audioTotal}
           page={audioPage} totalPages={audioTotalPages}
           currentAudioId={currentAudio?.id ?? null}
           showDivider={filesViewMode === 'all' && (imageFiles.length > 0 || videoFiles.length > 0)}
@@ -241,7 +251,7 @@ export function FilesPanel() {
         />
         <FileSection
           {...sectionProps}
-          label="Video" files={videoFiles} total={videoTotal}
+          label={t('ui.files.section_video', 'Video')} files={videoFiles} total={videoTotal}
           page={videoPage} totalPages={videoTotalPages}
           currentAudioId={null}
           showDivider={filesViewMode === 'all' && (imageFiles.length > 0 || audioFiles.length > 0)}
@@ -249,7 +259,7 @@ export function FilesPanel() {
         />
         <FileSection
           {...sectionProps}
-          label="Files" files={files} total={fileTotal}
+          label={t('ui.files.section_files', 'Files')} files={files} total={fileTotal}
           page={filePage} totalPages={fileTotalPages}
           currentAudioId={currentAudio?.id ?? null}
           showDivider={filesViewMode === 'all' && anyContent > 0}
@@ -257,7 +267,7 @@ export function FilesPanel() {
         />
 
         {search && !anyContent && (
-          <EmptyState icon={<Search className="w-8 h-8 text-zinc-600" />} title="No results" description={`No files matching "${search}"`} />
+          <EmptyState icon={<Search className="w-8 h-8 text-zinc-600" />} title={t('ui.files.no_results', 'No results')} description={t('ui.files.no_results_desc', 'No files matching "{query}"').replace('{query}', search)} />
         )}
         </div>
       </div>

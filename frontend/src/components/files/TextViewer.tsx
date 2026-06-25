@@ -7,6 +7,7 @@ import { formatSize } from '@/lib/utils';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { DeleteButton } from '@/components/ui/DeleteButton';
 import { OpenInNewTab } from '@/components/ui/OpenInNewTab';
+import { useTranslation } from '@/i18n';
 import type { FileInfo } from '@/types';
 
 interface Props {
@@ -28,6 +29,7 @@ export function TextViewer({
   onDelete,
   onCopyLink,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
@@ -59,7 +61,7 @@ export function TextViewer({
             />
             <button
               type="button"
-              aria-label="Close viewer"
+              aria-label={t('ui.files.close_viewer', 'Close viewer')}
               onClick={onClose}
               className="p-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
             >

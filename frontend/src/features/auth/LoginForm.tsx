@@ -2,6 +2,7 @@
 
 import { useGlowEffect } from '@/hooks/use-glow-effect';
 import { BrandLogo } from '@/components/BrandLogo';
+import { useTranslation } from '@/i18n';
 
 interface Props {
   mode: 'login' | 'register';
@@ -27,6 +28,7 @@ export function LoginForm({
   onBack,
 }: Props) {
   const { ref: glowRef, onMouseMove: glowMove, onMouseLeave: glowLeave } = useGlowEffect<HTMLDivElement>();
+  const { t } = useTranslation();
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto px-4 pb-32">
@@ -40,7 +42,7 @@ export function LoginForm({
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Back to home
+          {t('ui.auth.back_home', 'Back to home')}
         </button>
       )}
 
@@ -48,7 +50,7 @@ export function LoginForm({
         {/* Branding */}
         <div className="flex flex-col mb-8">
           <BrandLogo size="text-2xl" />
-          <p className="text-xs text-zinc-500 mt-1">File sharing that just works</p>
+          <p className="text-xs text-zinc-500 mt-1">{t('ui.auth.tagline', 'File sharing that just works')}</p>
         </div>
 
         {/* Card */}
@@ -60,20 +62,20 @@ export function LoginForm({
         >
           <p className="text-sm text-zinc-400 mb-5">
             {mode === 'login'
-              ? 'Welcome back. Sign in to access your files.'
-              : 'Create an account to start uploading.'}
+              ? t('ui.auth.sign_in_message', 'Welcome back. Sign in to access your files.')
+              : t('ui.auth.register_message', 'Create an account to start uploading.')}
           </p>
 
           <form onSubmit={onSubmit} className="space-y-3">
             <div>
               <label htmlFor="login-username" className="block text-xs font-medium text-zinc-500 mb-1.5">
-                Username
+                {t('ui.auth.username', 'Username')}
               </label>
               <input
                 id="login-username"
                 value={username}
                 onChange={(e) => onUsernameChange(e.target.value)}
-                placeholder="Enter your username"
+                placeholder={t('ui.auth.username_placeholder', 'Enter your username')}
                 autoComplete="username"
                 autoFocus
                 className="w-full px-3 py-2 rounded-lg text-sm bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-600 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition-all"
@@ -82,14 +84,14 @@ export function LoginForm({
 
             <div>
               <label htmlFor="login-password" className="block text-xs font-medium text-zinc-500 mb-1.5">
-                Password
+                {t('ui.auth.password', 'Password')}
               </label>
               <input
                 id="login-password"
                 type="password"
                 value={password}
                 onChange={(e) => onPasswordChange(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('ui.auth.password_placeholder', 'Enter your password')}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 className="w-full px-3 py-2 rounded-lg text-sm bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-600 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition-all"
               />
@@ -110,7 +112,7 @@ export function LoginForm({
               type="submit"
               className="w-full py-2.5 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white hover:shadow-lg hover:shadow-violet-500/20 active:scale-[0.98] transition-all duration-150"
             >
-              {mode === 'login' ? 'Sign in' : 'Create account'}
+              {mode === 'login' ? t('ui.auth.sign_in', 'Sign in') : t('ui.auth.create_account', 'Create account')}
             </button>
           </form>
         </div>
@@ -118,14 +120,14 @@ export function LoginForm({
         {/* Toggle login/register */}
         <p className="mt-5 text-center text-xs text-zinc-500">
           {mode === 'login'
-            ? "Don't have an account?"
-            : 'Already have an account?'}{' '}
+            ? t('ui.auth.no_account', "Don't have an account?")
+            : t('ui.auth.has_account', 'Already have an account?')}{' '}
           <button
             type="button"
             onClick={() => onModeChange(mode === 'login' ? 'register' : 'login')}
             className="pressable text-violet-400 hover:text-violet-300"
           >
-            {mode === 'login' ? 'Sign up' : 'Sign in'}
+            {mode === 'login' ? t('ui.auth.sign_up', 'Sign up') : t('ui.auth.sign_in', 'Sign in')}
           </button>
         </p>
       </div>

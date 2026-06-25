@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { ADMIN_TABS } from '@/config/constants';
 import { BrandLogo } from '@/components/BrandLogo';
+import { useTranslation } from '@/i18n';
 import type { AdminTab } from '@/config/constants';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -33,6 +34,7 @@ export function AdminSidebar({
   onToggleCollapse,
   onCloseMobile,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <aside
       className={`fixed lg:relative inset-y-0 left-0 z-50 flex flex-col transform transition-all duration-200 bg-zinc-950 border-r border-zinc-800 ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${collapsed ? 'w-16' : 'w-60'}`}
@@ -42,7 +44,7 @@ export function AdminSidebar({
         type="button"
         onClick={onToggleCollapse}
         className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 items-center justify-center transition-colors z-10"
-        title={`${collapsed ? 'Expand' : 'Collapse'} sidebar (⌘+\\)`}
+        title={collapsed ? t('ui.admin.sidebar_expand', 'Expand sidebar') : t('ui.admin.sidebar_collapse', 'Collapse sidebar')}
       >
         <svg
           className={`w-3 h-3 transition-transform ${collapsed ? 'rotate-180' : ''}`}
@@ -63,7 +65,7 @@ export function AdminSidebar({
           <>
             <div className="flex items-center gap-2">
               <BrandLogo size="text-sm" />
-              <span className="text-[10px] text-zinc-600 bg-zinc-800 rounded px-1.5 py-0.5">Admin</span>
+              <span className="text-[10px] text-zinc-600 bg-zinc-800 rounded px-1.5 py-0.5">{t('ui.admin.label', 'Admin')}</span>
             </div>
             <p className="text-xs text-zinc-500 mt-1 truncate">{username}</p>
           </>

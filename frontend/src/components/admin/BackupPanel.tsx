@@ -9,6 +9,7 @@ import { RowSkeleton } from '@/components/ui/RowSkeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { MetricCard, MetricGrid } from '@/components/ui/MetricCard';
 import { getApiErrorMessage } from '@/lib/api-error';
+import { useTranslation } from '@/i18n';
 
 interface BackupLog {
   id: number;
@@ -35,29 +36,30 @@ interface Props {
 export function BackupPanel({ apiFetch }: Props) {
   const { toast } = useToast();
   const [tab, setTab] = useState<PanelTab>('overview');
+  const { t } = useTranslation();
 
   return (
     <section className="card space-y-5">
       {/* Tab switcher */}
       <div className="flex gap-1 bg-zinc-800/50 rounded-lg p-1 w-fit">
-        {(['overview', 'manage'] as PanelTab[]).map((t) => (
+        {(['overview', 'manage'] as PanelTab[]).map((tb) => (
           <button
-            key={t}
+            key={tb}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => setTab(tb)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              tab === t
+              tab === tb
                 ? 'bg-zinc-700 text-zinc-100'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            {t === 'overview' ? 'Overview' : 'Manage Backups'}
+            {tb === 'overview' ? t('ui.admin.overview', 'Overview') : t('ui.admin.manage_backups', 'Manage Backups')}
           </button>
         ))}
       </div>
 
       {tab === 'overview' ? (
-        <BackupOverview apiFetch={apiFetch} toast={toast} />
+        <BackupOverview apiFetch={apiFetch} toast={toast} t={t} />
       ) : (
         <BackupManage apiFetch={apiFetch} toast={toast} />
       )}
@@ -70,9 +72,11 @@ export function BackupPanel({ apiFetch }: Props) {
 function BackupOverview({
   apiFetch,
   toast,
+  t,
 }: {
   apiFetch: Props['apiFetch'];
   toast: ReturnType<typeof useToast>['toast'];
+  t: (key: string, fallback?: string) => string;
 }) {
   const [logs, setLogs] = useState<BackupLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -188,12 +192,12 @@ function BackupOverview({
     <>
       <MetricGrid>
         <MetricCard
-          label="Total Backups"
+          label={t('ui.admin.total_backups', 'Total Backups')}
           value={logs.length}
           sub={logs.length > 0 ? `${successRate}% success rate` : undefined}
         />
         <MetricCard
-          label="Last Backup"
+          label={t('ui.admin.last_backup', 'Last Backup')}
           value={lastOk ? new Date(lastOk.timestamp).toLocaleDateString() : '—'}
           sub={
             lastOk ? new Date(lastOk.timestamp).toLocaleTimeString() : undefined
@@ -209,7 +213,7 @@ function BackupOverview({
           disabled={running}
           className="btn-violet text-xs"
         >
-          {running ? 'Running…' : 'Backup Now'}
+          {running ? t('ui.admin.run_backup_running', 'Running…') : t('ui.admin.run_backup', 'Run Backup Now')}
         </button>
         <button
           type="button"

@@ -7,6 +7,7 @@ export interface UserRow {
   is_admin: number;
   is_demo: number;
   storage_limit: number;
+  max_file_size: number | null;
   failed_logins: number;
   locked_until: string | null;
   created_at: string;
@@ -26,6 +27,7 @@ export interface UserStatsRow {
   username: string;
   created_at: string;
   storage_limit: number;
+  max_file_size: number | null;
   is_admin: number;
   used: number | null;
   file_count: number | null;
@@ -50,18 +52,21 @@ export async function insertUser(params: {
   username: string;
   passwordHash: string;
   storageLimit: number;
+  maxFileSize?: number | null;
   isAdmin?: boolean;
   isDemo?: boolean;
 }): Promise<number> {
+  const maxFileSize = params.maxFileSize !== undefined ? params.maxFileSize : null;
   const r = await dbRun(
-    `INSERT INTO users (username, password_hash, created_at, is_admin, storage_limit, is_demo)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO users (username, password_hash, created_at, is_admin, storage_limit, max_file_size, is_demo)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [
       params.username,
       params.passwordHash,
       new Date().toISOString(),
       params.isAdmin ? 1 : 0,
       params.storageLimit,
+      maxFileSize,
       params.isDemo ? 1 : 0,
     ]
   );
@@ -100,6 +105,15 @@ export async function getStorageLimit(id: number): Promise<number> {
     [id]
   );
   return row?.storage_limit ?? 0;
+}
+
+/** Get a user's max file size (bytes, null = use global default). */
+export async function getMaxFileSize(id: number): Promise<number | null> {
+  const row = await dbGet<{ max_file_size: number | null }>(
+    `SELECT max_file_size FROM users WHERE id = ?`,
+    [id]
+  );
+  return row?.max_file_size ?? null;
 }
 
 /** Count demo users created since a given timestamp (for rate limiting). */
@@ -159,7 +173,7 @@ export async function listUsersWithStats(
   const filter = search ? `WHERE u.username LIKE ?` : '';
   const params = search ? [`%${search}%`, limit, offset] : [limit, offset];
   return dbAll<UserStatsRow>(
-    `SELECT u.id, u.username, u.created_at, u.storage_limit, u.is_admin,
+    `SELECT u.id, u.username, u.created_at, u.storage_limit, u.max_file_size, u.is_admin,
             COALESCE(SUM(f.size), 0) AS used, COUNT(f.id) AS file_count
      FROM users u LEFT JOIN files f ON f.user_id = u.id ${filter}
      GROUP BY u.id ORDER BY u.id LIMIT ? OFFSET ?`,
@@ -167,17 +181,21 @@ export async function listUsersWithStats(
   );
 }
 
-/** Update user fields (storage_limit, is_admin, password_hash). */
+/** Update user fields (storage_limit, max_file_size, is_admin, password_hash). */
 export async function updateUser(
   id: number,
-  updates: { storageLimit?: number; isAdmin?: boolean; passwordHash?: string }
+  updates: { storageLimit?: number; maxFileSize?: number | null; isAdmin?: boolean; passwordHash?: string }
 ): Promise<number> {
   const sets: string[] = [];
-  const values: (number | string)[] = [];
+  const values: (number | string | null)[] = [];
 
   if (updates.storageLimit !== undefined) {
     sets.push('storage_limit = ?');
     values.push(updates.storageLimit);
+  }
+  if (updates.maxFileSize !== undefined) {
+    sets.push('max_file_size = ?');
+    values.push(updates.maxFileSize);
   }
   if (updates.isAdmin !== undefined) {
     sets.push('is_admin = ?');

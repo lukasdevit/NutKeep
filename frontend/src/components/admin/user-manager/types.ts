@@ -2,6 +2,7 @@ export interface User {
   id: number;
   username: string;
   storage_limit: number;
+  max_file_size: number | null;
   is_admin: number;
   used: number;
   file_count: number;

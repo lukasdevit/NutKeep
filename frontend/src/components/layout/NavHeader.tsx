@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useRouter, usePathname } from 'next/navigation';
 import { BrandLogo } from '@/components/BrandLogo';
+import { useTranslation } from '@/i18n';
 
 function CloudIcon() {
   return (
@@ -72,6 +73,7 @@ export function NavHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const navigate = useCallback(
     (path: string) => {
@@ -103,11 +105,11 @@ export function NavHeader() {
           <span className="text-sm text-zinc-500 mr-2">
             {user.username}
           </span>
-          <NavButton active={pathname === '/files'} icon={<CloudIcon />} label="Upload" highlight onClick={() => navigate('/files')} />
-          {user.isAdmin && <NavButton active={pathname === '/admin'} label="Admin" onClick={() => navigate('/admin')} />}
-          <NavButton active={pathname === '/settings'} label="Settings" onClick={() => navigate('/settings')} />
+          <NavButton active={pathname === '/files'} icon={<CloudIcon />} label={t('ui.nav.upload', 'Upload')} highlight onClick={() => navigate('/files')} />
+          {user.isAdmin && <NavButton active={pathname === '/admin'} label={t('ui.nav.admin', 'Admin')} onClick={() => navigate('/admin')} />}
+          <NavButton active={pathname === '/settings'} label={t('ui.nav.settings', 'Settings')} onClick={() => navigate('/settings')} />
           <button type="button" onClick={logout} className="pressable px-3.5 py-1.5 rounded-lg text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60 transition-all duration-200">
-            Logout
+            {t('ui.nav.logout', 'Logout')}
           </button>
         </div>
 
@@ -116,7 +118,7 @@ export function NavHeader() {
           type="button"
           className="pressable sm:hidden p-2 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-all duration-200"
           onClick={() => setMenuOpen((o) => !o)}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? t('ui.nav.close_menu', 'Close menu') : t('ui.nav.open_menu', 'Open menu')}
           aria-expanded={menuOpen}
         >
           <HamburgerIcon open={menuOpen} />
@@ -128,7 +130,7 @@ export function NavHeader() {
         <div className="sm:hidden absolute top-full left-0 right-0 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-xl shadow-2xl shadow-black/40 animate-slide-in">
           <div className="px-4 py-3 space-y-1 max-w-screen-2xl mx-auto">
             <div className="text-xs text-zinc-500 pb-2 border-b border-zinc-800/60 mb-1">
-              Signed in as <span className="text-zinc-400 font-medium">{user.username}</span>
+              {t('ui.nav.signed_in_as', 'Signed in as')} <span className="text-zinc-400 font-medium">{user.username}</span>
             </div>
 
             <button
@@ -141,7 +143,7 @@ export function NavHeader() {
               }`}
             >
               <CloudIcon />
-              Upload
+              {t('ui.nav.upload', 'Upload')}
             </button>
 
             {user.isAdmin && (
@@ -158,7 +160,7 @@ export function NavHeader() {
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                 </svg>
-                Admin
+                {t('ui.nav.admin', 'Admin')}
               </button>
             )}
 
@@ -175,7 +177,7 @@ export function NavHeader() {
                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-              Settings
+              {t('ui.nav.settings', 'Settings')}
             </button>
 
             <div className="pt-2 border-t border-zinc-800/60 mt-1">
@@ -189,7 +191,7 @@ export function NavHeader() {
                   <polyline points="16 17 21 12 16 7" />
                   <line x1="21" y1="12" x2="9" y2="12" />
                 </svg>
-                Logout
+                {t('ui.nav.logout', 'Logout')}
               </button>
             </div>
           </div>

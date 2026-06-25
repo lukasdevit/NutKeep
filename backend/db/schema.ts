@@ -28,6 +28,7 @@ export function initSchema(): Promise<void> {
         email TEXT,
         created_at TEXT NOT NULL,
         storage_limit INTEGER NOT NULL DEFAULT ${DEFAULT_STORAGE_LIMIT},
+        max_file_size INTEGER,
         is_admin INTEGER NOT NULL DEFAULT 0,
         failed_logins INTEGER NOT NULL DEFAULT 0,
         locked_until TEXT,
@@ -97,7 +98,20 @@ export function initSchema(): Promise<void> {
     `,
       (err) => {
         if (err) reject(err);
-        else resolve();
+        else {
+          // ── Migrations for existing databases ──
+          // Add max_file_size column if it doesn't exist (safe to run on new DBs too)
+          db.run(
+            `ALTER TABLE users ADD COLUMN max_file_size INTEGER`,
+            (alterErr) => {
+              // Ignore "duplicate column" errors — column already exists
+              if (alterErr && !alterErr.message.includes('duplicate column')) {
+                console.warn('Migration warning (max_file_size):', alterErr.message);
+              }
+              resolve();
+            }
+          );
+        }
       }
     );
   });
