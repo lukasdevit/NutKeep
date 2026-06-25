@@ -35,7 +35,6 @@ export function useUppyUpload(s3Enabled: boolean, token: string | null, onUpload
 
     const uppy = new Uppy({
       autoProceed: true,
-      restrictions: { maxFileSize: 5 * 1024 * 1024 * 1024 },
       onBeforeFileAdded: (file: any) => {
         file.meta = { ...file.meta, filename: file.name, mimeType: file.type || 'application/octet-stream' };
         return true;
